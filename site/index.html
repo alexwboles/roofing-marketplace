@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roofing Marketplace SPA – Open Maps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+  />
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.geometryutil/0.10.0/leaflet.geometryutil.min.js"></script>
+
+  <style>
+.btn-icon {
+  font-size: 18px;
+}
+
+/* Modern Primary Button */
+.btn-modern {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+
+  background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.15)
+    ),
+    var(--primary);
+  color: white;
+
+  font-size: var(--font-md);
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+  backdrop-filter: blur(12px);
+
+  transition: transform 140ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.35);
+}
+
+.btn-modern:active {
+  transform: translateY(0px) scale(0.97);
+}
+
+/* Ghost Button */
+.btn-ghost-modern {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--text);
+
+  font-size: var(--font-md);
+  cursor: pointer;
+
+  backdrop-filter: blur(12px);
+  transition: transform 140ms ease, background 160ms ease, color 160ms ease;
+}
+
+[data-theme="dark"] .btn-ghost-modern {
+  background: rgba(2, 6, 23, 0.4);
+}
+
+.btn-ghost-modern:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.btn-ghost-modern:active {
+  transform: translateY(0px) scale(0.97);
+}
+
+/* Modern Select Wrapper */
+.select-modern {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+/* Label */
+.select-modern label {
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Select Element */
+.select-modern select {
+  appearance: none;
+  padding: 12px 16px;
+  padding-right: 42px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px);
+  font-size: var(--font-md);
+  color: var(--text);
+  cursor: pointer;
+  transition: border 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+[data-theme="dark"] .select-modern select {
+  background: rgba(2, 6, 23, 0.55);
+}
+
+/* Hover + Focus */
+.select-modern select:hover {
+  border-color: var(--primary);
+}
+
+.select-modern select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* Dropdown Arrow */
+.select-modern::after {
+  content: "▾";
+  position: absolute;
+  right: 16px;
+  top: 38px;
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Option Styling */
+.select-modern select option {
+  background: var(--bg-elevated);
+  color: var(--text);
+  padding: 10px;
+  font-size: var(--font-md);
+}
+
+/* GROUP LABELS */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-right: 18px;
+}
+
+.nav-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-left: 6px;
+}
+
+/* SPACER pushes avatar + notifications to right */
+.nav-spacer {
+  flex: 1;
+}
+
+/* NOTIFICATIONS */
+.nav-notifications {
+  position: relative;
+  font-size: 20px;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+}
+
+/* AVATAR */
+.nav-avatar img {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 2px solid var(--primary-soft);
+  transition: transform 150ms ease;
+}
+
+.nav-avatar img:hover {
+  transform: scale(1.05);
+}
+
+/* PROFILE MENU */
+.profile-menu,
+.notif-menu {
+  position: absolute;
+  top: 58px;
+  right: 14px;
+  width: 200px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(18px);
+  z-index: 100;
+}
+
+.profile-menu.hidden,
+.notif-menu.hidden {
+  display: none;
+}
+
+.profile-menu-item,
+.notif-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  color: var(--text);
+  transition: background 150ms ease;
+}
+
+.profile-menu-item:hover,
+.notif-item:hover {
+  background: var(--primary-soft);
+}
+
+.profile-menu-separator {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 4px 0;
+}
+
+/* Modern top nav */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  margin: 10px auto 0;
+  max-width: 1100px;
+
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+[data-theme="dark"] .top-nav {
+  background: rgba(2, 6, 23, 0.55);
+}
+
+.top-nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* Nav links */
+.top-nav a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+
+  transition: color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.top-nav a:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+/* Active link styling */
+.top-nav a.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Icons */
+.nav-icon {
+  font-size: 16px;
+}
+
+/* Animated active indicator */
+.nav-active-indicator {
+  position: absolute;
+  bottom: 4px;
+  height: 4px;
+  width: 28px;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: transform 260ms ease, width 260ms ease;
+  pointer-events: none;
+}
+
+/* Sticky container */
+.stepper-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 12px 0;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.65);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Dark mode support */
+[data-theme="dark"] .stepper-sticky {
+  background: rgba(2, 6, 23, 0.65);
+}
+
+/* Stepper container */
+.stepper-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 12px;
+}
+
+/* Progress bar */
+.stepper-progress {
+  height: 4px;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.stepper-progress-bar {
+  height: 100%;
+  background: var(--primary);
+  transition: width 300ms ease;
+}
+
+/* Steps row */
+.stepper-steps {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Individual step */
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, transform 140ms ease;
+}
+
+.stepper-step:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Active step */
+.stepper-step.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Disabled step */
+.stepper-step.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+</style>
+
+/* Icons */
+.stepper-icon {
+  font-size: 16px;
+}
+
+    :root {
+      --bg: #f3f4f6;
+      --bg-elevated: #ffffff;
+      --bg-soft: #f9fafb;
+      --border-subtle: rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+      --shadow-strong: 0 18px 45px rgba(15, 23, 42, 0.16);
+
+      --primary: #2563eb;
+      --primary-soft: rgba(37, 99, 235, 0.1);
+      --primary-hover: #1d4ed8;
+      --accent: #10b981;
+
+      --text: #0f172a;
+      --text-muted: #6b7280;
+      --text-soft: #9ca3af;
+
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-pill: 999px;
+
+      --transition-fast: 150ms ease-out;
+      --transition-med: 220ms ease-out;
+
+      --font-lg: clamp(22px, 4vw, 30px);
+      --font-md: clamp(16px, 2.5vw, 19px);
+      --font-sm: clamp(13px, 2vw, 16px);
+    }
+
+    [data-theme="dark"] {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --bg-soft: #0f172a;
+      --border-subtle: rgba(148, 163, 184, 0.25);
+      --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.5);
+      --shadow-strong: 0 24px 80px rgba(0, 0, 0, 0.7);
+
+      --primary: #60a5fa;
+      --primary-soft: rgba(96, 165, 250, 0.16);
+      --primary-hover: #3b82f6;
+      --accent: #22c55e;
+
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --text-soft: #6b7280;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 60%), var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color var(--transition-med), color var(--transition-med);
+    }
+
+    .app-shell {
+      max-width: 1100px;
+      margin: 12px auto 0;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .app-brand-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 30%, #fee2e2, transparent),
+        linear-gradient(135deg, #1d4ed8, #22c55e);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+    }
+
+    .theme-toggle {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--font-sm);
+      color: var(--text-muted);
+    }
+
+    .theme-toggle button {
+      padding: 6px 10px;
+      margin: 0;
+      border-radius: var(--radius-pill);
+      background: rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    nav {
+      max-width: 1100px;
+      margin: 8px auto 0;
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.04);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-subtle);
+      overflow-x: auto;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav a {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background-color var(--transition-fast), color var(--transition-fast),
+        transform 80ms ease-out;
+    }
+
+    nav a.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    nav a:hover {
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    #view {
+      max-width: 1100px;
+      margin: 24px auto 32px;
+      padding: 24px 20px 28px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.04), transparent 55%),
+        var(--bg-elevated);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-subtle);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <div class="app-brand">
+      <div class="app-brand-badge"></div>
+      <span>Roofing Marketplace</span>
+    </div>
+    <div class="theme-toggle">
+      <span>Theme</span>
+      <button type="button" onclick="toggleTheme()">☀︎ / 🌙</button>
+    </div>
+  </div>
+
+ <nav id="nav" class="top-nav">
+
+  <!-- CLIENT GROUP -->
+  <div class="nav-group">
+    <div class="nav-group-label">Client</div>
+    <a href="#client" data-route="client">
+      <span class="nav-icon">🏠</span>
+      <span>Get Quotes</span>
+    </a>
+    <a href="#clientDashboard" data-route="clientDashboard">
+      <span class="nav-icon">📁</span>
+      <span>Dashboard</span>
+    </a>
+  </div>
+
+  <!-- ROOFER GROUP -->
+  <div class="nav-group">
+    <div class="nav-group-label">Roofer</div>
+    <a href="#rooferDashboard" data-route="rooferDashboard">
+      <span class="nav-icon">🛠️</span>
+      <span>Dashboard</span>
+    </a>
+    <a href="#loginRoofer" data-route="loginRoofer">
+      <span class="nav-icon">🔐</span>
+      <span>Login</span>
+    </a>
+  </div>
+
+  <!-- ADMIN GROUP -->
+  <div class="nav-group">
+    <div class="nav-group-label">Admin</div>
+    <a href="#admin" data-route="admin">
+      <span class="nav-icon">⚙️</span>
+      <span>Admin Panel</span>
+    </a>
+  </div>
+
+  <!-- SPACER -->
+  <div class="nav-spacer"></div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="nav-notifications" onclick="toggleNotifications()">
+    🔔
+    <span id="notifBadge" class="notif-badge">3</span>
+  </div>
+
+  <!-- PROFILE AVATAR -->
+  <div class="nav-avatar" onclick="toggleProfileMenu()">
+    <img src="https://api.dicebear.com/7.x/identicon/svg?seed=alex" />
+  </div>
+
+  <!-- PROFILE DROPDOWN -->
+  <div id="profileMenu" class="profile-menu hidden">
+    <div class="profile-menu-item" onclick="navigate('clientDashboard')">My Dashboard</div>
+    <div class="profile-menu-item" onclick="navigate('rooferDashboard')">Roofer Dashboard</div>
+    <div class="profile-menu-item" onclick="navigate('admin')">Admin Panel</div>
+    <div class="profile-menu-separator"></div>
+    <div class="profile-menu-item" onclick="firebaseLogout()">Sign Out</div>
+  </div>
+
+  <!-- NOTIFICATIONS DROPDOWN -->
+  <div id="notifMenu" class="notif-menu hidden">
+    <div class="notif-item">New quote available</div>
+    <div class="notif-item">Roofer replied to your message</div>
+    <div class="notif-item">Job #123 moved to Scheduled</div>
+  </div>
+
+  <div class="nav-active-indicator"></div>
+</nav>
+
+
+
+  <div id="view">Loading…</div>
+
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
+
