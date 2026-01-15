@@ -1,0 +1,179 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", Arial, sans-serif;
+    background: #f5f7fa;
+    color: #222;
+    line-height: 1.5;
+}
+
+header {
+    background: #1a73e8;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+nav a:hover {
+    opacity: 0.8;
+}
+
+#view {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+}
+
+button {
+    background: #1a73e8;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #155ec0;
+}
+
+button.secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+button.secondary:hover {
+    background: #cacaca;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 16px 0;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    font-size: 15px;
+    background: white;
+}
+
+label {
+    font-weight: 600;
+    margin-top: 10px;
+    display: block;
+}
+
+.card,
+.quote-card,
+.lead-card {
+    background: white;
+    padding: 18px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.quote-card h3,
+.lead-card h3 {
+    margin-top: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.home {
+    text-align: center;
+    padding-top: 40px;
+}
+
+.home h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.home p {
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+
+.intake h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.processing {
+    text-align: center;
+    padding-top: 40px;
+}
+
+.processing h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.quotes h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+.quote-card {
+    border-left: 5px solid #1a73e8;
+}
+
+.roofer-dashboard h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+#roofer-leads .lead-card {
+    border-left: 5px solid #34a853;
+}
+
+.admin h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+#admin-data {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    nav a {
+        margin: 10px;
+        display: inline-block;
+    }
+
+    #view {
+        padding: 15px;
+    }
+}
