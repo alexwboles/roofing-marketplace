@@ -1,11 +1,13 @@
 export async function onRequest(context) {
     const { request, env } = context
 
+    // Read session cookie
     const cookie = request.headers.get("Cookie") || ""
     const session = cookie.match(/session=([^;]+)/)?.[1]
 
     if (!session) return notLoggedIn()
 
+    // Load session data
     const sessionData = await env.SESSIONS.get(session, { type: "json" })
     if (!sessionData) return notLoggedIn()
 
@@ -13,10 +15,12 @@ export async function onRequest(context) {
 
     let user = null
 
+    // Load contractor
     if (type === "contractor") {
         user = await env.CONTRACTORS.get(email, { type: "json" })
     }
 
+    // Load client
     if (type === "client") {
         user = await env.CLIENTS.get(email, { type: "json" })
     }
