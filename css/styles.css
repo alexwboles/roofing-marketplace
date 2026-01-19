@@ -123,8 +123,41 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.08);
   transition: transform .2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .card:hover {
   transform: translateY(-4px);
+}
+
+/* PAGE LAYOUT */
+.page-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* UPLOAD BOX */
+.upload-box {
+  margin-top: 20px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.upload-box input {
+  margin-bottom: 20px;
+}
+
+/* PLACEHOLDER BOX */
+.placeholder-box {
+  margin-top: 20px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  text-align: center;
 }
