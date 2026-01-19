@@ -1,33 +1,25 @@
-export async function onRequest(context) {
+export async function onRequestPost(context) {
     const { request, env } = context
 
-    const cookie = request.headers.get("Cookie") || ""
-    const session = cookie.match(/session=([^;]+)/)?.[1]
+    const { contractorEmail, status } = await request.json()
 
-    if (!session) return unauthorized()
-
-    const sessionData = await env.SESSIONS.get(session, { type: "json" })
-    if (!sessionData) return unauthorized()
-
-    const { email, type } = sessionData
-    if (type !== "contractor") return unauthorized()
-
-    const contractor = await env.CONTRACTORS.get(email, { type: "json" })
-    if (!contractor) return unauthorized()
-
-    const billing = {
-        plan: contractor.plan || "trial",
-        subscriptionStatus: contractor.subscriptionStatus || "trial"
+    if (!contractorEmail || !status) {
+        return new Response("Missing fields", { status: 400 })
     }
 
-    return new Response(JSON.stringify(billing), {
-        headers: { "Content-Type": "application/json" }
-    })
-}
+    // Load contractor
+    const contractor = await env.CONTRACTORS.get(contractorEmail, { type: "json" })
+    if (!contractor) {
+        return new Response("Contractor not found", { status: 404 })
+    }
 
-function unauthorized() {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
+    // Update verification status
+    contractor.verificationStatus = status
+    contractor.updatedAt = Date.now()
+
+    await env.CONTRACTORS.put(contractorEmail, JSON.stringify(contractor))
+
+    return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" }
     })
 }
