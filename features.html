@@ -12,6 +12,7 @@
     <div class="nav-links">
       <a href="/">Overview</a>
       <a href="features.html" class="active">Features</a>
+      <a href="#/lookup">Home Lookup</a>
       <a href="#/intake">Upload Roof Photos</a>
       <a href="#/login">Roofer Login</a>
     </div>
@@ -20,18 +21,18 @@
   <div class="page-container">
     <h1>All‑in‑One Roof Health & Quotes</h1>
     <p>
-      Roofing Marketplace makes it as easy as LendingTree: upload photos, get an AI roof health check,
-      and receive quotes from verified contractors—plus a materials list they can use instantly.
+      Roofing Marketplace makes roof decisions as simple as checking your credit score: look up your home, analyze your roof with AI, and compare quotes from verified contractors.
     </p>
 
     <div class="upload-box">
       <h2>For Homeowners</h2>
       <ul>
+        <li><strong>Home lookup:</strong> Enter your address to automatically pull roof and property details.</li>
         <li><strong>AI roof health score:</strong> 0–100 score with plain‑language explanations.</li>
         <li><strong>Damage detection:</strong> Hail, wind, aging, missing shingles, and more.</li>
         <li><strong>Repair vs. replace:</strong> Clear recommendation based on condition and lifespan.</li>
         <li><strong>Instant cost ranges:</strong> Localized estimates for repair or replacement.</li>
-        <li><strong>Multiple quotes:</strong> Compare offers from verified contractors.</li>
+        <li><strong>Multiple quotes:</strong> Compare offers from verified contractors side‑by‑side.</li>
       </ul>
     </div>
 
@@ -47,20 +48,20 @@
     </div>
 
     <div class="placeholder-box">
-      <h2>How the AI Flow Works</h2>
+      <h2>How the Flow Works</h2>
       <ol>
-        <li>Upload up to 5 roof photos via the intake flow.</li>
-        <li>Backend function <code>/functions/analyze-multiple-roof-photos</code> runs AI analysis.</li>
-        <li>Results feed into quotes via <code>/functions/generate-quotes</code>.</li>
-        <li>Contractors see leads and bids in the dashboard views.</li>
+        <li>Start with <strong>Home Lookup</strong> to pull property and roof details.</li>
+        <li>Continue to <strong>Upload Roof Photos</strong> for AI visual analysis.</li>
+        <li>We generate a <strong>roof health report</strong> and cost ranges.</li>
+        <li>Contractors receive <strong>leads with reports and materials lists</strong> in their dashboard.</li>
       </ol>
       <p style="margin-top:12px;">
-        You’ve already wired most of this in <code>js/app.js</code>—this page simply explains it to users.
+        The same AI output powers both the homeowner experience and the contractor tools.
       </p>
     </div>
   </div>
 
-  <!-- Optional: mount SPA here too if you want -->
+  <!-- Optional: mount SPA here too -->
   <main id="app" class="page-container"></main>
   <script src="js/app.js"></script>
 </body>
