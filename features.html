@@ -2,105 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Features – Roofing Marketplace</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>Features – RoofCheckAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-
-  <nav class="topbar">
-    <a href="/" class="logo">Roofing Marketplace</a>
-    <div class="nav-links">
-      <a href="/">Overview</a>
-      <a href="/features" class="active">Features</a>
-      <a href="/dashboard">My Dashboard</a>
-    </div>
-  </nav>
-
-  <header class="dashboard-hero-illustrated">
-    <div class="hero-text">
-      <h1>Powerful AI‑Driven Roofing Intelligence</h1>
-      <p>Everything you need to assess, understand, and estimate your roof — instantly.</p>
-    </div>
-
-    <div class="hero-illustration">
-      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Roof illustration">
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo">RoofCheck<span>AI</span></div>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="features.html" class="active">Features</a>
+        <a href="#contractors">For Contractors</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
     </div>
   </header>
 
-  <section class="page-container">
-    <h2>What Our Platform Can Do</h2>
-    <p>Our AI‑powered roofing engine analyzes your photos, detects key structural features, evaluates roof health, and generates accurate repair or replacement estimates — all in seconds.</p>
-  </section>
+  <main>
+    <section class="hero hero-subpage">
+      <div class="container">
+        <h1>All-in-One Roof Intelligence & Marketplace</h1>
+        <p>From photo upload to contractor-ready materials list—RoofCheckAI automates the entire journey.</p>
+      </div>
+    </section>
 
-  <!-- FEATURE GRID -->
-  <section class="features">
-    <div class="feature">
-      <h3>AI Roof Health Score</h3>
-      <p>Our system evaluates material condition, damage, age, complexity, pitch, and debris to generate a 0–100 Roof Health Score.</p>
+    <!-- Homeowner features -->
+    <section class="section">
+      <div class="container">
+        <h2>For Homeowners</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>AI Roof Health Score</h3>
+            <p>We analyze your roof photos to detect material type, visible damage, and estimated age, then generate a 0–100 health score.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Repair vs. Replace Recommendation</h3>
+            <p>Get a clear recommendation based on damage severity, remaining lifespan, and cost efficiency.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Instant Cost Estimates</h3>
+            <p>See a realistic price range for repair or replacement using local labor and material benchmarks.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Multiple Contractor Quotes</h3>
+            <p>Receive quotes from verified contractors, side-by-side, without endless phone calls or sales pressure.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI analysis details -->
+    <section class="section section-alt">
+      <div class="container">
+        <h2>AI Roof Analysis Engine</h2>
+        <div class="two-column">
+          <div>
+            <h3>What We Detect</h3>
+            <ul class="list">
+              <li><strong>Material type:</strong> Asphalt, metal, tile, flat, and more.</li>
+              <li><strong>Damage patterns:</strong> Missing shingles, curling, granule loss, discoloration, ponding.</li>
+              <li><strong>Risk indicators:</strong> Potential leak zones, flashing issues, ventilation concerns.</li>
+              <li><strong>Roof geometry:</strong> Pitch and approximate surface area for cost estimation.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>What You Receive</h3>
+            <ul class="list">
+              <li><strong>Roof health score</strong> with plain-language explanations.</li>
+              <li><strong>Urgency level</strong> (monitor, plan, or act now).</li>
+              <li><strong>Recommended scope of work</strong> (spot repair, partial replacement, full replacement).</li>
+              <li><strong>Estimated cost range</strong> tailored to your region.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contractor features -->
+    <section id="contractors" class="section">
+      <div class="container">
+        <h2>For Contractors</h2>
+        <p class="section-intro">RoofCheckAI is your virtual estimator—delivering pre-qualified leads with AI-generated takeoffs and materials lists.</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>Pre-Qualified Leads</h3>
+            <p>Homeowners arrive with a roof report and budget expectations, reducing no-shows and tire-kickers.</p>
+          </div>
+          <div class="feature-card">
+            <h3>AI Takeoffs</h3>
+            <p>Get estimated roof area, pitch, and material type to accelerate your quoting process.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Materials & Labor Breakdown</h3>
+            <p>We generate a suggested materials list and labor hours so you can refine and send quotes faster.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Contractor Dashboard</h3>
+            <p>Manage leads, view reports, send quotes, and track job status from a single interface.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marketplace model -->
+    <section class="section section-alt">
+      <div class="container">
+        <h2>LendingTree-Style Marketplace for Roofing</h2>
+        <div class="two-column">
+          <div>
+            <h3>Transparent for Homeowners</h3>
+            <p>We show multiple contractor options, clear price ranges, and what’s included—so homeowners can choose with confidence.</p>
+          </div>
+          <div>
+            <h3>Efficient for Contractors</h3>
+            <p>Spend less time driving and measuring, and more time closing jobs that match your ideal profile.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> RoofCheckAI. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
     </div>
-
-    <div class="feature">
-      <h3>Material Type Detection</h3>
-      <p>Automatically identifies shingles, architectural shingles, metal, tile, or flat roofing materials using advanced vision models.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Square Footage Estimation</h3>
-      <p>AI estimates total roof area using photo geometry, pitch, and structural cues — no measurements required.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Pitch & Complexity Analysis</h3>
-      <p>Automatically detects roof pitch, slope, dormers, ridges, and overall complexity to improve estimate accuracy.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Valleys, Stacks & Vents Counting</h3>
-      <p>Counts valleys, stacks, vents, and protrusions — key factors in determining labor and material costs.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Damage Detection</h3>
-      <p>Identifies hail impact, wind uplift, granule loss, cracking, curling, and other signs of wear or storm damage.</p>
-    </div>
-
-    <div class="feature">
-      <h3>AI‑Generated Repair Estimates</h3>
-      <p>Automatically calculates repair costs based on material type, damage severity, and roof complexity.</p>
-    </div>
-
-    <div class="feature">
-      <h3>AI‑Generated Replacement Estimates</h3>
-      <p>Provides accurate replacement cost ranges using industry‑standard pricing and your roof’s unique attributes.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Maintenance Timeline</h3>
-      <p>Generates a personalized maintenance schedule based on roof age, condition, and expected lifespan.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Recommended Actions</h3>
-      <p>AI suggests cleaning, repairs, inspections, and preventative maintenance to extend roof life.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Contractor Matching</h3>
-      <p>Connects homeowners with qualified roofing professionals based on project type and location.</p>
-    </div>
-
-    <div class="feature">
-      <h3>Full Project Dashboard</h3>
-      <p>Track uploads, estimates, projects, payments, and activity — all in one place.</p>
-    </div>
-  </section>
-
-  <section class="page-container">
-    <h2>Built for Homeowners & Contractors</h2>
-    <p>Whether you're evaluating storm damage, planning a replacement, or managing multiple roofing jobs, our platform gives you the tools to make confident decisions.</p>
-  </section>
-
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </footer>
 </body>
 </html>
