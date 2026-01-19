@@ -1,39 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Roofing Marketplace</title>
-
-    <!-- Brand Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css" />
-</head>
-
-<body>
-    <header>
-        <h1>
-            <span class="primary">Roofing</span>
-            <span class="secondary">Marketplace</span>
-        </h1>
-
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#intake">Get a Quote</a>
-            <a href="#roofer-dashboard">Roofer Dashboard</a>
-            <a href="#contractor-profile">Profile</a>
-            <a href="#billing">Billing</a>
-            <a href="#leaderboard">Leaderboard</a>
-            <a href="#user-login">Login</a>
-            <a href="#admin">Admin</a>
-        </nav>
-    </header>
-
-    <main id="view"></main>
-
-    <script src="js/app.js"></script>
-</body>
-</html>
-
+  <meta charset="UTF-8" />
+  <title>Roofing Marketplace – AI-Powered Roofing Quotes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    .hero {
+      max-width: 1120px;
+      margin: 60px auto 40px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero-title {
+      font-size: 2.4rem;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      margin-bottom: 22px;
+    }
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .hero-card {
+      background: #020617;
+      border-radius: 18px;
+      padding: 20px 18px;
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: var(--shadow-soft);
+    }
+    .hero-metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(31,41,55,0.8);
+    }
+    .section {
+      max-width: 1120px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
+    }
+    .feature-grid {
