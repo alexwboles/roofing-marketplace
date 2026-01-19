@@ -63,15 +63,10 @@ async function handleAnalyzePhotos(request, env) {
   });
 }
 
-// --- AI FEATURE EXTRACTION (stub – wire to your models) ---
+// --- AI FEATURE EXTRACTION (stub – replace with real model calls) ---
 async function extractRoofFeaturesFromImages(files, env) {
-  // Here you call:
-  // - OpenAI Vision
-  // - Workers AI image models
-  // - Satellite fusion (if you have coordinates)
-  //
-  // For now, stub with plausible values so the pipeline works end-to-end.
-  // Replace this with real AI calls.
+  // TODO: wire to OpenAI Vision / Workers AI / satellite fusion.
+  // Stubbed values so the pipeline works end-to-end.
 
   return {
     materialType: 'Architectural Shingle',
@@ -94,27 +89,34 @@ async function extractRoofFeaturesFromImages(files, env) {
 function computeRoofHealthScore(features) {
   let score = 0;
 
+  const materialCondition = features.materialCondition ?? 70;
+  const damageSeverity = features.damageSeverity ?? 40;
+  const ageEstimateYears = features.ageEstimateYears ?? 15;
+  const complexityLevel = features.complexityLevel ?? 2;
+  const pitchRatio = features.pitchRatio ?? 6;
+  const debrisLevel = features.debrisLevel ?? 30;
+
   // Material condition (0–100)
-  score += (features.materialCondition ?? 70) * 0.35;
+  score += materialCondition * 0.35;
 
   // Damage severity (0–100, where 0 = severe, 100 = none)
-  const damageScore = 100 - (features.damageSeverity ?? 40);
+  const damageScore = 100 - damageSeverity;
   score += damageScore * 0.30;
 
   // Age (normalize to 0–100)
-  const ageScore = Math.max(0, 100 - (features.ageEstimateYears ?? 15) * 3);
+  const ageScore = Math.max(0, 100 - ageEstimateYears * 3);
   score += ageScore * 0.15;
 
   // Complexity (0–5, higher = more complex)
-  const complexityScore = 100 - (features.complexityLevel ?? 2) * 15;
+  const complexityScore = 100 - complexityLevel * 15;
   score += complexityScore * 0.10;
 
   // Pitch (ideal around 6/12)
-  const pitchScore = 100 - Math.abs((features.pitchRatio ?? 6) - 6) * 8;
+  const pitchScore = 100 - Math.abs(pitchRatio - 6) * 8;
   score += pitchScore * 0.05;
 
   // Cleanliness / debris (0–100)
-  const debrisScore = 100 - (features.debrisLevel ?? 30);
+  const debrisScore = 100 - debrisLevel;
   score += debrisScore * 0.05;
 
   return Math.round(score);
@@ -122,10 +124,12 @@ function computeRoofHealthScore(features) {
 
 // --- ESTIMATES ---
 function computeEstimates(features) {
+  const materialType = features.materialType || 'Architectural Shingle';
+
   const basePricePerSq =
-    features.materialType === 'Architectural Shingle' ? 350 :
-    features.materialType === '3-Tab Shingle' ? 300 :
-    features.materialType === 'Metal' ? 550 :
+    materialType === 'Architectural Shingle' ? 350 :
+    materialType === '3-Tab Shingle' ? 300 :
+    materialType === 'Metal' ? 550 :
     400;
 
   const squares = (features.estimatedSquareFootage ?? 2000) / 100;
