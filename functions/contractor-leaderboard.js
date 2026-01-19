@@ -1,44 +1,49 @@
 export async function onRequest(context) {
     const { env } = context
 
-    const bidsList = await env.BIDS.list()
-    const stats = {}
+    // Load all bids
+    const list = await env.BIDS.list()
+    const bids = []
 
-    for (const item of bidsList.keys) {
-        const bid = await env.BIDS.get(item.name, { type: "json" })
-        if (!bid) continue
+    for (const item of list.keys) {
+        const b = await env.BIDS.get(item.name, { type: "json" })
+        if (b) bids.push(b)
+    }
 
-        const email = bid.contractorEmail
-        if (!stats[email]) {
-            stats[email] = { email, bids: 0, totalAmount: 0 }
+    // Aggregate by contractor
+    const totals = {}
+
+    for (const bid of bids) {
+        if (!totals[bid.contractorEmail]) {
+            totals[bid.contractorEmail] = {
+                contractorEmail: bid.contractorEmail,
+                bids: 0,
+                totalAmount: 0
+            }
         }
 
-        stats[email].bids += 1
-        stats[email].totalAmount += Number(bid.amount || 0)
+        totals[bid.contractorEmail].bids += 1
+        totals[bid.contractorEmail].totalAmount += Number(bid.amount || 0)
     }
 
-    const contractorsList = await env.CONTRACTORS.list()
-    const leaderboard = []
+    // Load contractor profiles
+    const contractorList = await env.CONTRACTORS.list()
+    const contractors = {}
 
-    for (const item of contractorsList.keys) {
+    for (const item of contractorList.keys) {
         const c = await env.CONTRACTORS.get(item.name, { type: "json" })
-        if (!c) continue
-
-        const s = stats[c.email] || { bids: 0, totalAmount: 0 }
-        leaderboard.push({
-            email: c.email,
-            businessName: c.businessName || c.email,
-            bids: s.bids,
-            totalAmount: s.totalAmount,
-            verificationStatus: c.verificationStatus,
-            subscriptionStatus: c.subscriptionStatus
-        })
+        if (c) contractors[item.name] = c
     }
 
-    leaderboard.sort((a, b) => b.bids - a.bids)
+    // Build leaderboard rows
+    const leaderboard = Object.values(totals)
+        .map(row => ({
+            ...row,
+            businessName: contractors[row.contractorEmail]?.businessName || row.contractorEmail
+        }))
+        .sort((a, b) => b.totalAmount - a.totalAmount)
 
     return new Response(JSON.stringify({ leaderboard }), {
         headers: { "Content-Type": "application/json" }
     })
 }
-
