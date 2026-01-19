@@ -1,44 +1,52 @@
 export async function onRequestPost(context) {
-    const { request, env } = context
+  const { request, env } = context
 
-    // Read session cookie
-    const cookie = request.headers.get("Cookie") || ""
-    const session = cookie.match(/session=([^;]+)/)?.[1]
-    if (!session) return unauthorized()
+  try {
+    const body = await request.json()
 
-    const sessionData = await env.SESSIONS.get(session, { type: "json" })
-    if (!sessionData || sessionData.type !== "contractor") return unauthorized()
+    // Example: expect items, success_url, cancel_url from frontend
+    const { line_items, success_url, cancel_url, mode = "payment" } = body
 
-    const contractorEmail = sessionData.email
+    const params = new URLSearchParams()
+    params.append("mode", mode)
+    params.append("success_url", success_url)
+    params.append("cancel_url", cancel_url)
 
-    // Stripe client
-    const stripe = require("stripe")(env.STRIPE_SECRET_KEY)
+    // line_items: [{ price: "price_xxx", quantity: 1 }, ...]
+    if (Array.isArray(line_items)) {
+      line_items.forEach((item, index) => {
+        params.append(`line_items[${index}][price]`, item.price)
+        params.append(`line_items[${index}][quantity]`, String(item.quantity || 1))
+      })
+    }
 
-    // Create checkout session
-    const checkout = await stripe.checkout.sessions.create({
-        mode: "subscription",
-        customer_email: contractorEmail,
-        line_items: [
-            {
-                price: env.STRIPE_PRICE_ID, // your monthly subscription price
-                quantity: 1
-            }
-        ],
-        success_url: `${env.PUBLIC_URL}/#/billing?success=true`,
-        cancel_url: `${env.PUBLIC_URL}/#/billing?canceled=true`,
-        metadata: {
-            contractorEmail
-        }
+    const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
     })
 
-    return new Response(JSON.stringify({ url: checkout.url }), {
-        headers: { "Content-Type": "application/json" }
+    const data = await stripeRes.json()
+
+    if (!stripeRes.ok) {
+      return new Response(JSON.stringify({ error: data }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+
+    return new Response(JSON.stringify({ id: data.id, url: data.url }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     })
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Failed to create checkout session" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
 }
 
-function unauthorized() {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-    })
-}
