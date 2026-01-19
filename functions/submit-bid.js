@@ -1,32 +1,41 @@
 export async function onRequestPost(context) {
     const { request, env } = context
 
+    // Read session cookie
     const cookie = request.headers.get("Cookie") || ""
     const session = cookie.match(/session=([^;]+)/)?.[1]
     if (!session) return unauthorized()
 
     const sessionData = await env.SESSIONS.get(session, { type: "json" })
-    if (!sessionData) return unauthorized()
+    if (!sessionData || sessionData.type !== "contractor") return unauthorized()
 
-    const { email, type } = sessionData
-    if (type !== "contractor") return unauthorized()
+    const contractorEmail = sessionData.email
 
-    const contractor = await env.CONTRACTORS.get(email, { type: "json" })
-    if (!contractor) return unauthorized()
-
+    // Parse bid
     const { leadId, amount, notes } = await request.json()
 
-    const bidKey = `${leadId}:${email}`
+    if (!leadId || !amount) {
+        return new Response("Missing fields", { status: 400 })
+    }
 
-    const bid = {
+    // Verify contractor was assigned this lead
+    const assignment = await env.LEAD_ASSIGNMENTS.get(leadId, { type: "json" })
+    if (!assignment || assignment.contractorEmail !== contractorEmail) {
+        return new Response("Lead not assigned to this contractor", { status: 403 })
+    }
+
+    // Create bid record
+    const bidRecord = {
+        id: crypto.randomUUID(),
         leadId,
-        contractorEmail: email,
+        contractorEmail,
         amount,
-        notes,
+        notes: notes || "",
         createdAt: Date.now()
     }
 
-    await env.BIDS.put(bidKey, JSON.stringify(bid))
+    // Store bid
+    await env.BIDS.put(bidRecord.id, JSON.stringify(bidRecord))
 
     return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" }
@@ -34,5 +43,8 @@ export async function onRequestPost(context) {
 }
 
 function unauthorized() {
-    return new Response("Unauthorized", { status: 401 })
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+    })
 }
