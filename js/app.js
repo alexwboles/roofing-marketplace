@@ -1,476 +1,315 @@
-/******************************************************
- * ROUTER
- ******************************************************/
-
+// ---------------------------------------------------------
+// SPA ROUTER
+// ---------------------------------------------------------
 window.addEventListener("hashchange", router)
 window.addEventListener("load", router)
 
 async function router() {
-    const hash = window.location.hash.replace("#", "") || "home"
-    const view = document.getElementById("view")
+    const hash = location.hash || "#/login"
 
-    const me = await fetchJSON("/functions/me")
+    if (hash === "#/login") return loginView()
+    if (hash === "#/verify") return verifyView()
+    if (hash === "#/dashboard") return dashboardView()
+    if (hash === "#/intake") return intakeView()
+    if (hash === "#/quotes") return quotesView()
+    if (hash === "#/leaderboard") return leaderboardView()
+    if (hash === "#/billing") return billingView()
+    if (hash === "#/admin") return adminView()
 
-    switch (hash) {
-        case "home":
-            view.innerHTML = homeView()
-            break
-
-        case "intake":
-            view.innerHTML = clientIntakeView()
-            break
-
-        case "processing":
-            view.innerHTML = processingView()
-            break
-
-        case "quotes":
-            view.innerHTML = quotesView()
-            break
-
-        case "user-login":
-            view.innerHTML = userLoginView()
-            break
-
-        case "client-login":
-            view.innerHTML = clientLoginView()
-            break
-
-        case "roofer-dashboard":
-            await requireContractor(me)
-            await loadRooferDashboard()
-            break
-
-        case "contractor-profile":
-            await requireContractor(me)
-            await loadContractorProfile()
-            break
-
-        case "billing":
-            await requireContractor(me)
-            await loadBilling()
-            break
-
-        case "admin":
-            await loadAdminData()
-            break
-
-        case "leaderboard":
-            await loadLeaderboard()
-            break
-
-        default:
-            view.innerHTML = homeView()
-    }
+    document.getElementById("app").innerHTML = "<h2>Not Found</h2>"
 }
 
-async function requireLogin(me) {
-    if (!me.loggedIn) {
-        window.location.hash = "user-login"
-        throw new Error("Not logged in")
-    }
+// ---------------------------------------------------------
+// LOGIN VIEW
+// ---------------------------------------------------------
+function loginView() {
+    document.getElementById("app").innerHTML = `
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input id="email" type="email" placeholder="Email" required />
+            <button>Send Code</button>
+        </form>
+    `
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const email = document.getElementById("email").value
+
+        await fetch("/functions/request-login-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        })
+
+        location.hash = "#/verify"
+    })
 }
 
-async function requireContractor(me) {
-    await requireLogin(me)
-    if (me.type !== "contractor") {
-        alert("Contractor account required")
-        window.location.hash = "user-login"
-        throw new Error("Not contractor")
-    }
+// ---------------------------------------------------------
+// VERIFY LOGIN CODE
+// ---------------------------------------------------------
+function verifyView() {
+    document.getElementById("app").innerHTML = `
+        <h2>Enter Login Code</h2>
+        <form id="verifyForm">
+            <input id="code" type="text" placeholder="Code" required />
+            <button>Verify</button>
+        </form>
+    `
+
+    document.getElementById("verifyForm").addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const code = document.getElementById("code").value
+
+        const res = await fetch("/functions/verify-login-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+        })
+
+        if (res.ok) location.hash = "#/dashboard"
+        else alert("Invalid code")
+    })
 }
 
-/******************************************************
- * AUTH VIEWS
- ******************************************************/
-
-function userLoginView() {
-    return `
-        <div class="card">
-            <h2>User Login</h2>
-
-            <div class="input-group">
-                <input id="login-email" placeholder=" " />
-                <label>Email</label>
-            </div>
-
-            <select id="login-type" class="input-group">
-                <option value="contractor">Contractor</option>
-                <option value="client">Client</option>
-            </select>
-
-            <button onclick="requestLoginCode()">Send Login Code</button>
-
-            <div id="login-step-2" style="display:none; margin-top:20px;">
-                <div class="input-group">
-                    <input id="login-code" placeholder=" " />
-                    <label>Enter Code</label>
-                </div>
-                <button onclick="verifyLoginCode()">Verify Code</button>
-            </div>
-        </div>
+// ---------------------------------------------------------
+// DASHBOARD
+// ---------------------------------------------------------
+async function dashboardView() {
+    document.getElementById("app").innerHTML = `
+        <h2>Dashboard</h2>
+        <button onclick="location.hash='#/intake'">New Roof Intake</button>
+        <button onclick="location.hash='#/leaderboard'">Leaderboard</button>
+        <button onclick="location.hash='#/billing'">Billing</button>
     `
 }
 
-async function requestLoginCode() {
-    const email = document.getElementById("login-email").value
-    const type = document.getElementById("login-type").value
+// ---------------------------------------------------------
+// INTAKE VIEW (AI-POWERED)
+// ---------------------------------------------------------
+function intakeView() {
+    document.getElementById("app").innerHTML = `
+        <h2>Roof Intake</h2>
 
-    await postJSON("/functions/request-login-code", { email, type })
-    document.getElementById("login-step-2").style.display = "block"
-}
+        <form id="intakeForm">
 
-async function verifyLoginCode() {
-    const email = document.getElementById("login-email").value
-    const code = document.getElementById("login-code").value
-    const type = document.getElementById("login-type").value
+            <label>Address</label>
+            <input id="address" required />
 
-    const res = await postJSON("/functions/verify-login-code", { email, code, type })
+            <label>Roof Type (auto-filled)</label>
+            <input id="roofType" />
 
-    if (res.success) {
-        window.location.hash = type === "contractor" ? "roofer-dashboard" : "quotes"
-    }
-}
+            <label>Pitch (degrees, auto-filled)</label>
+            <input id="pitch" />
 
-/******************************************************
- * CLIENT VIEWS
- ******************************************************/
+            <label>Square Feet (auto-filled)</label>
+            <input id="squareFeet" />
 
-function homeView() {
-    return `
-        <section class="hero">
-            <h1>Roofing Marketplace</h1>
-            <p>The fastest way to get roofing quotes — and the smartest way for contractors to win more jobs.</p>
-            <button onclick="window.location.hash='intake'">Get Your Free Quote</button>
-        </section>
+            <label>Upload Roof Photos (up to 5)</label>
+            <input id="roofPhotos" type="file" accept="image/*" multiple />
 
-        <section class="features">
-            <h2>For Homeowners</h2>
-            <div class="feature-grid">
-                <div class="feature">
-                    <h3>Instant Quotes</h3>
-                    <p>Get a real roofing estimate in minutes, not days.</p>
-                </div>
-                <div class="feature">
-                    <h3>Verified Contractors</h3>
-                    <p>Every roofer is screened and approved.</p>
-                </div>
-                <div class="feature">
-                    <h3>Compare Bids</h3>
-                    <p>See contractor bids side‑by‑side.</p>
-                </div>
+            <button>Analyze & Continue</button>
+        </form>
+
+        <div id="analyzingModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Analyzing Roof Photos…</h3>
+                <p>This usually takes 5–10 seconds.</p>
             </div>
-        </section>
-
-        <section class="cta">
-            <h2>Ready to get started?</h2>
-            <button onclick="window.location.hash='user-login'">Join as a Contractor</button>
-            <button class="secondary" onclick="window.location.hash='intake'">Get a Quote</button>
-        </section>
-    `
-}
-
-function clientIntakeView() {
-    return `
-        <div class="card">
-            <h2>Get Your Instant Roofing Quote</h2>
-
-            <div class="input-group">
-                <input id="address" placeholder=" " />
-                <label>Address</label>
-            </div>
-
-            <div class="input-group">
-                <input id="square-feet" placeholder=" " />
-                <label>Roof Square Footage</label>
-            </div>
-
-            <div class="input-group">
-                <select id="material">
-                    <option value="">Select Material</option>
-                    <option value="shingle">Shingle</option>
-                    <option value="metal">Metal</option>
-                </select>
-                <label>Roof Material</label>
-            </div>
-
-            <button onclick="submitIntake()">Get Quote</button>
         </div>
     `
+
+    document.getElementById("intakeForm").addEventListener("submit", analyzeIntake)
 }
 
-function processingView() {
-    return `
-        <div class="processing">
-            <h2>Analyzing Your Roof...</h2>
-            <p>This usually takes less than 10 seconds.</p>
-        </div>
-    `
-}
+// ---------------------------------------------------------
+// AI INTAKE LOGIC
+// ---------------------------------------------------------
+async function analyzeIntake(e) {
+    e.preventDefault()
 
-function quotesView() {
-    return `
-        <div class="quotes">
-            <h2>Your Quotes</h2>
-            <div id="quote-results"></div>
-            <div id="bids-results"></div>
-        </div>
-    `
-}
-
-async function loadBidsForLead(leadId) {
-    const data = await fetchJSON(`/functions/get-lead-bids?leadId=${leadId}`)
-    const container = document.getElementById("bids-results")
-
-    container.innerHTML = `
-        <div class="card">
-            <h3>Contractor Bids</h3>
-            ${
-                data.bids.length === 0
-                    ? "<p>No bids yet.</p>"
-                    : data.bids
-                          .map(
-                              (b) => `
-                    <div class="lead-card">
-                        <p><strong>Bid:</strong> $${b.amount}</p>
-                        <p><strong>Notes:</strong> ${b.notes || "—"}</p>
-                    </div>
-                `
-                          )
-                          .join("")
-            }
-        </div>
-    `
-}
-
-/******************************************************
- * CONTRACTOR VIEWS
- ******************************************************/
-
-async function loadRooferDashboard() {
-    const me = await fetchJSON("/functions/me")
-    const leads = await fetchJSON("/functions/get-roofer-leads")
-
-    document.getElementById("view").innerHTML = rooferDashboardView(leads, me.user)
-}
-
-function rooferDashboardView(leads, contractor) {
-    return `
-        <div class="card">
-            <h2>Roofer Dashboard</h2>
-            <p>Logged in as: ${contractor.email}</p>
-            <button onclick="window.location.hash='contractor-profile'">Update Profile</button>
-            <button class="secondary" onclick="window.location.hash='billing'">Billing</button>
-        </div>
-
-        <h3>Assigned Leads</h3>
-        <div id="roofer-leads">
-            ${leads
-                .map(
-                    (lead) => `
-                <div class="lead-card">
-                    <h3>${lead.address}</h3>
-                    <p>Square Feet: ${lead.squareFeet}</p>
-                    <p>Material: ${lead.material}</p>
-
-                    <div class="input-group">
-                        <input id="bid-amount-${lead.id}" placeholder=" " />
-                        <label>Your Bid ($)</label>
-                    </div>
-
-                    <div class="input-group">
-                        <input id="bid-notes-${lead.id}" placeholder=" " />
-                        <label>Notes</label>
-                    </div>
-
-                    <button onclick="submitBid('${lead.id}')">Submit Bid</button>
-                </div>
-            `
-                )
-                .join("")}
-        </div>
-    `
-}
-
-async function submitBid(leadId) {
-    const amount = document.getElementById(`bid-amount-${leadId}`).value
-    const notes = document.getElementById(`bid-notes-${leadId}`).value
-
-    await postJSON("/functions/submit-bid", { leadId, amount, notes })
-    alert("Bid submitted")
-}
-
-async function loadContractorProfile() {
-    const me = await fetchJSON("/functions/me")
-    document.getElementById("view").innerHTML = contractorProfileView(me.user)
-}
-
-function contractorProfileView(c) {
-    return `
-        <div class="card">
-            <h2>Contractor Profile</h2>
-
-            <div class="input-group">
-                <input id="profile-business-name" placeholder=" " value="${c.businessName || ""}" />
-                <label>Business Name</label>
-            </div>
-
-            <div class="input-group">
-                <input id="profile-service-area" placeholder=" " value="${c.serviceArea || ""}" />
-                <label>Service Area (ZIPs)</label>
-            </div>
-
-            <div class="input-group">
-                <input id="profile-price-per-square" placeholder=" " value="${c.pricePerSquare || ""}" />
-                <label>Price per Sq Ft</label>
-            </div>
-
-            <div class="input-group">
-                <input id="profile-tearoff-fee" placeholder=" " value="${c.tearoffFee || ""}" />
-                <label>Tear-Off Fee</label>
-            </div>
-
-            <button onclick="saveContractorProfile()">Save Profile</button>
-        </div>
-    `
-}
-
-async function saveContractorProfile() {
-    const payload = {
-        businessName: document.getElementById("profile-business-name").value,
-        serviceArea: document.getElementById("profile-service-area").value,
-        pricePerSquare: document.getElementById("profile-price-per-square").value,
-        tearoffFee: document.getElementById("profile-tearoff-fee").value
+    const photos = document.getElementById("roofPhotos").files
+    if (photos.length > 5) {
+        alert("Please upload no more than 5 photos.")
+        return
     }
 
-    await postJSON("/functions/save-contractor-profile", payload)
-    alert("Profile saved")
-}
+    const modal = document.getElementById("analyzingModal")
+    modal.classList.remove("hidden")
 
-/******************************************************
- * BILLING
- ******************************************************/
+    // STEP 1 — Analyze photos
+    const formData = new FormData()
+    for (const p of photos) formData.append("photos", p)
 
-async function loadBilling() {
-    const me = await fetchJSON("/functions/me")
-    const billing = await fetchJSON("/functions/billing-info")
+    const analyzeRes = await fetch("/functions/analyze-multiple-roof-photos", {
+        method: "POST",
+        body: formData
+    })
+    const analyzeJson = await analyzeRes.json()
 
-    document.getElementById("view").innerHTML = billingView(me.user, billing)
-}
+    // STEP 2 — Fuse with satellite
+    const address = document.getElementById("address").value
 
-function billingView(contractor, billing) {
-    return `
-        <div class="card">
-            <h2>Billing</h2>
-            <p>Plan: ${billing.plan}</p>
-            <p>Status: ${billing.subscriptionStatus}</p>
-
-            <button onclick="openBillingPortal()">Manage Billing</button>
-        </div>
-    `
-}
-
-async function openBillingPortal() {
-    const data = await postJSON("/functions/create-billing-portal-session", {})
-    if (data.url) window.location.href = data.url
-}
-
-/******************************************************
- * ADMIN
- ******************************************************/
-
-async function loadAdminData() {
-    const contractors = await fetchJSON("/functions/admin-contractors")
-    const bids = await fetchJSON("/functions/admin-bids")
-
-    document.getElementById("view").innerHTML = adminView(contractors.contractors, bids.bids)
-}
-
-function adminView(contractors, bids) {
-    return `
-        <div class="card">
-            <h2>Admin – Contractors</h2>
-            ${contractors
-                .map(
-                    (c) => `
-                <div class="lead-card">
-                    <h3>${c.businessName || c.email}</h3>
-                    <p>Email: ${c.email}</p>
-                    <p>Status: ${c.verificationStatus}</p>
-                    <p>Subscription: ${c.subscriptionStatus}</p>
-                    <button onclick="updateContractorStatus('${c.email}', 'approved')">Approve</button>
-                    <button class="secondary" onclick="updateContractorStatus('${c.email}', 'rejected')">Reject</button>
-                </div>
-            `
-                )
-                .join("")}
-        </div>
-
-        <div class="card">
-            <h2>Admin – Bids</h2>
-            ${bids
-                .map(
-                    (b) => `
-                <div class="lead-card">
-                    <p><strong>Lead:</strong> ${b.leadId}</p>
-                    <p><strong>Contractor:</strong> ${b.contractorEmail}</p>
-                    <p><strong>Amount:</strong> $${b.amount}</p>
-                    <p><strong>Notes:</strong> ${b.notes}</p>
-                </div>
-            `
-                )
-                .join("")}
-        </div>
-    `
-}
-
-async function updateContractorStatus(email, status) {
-    await postJSON("/functions/verify-contractor", { contractorEmail: email, status })
-    loadAdminData()
-}
-
-/******************************************************
- * LEADERBOARD
- ******************************************************/
-
-async function loadLeaderboard() {
-    const data = await fetchJSON("/functions/contractor-leaderboard")
-    document.getElementById("view").innerHTML = leaderboardView(data.leaderboard)
-}
-
-function leaderboardView(rows) {
-    return `
-        <div class="card">
-            <h2>Top Contractors</h2>
-            ${rows
-                .map(
-                    (r, i) => `
-                <div class="lead-card">
-                    <h3>#${i + 1} – ${r.businessName}</h3>
-                    <p>Bids: ${r.bids}</p>
-                    <p>Total Volume: $${r.totalAmount}</p>
-                </div>
-            `
-                )
-                .join("")}
-        </div>
-    `
-}
-
-/******************************************************
- * UTILITIES
- ******************************************************/
-
-async function fetchJSON(url) {
-    const res = await fetch(url)
-    return res.json()
-}
-
-async function postJSON(url, body) {
-    const res = await fetch(url, {
+    const fusionRes = await fetch("/functions/ai-fusion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+            address,
+            photoAnalysis: analyzeJson.photos
+        })
     })
-    return res.json()
+    const fusionJson = await fusionRes.json()
+    const roof = fusionJson.fused
+
+    // Auto-fill fields
+    document.getElementById("roofType").value = roof.roofType || ""
+    document.getElementById("pitch").value = roof.pitchDegrees || ""
+    document.getElementById("squareFeet").value = roof.estimatedSqFt || ""
+
+    // STEP 3 — Materials list
+    const materialsRes = await fetch("/functions/materials-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roof })
+    })
+    const materialsJson = await materialsRes.json()
+
+    // Store globally for quotes
+    window.fusedRoofModel = roof
+    window.generatedMaterials = materialsJson.materials
+
+    modal.classList.add("hidden")
+
+    alert("Roof analysis complete! Fields auto-filled.")
+    location.hash = "#/quotes"
+}
+
+// ---------------------------------------------------------
+// QUOTES VIEW
+// ---------------------------------------------------------
+async function quotesView() {
+    const roof = window.fusedRoofModel
+    const materials = window.generatedMaterials
+
+    const res = await fetch("/functions/generate-quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            roof,
+            materials
+        })
+    })
+
+    const json = await res.json()
+
+    document.getElementById("app").innerHTML = `
+        <h2>Quotes</h2>
+        ${json.quotes
+            .map(
+                q => `
+            <div class="quote-card">
+                <h3>${q.businessName}</h3>
+                <p>Total: $${q.total}</p>
+                <p>Material Cost: $${q.breakdown.materialCost}</p>
+                <p>Labor: $${q.breakdown.labor}</p>
+            </div>
+        `
+            )
+            .join("")}
+    `
+}
+
+// ---------------------------------------------------------
+// LEADERBOARD
+// ---------------------------------------------------------
+async function leaderboardView() {
+    const res = await fetch("/functions/contractor-leaderboard")
+    const json = await res.json()
+
+    document.getElementById("app").innerHTML = `
+        <h2>Leaderboard</h2>
+        ${json.leaderboard
+            .map(
+                row => `
+            <div class="leader-row">
+                <strong>${row.businessName}</strong>
+                <span>${row.bids} bids</span>
+                <span>$${row.totalAmount}</span>
+            </div>
+        `
+            )
+            .join("")}
+    `
+}
+
+// ---------------------------------------------------------
+// BILLING VIEW
+// ---------------------------------------------------------
+async function billingView() {
+    const res = await fetch("/functions/billing-info")
+    const json = await res.json()
+
+    document.getElementById("app").innerHTML = `
+        <h2>Billing</h2>
+        <p>Plan: ${json.plan}</p>
+        <p>Status: ${json.subscriptionStatus}</p>
+
+        <button id="subscribeBtn">Subscribe</button>
+        <button id="portalBtn">Manage Billing</button>
+    `
+
+    document.getElementById("subscribeBtn").onclick = async () => {
+        const r = await fetch("/functions/create-checkout-session", { method: "POST" })
+        const j = await r.json()
+        location.href = j.url
+    }
+
+    document.getElementById("portalBtn").onclick = async () => {
+        const r = await fetch("/functions/create-billing-portal-session", { method: "POST" })
+        const j = await r.json()
+        location.href = j.url
+    }
+}
+
+// ---------------------------------------------------------
+// ADMIN VIEW
+// ---------------------------------------------------------
+async function adminView() {
+    const res = await fetch("/functions/admin-contractors")
+    const json = await res.json()
+
+    document.getElementById("app").innerHTML = `
+        <h2>Admin — Contractors</h2>
+        ${json.contractors
+            .map(
+                c => `
+            <div class="contractor-row">
+                <strong>${c.businessName}</strong>
+                <span>${c.email}</span>
+                <span>Status: ${c.verificationStatus}</span>
+                <button onclick="approveContractor('${c.email}')">Approve</button>
+                <button onclick="rejectContractor('${c.email}')">Reject</button>
+            </div>
+        `
+            )
+            .join("")}
+    `
+}
+
+async function approveContractor(email) {
+    await fetch("/functions/verify-contractor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractorEmail: email, status: "approved" })
+    })
+    adminView()
+}
+
+async function rejectContractor(email) {
+    await fetch("/functions/verify-contractor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractorEmail: email, status: "rejected" })
+    })
+    adminView()
 }
