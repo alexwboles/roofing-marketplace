@@ -6,45 +6,65 @@
   <title>Roofing Marketplace – Instant AI Roof Analysis</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-
 <body>
-
   <nav class="topbar">
     <a href="/" class="logo">Roofing Marketplace</a>
     <div class="nav-links">
       <a href="/" class="active">Overview</a>
-      <a href="/dashboard">My Dashboard</a>
+      <a href="features.html">Features</a>
+      <a href="#/intake">Upload Roof Photos</a>
+      <a href="#/login">Roofer Login</a>
     </div>
   </nav>
 
   <header class="hero">
-    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" class="hero-img" alt="Roofing hero image">
+    <img
+      src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+      class="hero-img"
+      alt="Roofing hero image"
+    />
     <div class="hero-content">
       <h1>Instant Roof Analysis Powered by AI</h1>
-      <p>Upload photos and receive fast, accurate roof assessments — plus verified contractor matches.</p>
-      <a href="/dashboard" class="cta-btn">Open Dashboard</a>
+      <p>
+        Upload photos and receive fast, accurate roof assessments — plus verified contractor matches.
+      </p>
+      <a href="#/intake" class="cta-btn">Upload Roof Photos</a>
     </div>
   </header>
 
   <section class="features">
     <div class="feature">
-      <img src="https://images.unsplash.com/photo-1581091012184-5c7b6c2a5d79" class="feature-img" alt="Roofing materials">
+      <img
+        src="https://images.unsplash.com/photo-1581091012184-5c7b6c2a5d79"
+        class="feature-img"
+        alt="Roofing materials"
+      />
       <h3>Smart Material Recognition</h3>
       <p>Automatically detect shingles, tiles, metal, and other materials with precision‑trained AI.</p>
     </div>
-
     <div class="feature">
-      <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e" class="feature-img" alt="Drone roof inspection">
+      <img
+        src="https://images.unsplash.com/photo-1503387762-592deb58ef4e"
+        class="feature-img"
+        alt="Drone roof inspection"
+      />
       <h3>Intelligent Damage Scoring</h3>
       <p>Identify hail, wind, and age‑related damage with real‑time AI scoring.</p>
     </div>
-
     <div class="feature">
-      <img src="https://images.unsplash.com/photo-1523413651479-597eb2da0ad6" class="feature-img" alt="Contractor tools">
+      <img
+        src="https://images.unsplash.com/photo-1523413651479-597eb2da0ad6"
+        class="feature-img"
+        alt="Contractor tools"
+      />
       <h3>Verified Contractor Network</h3>
       <p>Connect with vetted roofing pros and compare quotes instantly.</p>
     </div>
   </section>
 
+  <!-- SPA container for contractor dashboard, intake, quotes, etc. -->
+  <main id="app" class="page-container"></main>
+
+  <script src="js/app.js"></script>
 </body>
 </html>
