@@ -12,6 +12,7 @@
     <div class="nav-links">
       <a href="/" class="active">Overview</a>
       <a href="features.html">Features</a>
+      <a href="#/lookup">Home Lookup</a>
       <a href="#/intake">Upload Roof Photos</a>
       <a href="#/login">Roofer Login</a>
     </div>
@@ -24,11 +25,14 @@
       alt="Roofing hero image"
     />
     <div class="hero-content">
-      <h1>Instant Roof Analysis Powered by AI</h1>
+      <h1>Instant Roof Health & Contractor Quotes</h1>
       <p>
-        Upload photos and receive fast, accurate roof assessments — plus verified contractor matches.
+        Look up your home, analyze your roof with AI, and get quotes from verified contractors—without the sales pressure.
       </p>
-      <a href="#/intake" class="cta-btn">Upload Roof Photos</a>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="#/lookup" class="cta-btn">Look Up My Home</a>
+        <a href="#/intake" class="cta-btn secondary">Upload Roof Photos</a>
+      </div>
     </div>
   </header>
 
@@ -62,7 +66,7 @@
     </div>
   </section>
 
-  <!-- SPA container for contractor dashboard, intake, quotes, etc. -->
+  <!-- SPA container for lookup, intake, dashboard, etc. -->
   <main id="app" class="page-container"></main>
 
   <script src="js/app.js"></script>
