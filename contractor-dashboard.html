@@ -9,14 +9,20 @@
 
 <body>
 
+  <!-- UNIVERSAL NAVIGATION -->
   <nav class="topbar">
     <a href="/" class="logo">Roofing Marketplace</a>
     <div class="nav-links">
-      <a href="/contractor-dashboard" class="active">Contractor Dashboard</a>
-      <a href="/dashboard">Client Dashboard</a>
+      <a href="/">Overview</a>
+      <a href="/features">Features</a>
+      <a href="/roof-health">Roof Health</a>
+      <a href="/dashboard">My Dashboard</a>
+      <a href="/contractor-login">Contractors</a>
+      <a href="/admin-dashboard">Admin</a>
     </div>
   </nav>
 
+  <!-- HERO -->
   <header class="dashboard-hero-illustrated">
     <div class="hero-text">
       <h1>Contractor Control Center</h1>
@@ -27,6 +33,12 @@
       <img src="https://images.unsplash.com/photo-1581091012184-5c7b6c2a5d79" alt="Contractor tools">
     </div>
   </header>
+
+  <!-- PROFILE STATUS -->
+  <section class="page-container">
+    <h2>Your Profile</h2>
+    <p id="contractor-status">Loading...</p>
+  </section>
 
   <!-- PRICING MODEL -->
   <section class="page-container">
@@ -86,37 +98,84 @@
     <p>These are customers matched to you based on pricing, area, and availability.</p>
 
     <div class="placeholder-box">
-      <p>No leads yet.</p>
+      <p>No leads yet. Leads will appear here as the matching engine connects to live customer traffic.</p>
     </div>
   </section>
 
   <script>
-    // Save contractor settings locally (replace with backend later)
-    function save(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-      alert('Saved!');
+    // Load contractor session
+    const contractor = JSON.parse(localStorage.getItem('contractorAccount') || 'null');
+    const statusEl = document.getElementById('contractor-status');
+
+    if (!contractor) {
+      statusEl.textContent = 'Not logged in. Please log in as a contractor.';
+    } else {
+      statusEl.textContent =
+        `Logged in as ${contractor.companyName} (${contractor.email}) — ` +
+        (contractor.approved ? 'Approved' : 'Pending approval');
     }
 
-    document.getElementById('pricing-form').addEventListener('submit', e => {
-      e.preventDefault();
-      save('contractorPricing', {
-        arch: document.getElementById('price-arch').value,
-        tab: document.getElementById('price-3tab').value,
-        metal: document.getElementById('price-metal').value
+    async function postJSON(url, body) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
       });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function getProfilePayload() {
+      if (!contractor) return null;
+      return {
+        email: contractor.email,
+        pricing: {
+          arch: document.getElementById('price-arch').value,
+          tab: document.getElementById('price-3tab').value,
+          metal: document.getElementById('price-metal').value
+        },
+        serviceArea: document.getElementById('service-area').value,
+        availability: {
+          days: document.getElementById('days').value,
+          hours: document.getElementById('hours').value
+        }
+      };
+    }
+
+    // Save pricing
+    document.getElementById('pricing-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const payload = getProfilePayload();
+        await postJSON('/api/contractor/profile', payload);
+        alert('Pricing saved.');
+      } catch (err) {
+        alert('Error saving pricing: ' + err.message);
+      }
     });
 
-    document.getElementById('service-area-form').addEventListener('submit', e => {
+    // Save service area
+    document.getElementById('service-area-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      save('contractorServiceArea', document.getElementById('service-area').value);
+      try {
+        const payload = getProfilePayload();
+        await postJSON('/api/contractor/profile', payload);
+        alert('Service area saved.');
+      } catch (err) {
+        alert('Error saving service area: ' + err.message);
+      }
     });
 
-    document.getElementById('availability-form').addEventListener('submit', e => {
+    // Save availability
+    document.getElementById('availability-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      save('contractorAvailability', {
-        days: document.getElementById('days').value,
-        hours: document.getElementById('hours').value
-      });
+      try {
+        const payload = getProfilePayload();
+        await postJSON('/api/contractor/profile', payload);
+        alert('Availability saved.');
+      } catch (err) {
+        alert('Error saving availability: ' + err.message);
+      }
     });
   </script>
 
