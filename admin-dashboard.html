@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – Roofing Marketplace</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+  <!-- UNIVERSAL NAVIGATION -->
+  <nav class="topbar">
+    <a href="/" class="logo">Roofing Marketplace</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/features">Features</a>
+      <a href="/roof-health">Roof Health</a>
+      <a href="/dashboard">My Dashboard</a>
+      <a href="/contractor-login">Contractors</a>
+      <a href="/admin-dashboard" class="active">Admin</a>
+    </div>
+  </nav>
+
+  <section class="page-container">
+    <h1>Admin Dashboard</h1>
+    <p>Review and approve contractor accounts.</p>
+
+    <div class="upload-box">
+      <h2>Contractors</h2>
+      <ul id="contractor-list"></ul>
+    </div>
+  </section>
+
+  <script>
+    async function fetchContractors() {
+      const res = await fetch('/api/admin/contractors');
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    async function approveContractor(id, approved) {
+      await fetch('/api/admin/contractors/approve', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, approved })
+      });
+      load();
+    }
+
+    async function load() {
+      const listEl = document.getElementById('contractor-list');
+      listEl.innerHTML = 'Loading...';
+
+      try {
+        const data = await fetchContractors();
+        const contractors = data.contractors || [];
+
+        if (contractors.length === 0) {
+          listEl.innerHTML = '<li>No contractors yet.</li>';
+          return;
+        }
+
+        listEl.innerHTML = '';
+
+        contractors.forEach(c => {
+          const li = document.createElement('li');
+          li.style.marginBottom = '15px';
+          li.style.padding = '10px';
+          li.style.border = '1px solid #ddd';
+          li.style.borderRadius = '8px';
+          li.style.background = '#fafafa';
+
+          li.innerHTML = `
+            <strong>${c.companyName}</strong><br>
+            ${c.email}<br>
+            Status: <strong>${c.approved ? 'Approved' : 'Pending'}</strong>
+          `;
+
+          const btnApprove = document.createElement('button');
+          btnApprove.textContent = 'Approve';
+          btnApprove.className = 'cta-btn';
+          btnApprove.style.marginRight = '10px';
+          btnApprove.onclick = () => approveContractor(c.id, true);
+
+          const btnRevoke = document.createElement('button');
+          btnRevoke.textContent = 'Revoke';
+          btnRevoke.className = 'cta-btn';
+          btnRevoke.style.background = '#c0392b';
+          btnRevoke.onclick = () => approveContractor(c.id, false);
+
+          li.appendChild(document.createElement('br'));
+          li.appendChild(btnApprove);
+          li.appendChild(btnRevoke);
+
+          listEl.appendChild(li);
+        });
+
+      } catch (err) {
+        listEl.innerHTML = '<li>Error loading contractors.</li>';
+      }
+    }
+
+    load();
+  </script>
+
+</body>
+</html>
