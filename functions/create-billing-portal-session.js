@@ -1,37 +1,33 @@
-import Stripe from "stripe"
-
 export async function onRequestPost(context) {
     const { request, env } = context
 
+    // Read session cookie
     const cookie = request.headers.get("Cookie") || ""
     const session = cookie.match(/session=([^;]+)/)?.[1]
     if (!session) return unauthorized()
 
     const sessionData = await env.SESSIONS.get(session, { type: "json" })
-    if (!sessionData) return unauthorized()
+    if (!sessionData || sessionData.type !== "contractor") return unauthorized()
 
-    const { email, type } = sessionData
-    if (type !== "contractor") return unauthorized()
+    const contractorEmail = sessionData.email
 
-    const contractor = await env.CONTRACTORS.get(email, { type: "json" })
-    if (!contractor || !contractor.stripeCustomerId) {
-        return new Response("No Stripe customer found", { status: 400 })
-    }
+    // Stripe client
+    const stripe = require("stripe")(env.STRIPE_SECRET_KEY)
 
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: "2023-10-16"
+    // Create billing portal session
+    const portal = await stripe.billingPortal.sessions.create({
+        customer_email: contractorEmail,
+        return_url: `${env.PUBLIC_URL}/#/billing`
     })
 
-    const portalSession = await stripe.billingPortal.sessions.create({
-        customer: contractor.stripeCustomerId,
-        return_url: `${env.PUBLIC_URL}/#billing`
-    })
-
-    return new Response(JSON.stringify({ url: portalSession.url }), {
+    return new Response(JSON.stringify({ url: portal.url }), {
         headers: { "Content-Type": "application/json" }
     })
 }
 
 function unauthorized() {
-    return new Response("Unauthorized", { status: 401 })
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+    })
 }
