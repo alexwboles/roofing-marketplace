@@ -1,3 +1,4 @@
+<!-- force redeploy -->
 // Simple SPA router + page shells with modern layout.
 // Assumes your backend functions are already deployed via Cloudflare Pages Functions.
 
@@ -796,3 +797,4 @@ function handleRouteChange() {
 
 window.addEventListener("hashchange", handleRouteChange);
 window.addEventListener("load", handleRouteChange);
+
