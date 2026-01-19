@@ -1,55 +1,44 @@
-import Stripe from "stripe"
-
 export async function onRequestPost(context) {
     const { request, env } = context
 
+    // Read session cookie
     const cookie = request.headers.get("Cookie") || ""
     const session = cookie.match(/session=([^;]+)/)?.[1]
     if (!session) return unauthorized()
 
     const sessionData = await env.SESSIONS.get(session, { type: "json" })
-    if (!sessionData) return unauthorized()
+    if (!sessionData || sessionData.type !== "contractor") return unauthorized()
 
-    const { email, type } = sessionData
-    if (type !== "contractor") return unauthorized()
+    const contractorEmail = sessionData.email
 
-    const contractor = await env.CONTRACTORS.get(email, { type: "json" }) || {}
+    // Stripe client
+    const stripe = require("stripe")(env.STRIPE_SECRET_KEY)
 
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: "2023-10-16"
-    })
-
-    let customerId = contractor.stripeCustomerId
-
-    if (!customerId) {
-        const customer = await stripe.customers.create({
-            email,
-            metadata: { contractorEmail: email }
-        })
-        customerId = customer.id
-
-        contractor.stripeCustomerId = customerId
-        await env.CONTRACTORS.put(email, JSON.stringify(contractor))
-    }
-
-    const sessionObj = await stripe.checkout.sessions.create({
+    // Create checkout session
+    const checkout = await stripe.checkout.sessions.create({
         mode: "subscription",
-        customer: customerId,
+        customer_email: contractorEmail,
         line_items: [
             {
-                price: env.STRIPE_PRICE_ID,
+                price: env.STRIPE_PRICE_ID, // your monthly subscription price
                 quantity: 1
             }
         ],
-        success_url: `${env.PUBLIC_URL}/#billing`,
-        cancel_url: `${env.PUBLIC_URL}/#billing`
+        success_url: `${env.PUBLIC_URL}/#/billing?success=true`,
+        cancel_url: `${env.PUBLIC_URL}/#/billing?canceled=true`,
+        metadata: {
+            contractorEmail
+        }
     })
 
-    return new Response(JSON.stringify({ url: sessionObj.url }), {
+    return new Response(JSON.stringify({ url: checkout.url }), {
         headers: { "Content-Type": "application/json" }
     })
 }
 
 function unauthorized() {
-    return new Response("Unauthorized", { status: 401 })
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+    })
 }
