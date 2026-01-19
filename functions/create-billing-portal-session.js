@@ -1,33 +1,40 @@
 export async function onRequestPost(context) {
-    const { request, env } = context
+  const { request, env } = context
 
-    // Read session cookie
-    const cookie = request.headers.get("Cookie") || ""
-    const session = cookie.match(/session=([^;]+)/)?.[1]
-    if (!session) return unauthorized()
+  try {
+    const body = await request.json()
+    const { customer_id, return_url } = body
 
-    const sessionData = await env.SESSIONS.get(session, { type: "json" })
-    if (!sessionData || sessionData.type !== "contractor") return unauthorized()
+    const params = new URLSearchParams()
+    params.append("customer", customer_id)
+    if (return_url) params.append("return_url", return_url)
 
-    const contractorEmail = sessionData.email
-
-    // Stripe client
-    const stripe = require("stripe")(env.STRIPE_SECRET_KEY)
-
-    // Create billing portal session
-    const portal = await stripe.billingPortal.sessions.create({
-        customer_email: contractorEmail,
-        return_url: `${env.PUBLIC_URL}/#/billing`
+    const stripeRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
     })
 
-    return new Response(JSON.stringify({ url: portal.url }), {
-        headers: { "Content-Type": "application/json" }
-    })
-}
+    const data = await stripeRes.json()
 
-function unauthorized() {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
+    if (!stripeRes.ok) {
+      return new Response(JSON.stringify({ error: data }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+
+    return new Response(JSON.stringify({ url: data.url }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     })
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Failed to create billing portal session" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
 }
