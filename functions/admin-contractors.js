@@ -1,6 +1,7 @@
 export async function onRequest(context) {
     const { env } = context
 
+    // Load all contractors
     const list = await env.CONTRACTORS.list()
     const contractors = []
 
