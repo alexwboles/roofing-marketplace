@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roof Health Score – Roofing Marketplace</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+  <nav class="topbar">
+    <a href="/" class="logo">Roofing Marketplace</a>
+    <div class="nav-links">
+      <a href="/">Overview</a>
+      <a href="/dashboard">My Dashboard</a>
+      <a href="/roof-health" class="active">Roof Health</a>
+    </div>
+  </nav>
+
+  <header class="dashboard-hero-illustrated">
+    <div class="hero-text">
+      <h1>Your Roof Health Report</h1>
+      <p>A complete AI‑powered analysis of your roof’s condition.</p>
+    </div>
+
+    <div class="hero-illustration">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Roof illustration">
+    </div>
+  </header>
+
+  <!-- ROOF HEALTH SCORE -->
+  <section class="roof-health-widget">
+    <h2>Roof Health Score</h2>
+
+    <div class="health-score-container">
+      <div class="health-score-circle">
+        <span class="score-number">82</span>
+      </div>
+
+      <div class="health-score-details">
+        <p class="score-label">Overall Condition: <strong>Good</strong></p>
+        <p class="score-desc">
+          Based on your recent photo uploads and AI analysis, your roof is in good condition.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section class="metric-breakdown">
+    <h2>Roof Metrics Breakdown</h2>
+
+    <div class="metric-grid">
+      <div class="metric-card"><h4>Age</h4><p>12 years</p></div>
+      <div class="metric-card"><h4>Material</h4><p>Architectural Shingle</p></div>
+      <div class="metric-card"><h4>Pitch</h4><p>6/12</p></div>
+      <div class="metric-card"><h4>Damage Level</h4><p>Low</p></div>
+      <div class="metric-card"><h4>Complexity</h4><p>Moderate</p></div>
+      <div class="metric-card"><h4>Square Footage</h4><p>2450 sq ft</p></div>
+      <div class="metric-card"><h4>Valleys</h4><p>4</p></div>
+      <div class="metric-card"><h4>Stacks</h4><p>3</p></div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDED ACTIONS -->
+  <section class="recommended-actions">
+    <h2>Recommended Actions</h2>
+    <ul>
+      <li>✔ Clean gutters to improve water flow</li>
+      <li>✔ Replace 2–3 worn shingles</li>
+      <li>✔ Schedule a full inspection within 12 months</li>
+    </ul>
+  </section>
+
+  <!-- LIFESPAN -->
+  <section class="lifespan-widget">
+    <h2>Estimated Remaining Lifespan</h2>
+    <div class="lifespan-bar"><div class="lifespan-fill" style="width: 68%"></div></div>
+    <p class="lifespan-label">Approximately 12–15 years remaining</p>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="maintenance-timeline">
+    <h2>Maintenance Timeline</h2>
+    <div class="timeline">
+      <div class="timeline-item"><span class="timeline-dot"></span><p><strong>2024:</strong> Clean gutters & inspect flashing</p></div>
+      <div class="timeline-item"><span class="timeline-dot"></span><p><strong>2026:</strong> Replace worn shingles</p></div>
+      <div class="timeline-item"><span class="timeline-dot"></span><p><strong>2029:</strong> Full roof inspection recommended</p></div>
+      <div class="timeline-item"><span class="timeline-dot"></span><p><strong>2034:</strong> Begin planning for replacement</p></div>
+    </div>
+  </section>
+
+  <script>
+    // Same dashboard wiring script — reads from localStorage
+    (function () {
+      const raw = localStorage.getItem('roofAnalysis');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+
+      document.querySelector('.score-number').textContent = data.roofHealthScore;
+      document.querySelector('.score-label strong').textContent = data.condition;
+      document.querySelector('.score-desc').textContent =
+        `Based on your recent photo uploads and AI analysis, your roof is in ${data.condition.toLowerCase()} condition.`;
+
+      const metrics = {
+        'Age': `${data.ageEstimateYears} years`,
+        'Material': data.materialType,
+        'Pitch': data.pitch,
+        'Damage Level': data.damageLevel,
+        'Complexity': data.complexity,
+        'Square Footage': `${data.estimatedSquareFootage} sq ft`,
+        'Valleys': data.valleyCount,
+        'Stacks': data.stackCount
+      };
+
+      document.querySelectorAll('.metric-card').forEach(card => {
+        const title = card.querySelector('h4').textContent;
+        card.querySelector('p').textContent = metrics[title];
+      });
+    })();
+  </script>
+
+</body>
+</html>
