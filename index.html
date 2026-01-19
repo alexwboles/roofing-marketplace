@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <title>Roofing Marketplace – AI-Powered Roofing Quotes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Load global styles -->
   <link rel="stylesheet" href="/css/styles.css" />
+
   <style>
     .hero {
       max-width: 1120px;
@@ -15,17 +18,20 @@
       gap: 40px;
       align-items: center;
     }
+
     .hero-title {
       font-size: 2.4rem;
       line-height: 1.1;
       margin-bottom: 14px;
     }
+
     .hero-sub {
       color: var(--muted);
       font-size: 1rem;
       max-width: 480px;
       margin-bottom: 22px;
     }
+
     .badge {
       padding: 6px 10px;
       border-radius: 999px;
@@ -37,6 +43,7 @@
       display: inline-block;
       margin-bottom: 10px;
     }
+
     .hero-card {
       background: #020617;
       border-radius: 18px;
@@ -44,15 +51,175 @@
       border: 1px solid rgba(148,163,184,0.4);
       box-shadow: var(--shadow-soft);
     }
+
     .hero-metric {
       display: flex;
       justify-content: space-between;
       padding: 6px 0;
       border-bottom: 1px solid rgba(31,41,55,0.8);
     }
+
     .section {
       max-width: 1120px;
       margin: 0 auto 40px;
       padding: 0 20px;
     }
+
     .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 14px 14px;
+      border: 1px solid rgba(31,41,55,0.9);
+      font-size: 0.9rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: 6px;
+    }
+
+    .footer {
+      max-width: 1120px;
+      margin: 40px auto 30px;
+      padding: 0 20px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(31,41,55,0.9);
+      padding-top: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Navigation -->
+  <div id="topNav">
+    <div class="brand">Roofing Marketplace</div>
+    <div class="nav-links">
+      <button onclick="location.href='/#/dashboard'">Launch App</button>
+    </div>
+  </div>
+
+  <!-- MARKETING LANDING PAGE -->
+  <main>
+    <section class="hero">
+      <div>
+        <div class="badge">For Roofing Contractors & Homeowners</div>
+
+        <h1 class="hero-title">AI‑Powered Roofing Quotes in Minutes, Not Days.</h1>
+
+        <p class="hero-sub">
+          Upload roof photos, fuse them with satellite imagery, and generate accurate, contractor‑ready quotes—automatically.
+        </p>
+
+        <div class="hero-badges">
+          <div class="badge">Multi‑Photo Roof Analysis</div>
+          <div class="badge">Satellite Fusion</div>
+          <div class="badge">Materials Estimation</div>
+          <div class="badge">Stripe Billing</div>
+        </div>
+
+        <div class="hero-cta">
+          <button onclick="location.href='/#/dashboard'">Launch the App</button>
+          <small style="color: var(--muted); margin-left: 10px;">No installs. Runs entirely in your browser.</small>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <h3>What the AI sees on your roof:</h3>
+
+        <div class="hero-metric">
+          <span>Roof Type</span>
+          <strong>Architectural Shingle</strong>
+        </div>
+
+        <div class="hero-metric">
+          <span>Pitch</span>
+          <strong>7/12 (approx. 30°)</strong>
+        </div>
+
+        <div class="hero-metric">
+          <span>Estimated Square Footage</span>
+          <strong>2,450 sq ft</strong>
+        </div>
+
+        <div class="hero-metric">
+          <span>Material Bundles (incl. waste)</span>
+          <strong>84 bundles</strong>
+        </div>
+
+        <p style="margin-top:10px;font-size:0.8rem;color:var(--muted);">
+          All generated automatically from your photos and satellite imagery—before a contractor ever sets foot on a ladder.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Built for Modern Roofing Teams</h2>
+
+      <p class="hero-sub" style="margin-bottom:18px;">
+        Roofing Marketplace combines AI, satellite data, and a contractor marketplace into one streamlined platform.
+      </p>
+
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <h3>AI Roof Analysis</h3>
+          <p>Upload up to five photos. We detect roof type, pitch, and estimated square footage automatically.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Satellite Fusion</h3>
+          <p>We blend your photos with satellite imagery to refine measurements and reduce guesswork.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Materials & Labor</h3>
+          <p>Auto‑generated materials lists and labor estimates give contractors a head start on every bid.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Contractor Marketplace</h3>
+          <p>Qualified, verified contractors receive leads and submit bids through a simple, modern dashboard.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Admin & Billing</h3>
+          <p>Admin tools, Stripe subscriptions, and a leaderboard keep your marketplace healthy and aligned.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>AI Insights</h3>
+          <p>Contractors get personalized AI feedback on their bidding performance and opportunities to improve.</p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- SPA MOUNT POINT -->
+  <div id="app"></div>
+
+  <!-- Load SPA JavaScript -->
+  <script src="/js/app.js"></script>
+
+</body>
+</html>
