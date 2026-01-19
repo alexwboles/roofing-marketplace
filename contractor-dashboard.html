@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contractor Dashboard – Roofing Marketplace</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+  <nav class="topbar">
+    <a href="/" class="logo">Roofing Marketplace</a>
+    <div class="nav-links">
+      <a href="/contractor-dashboard" class="active">Contractor Dashboard</a>
+      <a href="/dashboard">Client Dashboard</a>
+    </div>
+  </nav>
+
+  <header class="dashboard-hero-illustrated">
+    <div class="hero-text">
+      <h1>Contractor Control Center</h1>
+      <p>Manage pricing, availability, service areas, and incoming leads.</p>
+    </div>
+
+    <div class="hero-illustration">
+      <img src="https://images.unsplash.com/photo-1581091012184-5c7b6c2a5d79" alt="Contractor tools">
+    </div>
+  </header>
+
+  <!-- PRICING MODEL -->
+  <section class="page-container">
+    <h2>Pricing Model</h2>
+    <p>Set your pricing so the AI can generate accurate quotes for customers.</p>
+
+    <div class="upload-box">
+      <form id="pricing-form">
+        <label>Price per Square (Architectural Shingle)</label>
+        <input type="number" id="price-arch" placeholder="e.g. 350" />
+
+        <label>Price per Square (3‑Tab Shingle)</label>
+        <input type="number" id="price-3tab" placeholder="e.g. 300" />
+
+        <label>Price per Square (Metal)</label>
+        <input type="number" id="price-metal" placeholder="e.g. 550" />
+
+        <button type="submit" class="cta-btn">Save Pricing</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SERVICE AREA -->
+  <section class="page-container">
+    <h2>Service Area</h2>
+    <p>Enter the ZIP codes or cities where you accept jobs.</p>
+
+    <div class="upload-box">
+      <form id="service-area-form">
+        <textarea id="service-area" placeholder="32084, 32086, Jacksonville, St Augustine..."></textarea>
+        <button type="submit" class="cta-btn">Save Service Area</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- AVAILABILITY -->
+  <section class="page-container">
+    <h2>Availability</h2>
+    <p>Tell us when you're available for inspections or installs.</p>
+
+    <div class="upload-box">
+      <form id="availability-form">
+        <label>Available Days</label>
+        <input type="text" id="days" placeholder="Mon–Fri" />
+
+        <label>Available Hours</label>
+        <input type="text" id="hours" placeholder="8am–5pm" />
+
+        <button type="submit" class="cta-btn">Save Availability</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- LEADS -->
+  <section class="page-container">
+    <h2>Incoming Leads</h2>
+    <p>These are customers matched to you based on pricing, area, and availability.</p>
+
+    <div class="placeholder-box">
+      <p>No leads yet.</p>
+    </div>
+  </section>
+
+  <script>
+    // Save contractor settings locally (replace with backend later)
+    function save(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+      alert('Saved!');
+    }
+
+    document.getElementById('pricing-form').addEventListener('submit', e => {
+      e.preventDefault();
+      save('contractorPricing', {
+        arch: document.getElementById('price-arch').value,
+        tab: document.getElementById('price-3tab').value,
+        metal: document.getElementById('price-metal').value
+      });
+    });
+
+    document.getElementById('service-area-form').addEventListener('submit', e => {
+      e.preventDefault();
+      save('contractorServiceArea', document.getElementById('service-area').value);
+    });
+
+    document.getElementById('availability-form').addEventListener('submit', e => {
+      e.preventDefault();
+      save('contractorAvailability', {
+        days: document.getElementById('days').value,
+        hours: document.getElementById('hours').value
+      });
+    });
+  </script>
+
+</body>
+</html>
