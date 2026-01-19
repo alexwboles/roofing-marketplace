@@ -43,7 +43,7 @@ body {
   color: #0077ff;
 }
 
-/* HERO SECTION */
+/* HERO SECTION (HOME) */
 .hero {
   position: relative;
   text-align: center;
@@ -195,6 +195,172 @@ body {
 .card-projects { border-top: 4px solid #fdcb6e; }
 .card-payments { border-top: 4px solid #e17055; }
 
+/* ROOF HEALTH SCORE WIDGET */
+.roof-health-widget {
+  max-width: 1100px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.roof-health-widget h2 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.health-score-container {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.health-score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(#00c853 0% 82%, #e0e0e0 82% 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.score-number {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #0077ff;
+}
+
+.health-score-details {
+  flex: 1;
+}
+
+.score-label {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.score-desc {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* METRIC BREAKDOWN */
+.metric-breakdown {
+  max-width: 1100px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: #f8f9fb;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.metric-card h4 {
+  margin-bottom: 6px;
+  font-size: 1.1rem;
+}
+
+/* RECOMMENDED ACTIONS */
+.recommended-actions {
+  max-width: 1100px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.recommended-actions ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.recommended-actions li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1.1rem;
+}
+
+.recommended-actions li:last-child {
+  border-bottom: none;
+}
+
+/* LIFESPAN WIDGET */
+.lifespan-widget {
+  max-width: 1100px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.lifespan-bar {
+  width: 100%;
+  height: 20px;
+  background: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.lifespan-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00c853, #00e676);
+}
+
+.lifespan-label {
+  font-size: 1.1rem;
+  color: #444;
+}
+
+/* MAINTENANCE TIMELINE */
+.maintenance-timeline {
+  max-width: 1100px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.timeline {
+  border-left: 3px solid #0077ff;
+  padding-left: 20px;
+}
+
+.timeline-item {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.timeline-dot {
+  width: 14px;
+  height: 14px;
+  background: #0077ff;
+  border-radius: 50%;
+  position: absolute;
+  left: -30px;
+  top: 4px;
+}
+
 /* RECENT ACTIVITY */
 .recent-activity {
   max-width: 1100px;
@@ -231,7 +397,7 @@ body {
   border-bottom: none;
 }
 
-/* PAGE LAYOUT */
+/* PAGE LAYOUT (OTHER PAGES) */
 .page-container {
   max-width: 900px;
   margin: 40px auto;
