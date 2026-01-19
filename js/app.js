@@ -1,5 +1,5 @@
 /******************************************************
- * 1. ROUTER
+ * ROUTER
  ******************************************************/
 
 window.addEventListener("hashchange", router)
@@ -81,7 +81,7 @@ async function requireContractor(me) {
 }
 
 /******************************************************
- * 2. AUTH VIEWS
+ * AUTH VIEWS
  ******************************************************/
 
 function userLoginView() {
@@ -133,16 +133,40 @@ async function verifyLoginCode() {
 }
 
 /******************************************************
- * 3. CLIENT VIEWS
+ * CLIENT VIEWS
  ******************************************************/
 
 function homeView() {
     return `
-        <div class="home">
-            <h1>Welcome to the Roofing Marketplace</h1>
-            <p>Instant quotes. Verified contractors. Smart roofing decisions.</p>
-            <button onclick="window.location.hash='intake'">Start Your Quote</button>
-        </div>
+        <section class="hero">
+            <h1>Roofing Marketplace</h1>
+            <p>The fastest way to get roofing quotes — and the smartest way for contractors to win more jobs.</p>
+            <button onclick="window.location.hash='intake'">Get Your Free Quote</button>
+        </section>
+
+        <section class="features">
+            <h2>For Homeowners</h2>
+            <div class="feature-grid">
+                <div class="feature">
+                    <h3>Instant Quotes</h3>
+                    <p>Get a real roofing estimate in minutes, not days.</p>
+                </div>
+                <div class="feature">
+                    <h3>Verified Contractors</h3>
+                    <p>Every roofer is screened and approved.</p>
+                </div>
+                <div class="feature">
+                    <h3>Compare Bids</h3>
+                    <p>See contractor bids side‑by‑side.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Ready to get started?</h2>
+            <button onclick="window.location.hash='user-login'">Join as a Contractor</button>
+            <button class="secondary" onclick="window.location.hash='intake'">Get a Quote</button>
+        </section>
     `
 }
 
@@ -220,7 +244,7 @@ async function loadBidsForLead(leadId) {
 }
 
 /******************************************************
- * 4. CONTRACTOR VIEWS
+ * CONTRACTOR VIEWS
  ******************************************************/
 
 async function loadRooferDashboard() {
@@ -324,7 +348,7 @@ async function saveContractorProfile() {
 }
 
 /******************************************************
- * 5. BILLING
+ * BILLING
  ******************************************************/
 
 async function loadBilling() {
@@ -352,7 +376,7 @@ async function openBillingPortal() {
 }
 
 /******************************************************
- * 6. ADMIN
+ * ADMIN
  ******************************************************/
 
 async function loadAdminData() {
@@ -406,7 +430,7 @@ async function updateContractorStatus(email, status) {
 }
 
 /******************************************************
- * 7. LEADERBOARD
+ * LEADERBOARD
  ******************************************************/
 
 async function loadLeaderboard() {
@@ -434,7 +458,7 @@ function leaderboardView(rows) {
 }
 
 /******************************************************
- * 8. UTILITIES
+ * UTILITIES
  ******************************************************/
 
 async function fetchJSON(url) {
