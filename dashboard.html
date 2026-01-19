@@ -181,5 +181,79 @@
     </ul>
   </section>
 
+  <script>
+    (function () {
+      const raw = localStorage.getItem('roofAnalysis');
+      if (!raw) return;
+
+      const data = JSON.parse(raw);
+
+      // Roof Health Score
+      const scoreEl = document.querySelector('.score-number');
+      const conditionEl = document.querySelector('.score-label strong');
+      const descEl = document.querySelector('.score-desc');
+
+      if (scoreEl) scoreEl.textContent = data.roofHealthScore;
+      if (conditionEl) conditionEl.textContent = data.condition;
+
+      if (descEl) {
+        descEl.textContent =
+          `Based on your recent photo uploads and AI analysis, your roof is in ${data.condition.toLowerCase()} condition.`;
+      }
+
+      // Metrics
+      const metricCards = document.querySelectorAll('.metric-card');
+      metricCards.forEach((card) => {
+        const title = card.querySelector('h4')?.textContent;
+        const p = card.querySelector('p');
+        if (!title || !p) return;
+
+        if (title === 'Age') p.textContent = `${data.ageEstimateYears} years`;
+        if (title === 'Material') p.textContent = data.materialType;
+        if (title === 'Pitch') p.textContent = data.pitch;
+        if (title === 'Damage Level') p.textContent = data.damageLevel;
+        if (title === 'Complexity') p.textContent = data.complexity;
+      });
+
+      // Recommended Actions
+      const actionsList = document.querySelector('.recommended-actions ul');
+      if (actionsList && Array.isArray(data.recommendedActions)) {
+        actionsList.innerHTML = '';
+        data.recommendedActions.forEach((action) => {
+          const li = document.createElement('li');
+          li.textContent = `✔ ${action}`;
+          actionsList.appendChild(li);
+        });
+      }
+
+      // Lifespan
+      const lifespanLabel = document.querySelector('.lifespan-label');
+      if (lifespanLabel) {
+        lifespanLabel.textContent =
+          `Approximately ${data.lifespanYearsRemaining} years remaining`;
+      }
+
+      // Maintenance Timeline
+      const timelineEl = document.querySelector('.maintenance-timeline .timeline');
+      if (timelineEl && Array.isArray(data.maintenanceTimeline)) {
+        timelineEl.innerHTML = '';
+        data.maintenanceTimeline.forEach((item) => {
+          const div = document.createElement('div');
+          div.className = 'timeline-item';
+
+          const dot = document.createElement('span');
+          dot.className = 'timeline-dot';
+
+          const p = document.createElement('p');
+          p.innerHTML = `<strong>${item.year}:</strong> ${item.action}`;
+
+          div.appendChild(dot);
+          div.appendChild(p);
+          timelineEl.appendChild(div);
+        });
+      }
+    })();
+  </script>
+
 </body>
 </html>
