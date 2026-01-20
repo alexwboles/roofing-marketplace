@@ -1,4 +1,18 @@
 /* ============================================================
+   GLOBAL AI PHOTO STORE
+============================================================ */
+
+const AIPhotoStore = {
+  files: [],
+  set(files) {
+    this.files = [...files];
+  },
+  get() {
+    return this.files;
+  }
+};
+
+/* ============================================================
    THEME
 ============================================================ */
 
@@ -112,7 +126,7 @@ function wireTopbar() {
 }
 
 /* ============================================================
-   HOME PAGE (with photo upload)
+   HOME PAGE (with AI photo linking)
 ============================================================ */
 
 function renderHome() {
@@ -135,26 +149,16 @@ function renderHome() {
               <input id="home-upload" type="file" accept="image/*" multiple style="display:none;">
             </label>
           </div>
-
-          <div id="home-upload-preview" class="upload-grid"></div>
         </div>
       </div>
     </section>
   `);
 
   const input = document.getElementById("home-upload");
-  const preview = document.getElementById("home-upload-preview");
 
   input.onchange = () => {
-    preview.innerHTML = "";
-    [...input.files].forEach(file => {
-      const url = URL.createObjectURL(file);
-      preview.innerHTML += `
-        <div class="card" style="padding:8px;">
-          <img src="${url}" style="width:100%; border-radius:6px;">
-        </div>
-      `;
-    });
+    AIPhotoStore.set(input.files);
+    navigate("/health");
   };
 }
 
@@ -165,27 +169,8 @@ function renderHome() {
 function renderFeatures() {
   mount(`
     <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Features</h1>
-        <p>Everything you need to turn roof data into decisions.</p>
-      </header>
-
-      <div class="grid-3">
-        <div class="card">
-          <h3 class="card-title">AI Roof Scan</h3>
-          <p class="card-subtitle">Detect damage, aging, and risk.</p>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">Contractor Workflow</h3>
-          <p class="card-subtitle">From intake to signed quote.</p>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">Homeowner Reports</h3>
-          <p class="card-subtitle">Plain-language roof health summaries.</p>
-        </div>
-      </div>
+      <h1>Features</h1>
+      <p>Everything you need to turn roof data into decisions.</p>
     </section>
   `);
 }
@@ -197,26 +182,19 @@ function renderFeatures() {
 function renderHomeLookup() {
   mount(`
     <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Home Lookup</h1>
-        <p>Enter an address to simulate a lookup.</p>
-      </header>
+      <h1>Home Lookup</h1>
 
-      <div class="grid-2">
-        <form id="lookup-form" class="card">
-          <div class="form-field">
-            <label>Address</label>
-            <input id="lookup-address" type="text">
-          </div>
-          <button class="btn-primary">Run Lookup</button>
-        </form>
-
-        <div class="card">
-          <h3 class="card-title">Lookup Result</h3>
-          <ul id="lookup-result" class="detail-list">
-            <li>—</li>
-          </ul>
+      <form id="lookup-form" class="card">
+        <div class="form-field">
+          <label>Address</label>
+          <input id="lookup-address" type="text">
         </div>
+        <button class="btn-primary">Run Lookup</button>
+      </form>
+
+      <div class="card" style="margin-top:20px;">
+        <h3>Lookup Result</h3>
+        <ul id="lookup-result" class="detail-list"><li>—</li></ul>
       </div>
     </section>
   `);
@@ -239,16 +217,14 @@ function renderHomeLookup() {
 }
 
 /* ============================================================
-   INTAKE (with photo upload)
+   INTAKE (with AI photo linking)
 ============================================================ */
 
 function renderIntake() {
   mount(`
     <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Intake</h1>
-        <p>Collect homeowner details and roof photos.</p>
-      </header>
+      <h1>Intake</h1>
+      <p>Collect homeowner details and roof photos.</p>
 
       <div class="grid-2">
         <form id="intake-form" class="card">
@@ -272,13 +248,11 @@ function renderIntake() {
             <input id="intake-photos" type="file" accept="image/*" multiple>
           </div>
 
-          <div id="intake-preview" class="upload-grid"></div>
-
           <button class="btn-primary">Save Intake</button>
         </form>
 
         <div class="card">
-          <h3 class="card-title">Next Steps</h3>
+          <h3>Next Steps</h3>
           <ul class="detail-list">
             <li>Run AI analysis on Roof Health page.</li>
             <li>Generate quotes on Quotes page.</li>
@@ -289,18 +263,10 @@ function renderIntake() {
   `);
 
   const input = document.getElementById("intake-photos");
-  const preview = document.getElementById("intake-preview");
 
   input.onchange = () => {
-    preview.innerHTML = "";
-    [...input.files].forEach(file => {
-      const url = URL.createObjectURL(file);
-      preview.innerHTML += `
-        <div class="card" style="padding:8px;">
-          <img src="${url}" style="width:100%; border-radius:6px;">
-        </div>
-      `;
-    });
+    AIPhotoStore.set(input.files);
+    navigate("/health");
   };
 
   document.getElementById("intake-form").onsubmit = e => {
@@ -310,18 +276,46 @@ function renderIntake() {
 }
 
 /* ============================================================
-   ROOF HEALTH
+   ROOF HEALTH (AI photo analysis)
 ============================================================ */
 
 function renderRoofHealth() {
+  const files = AIPhotoStore.get();
+
+  let previews = "";
+  if (files.length) {
+    previews = [...files]
+      .map(file => {
+        const url = URL.createObjectURL(file);
+        return `
+          <div class="card" style="padding:8px;">
+            <img src="${url}" style="width:100%; border-radius:6px;">
+          </div>
+        `;
+      })
+      .join("");
+  }
+
   mount(`
     <section class="page-container fade-in-up">
       <h1>Roof Health</h1>
-      <p>AI-generated roof health summary.</p>
+      <p>AI-generated roof health summary based on uploaded photos.</p>
 
-      <div class="card">
-        <h3>Health Score</h3>
-        <div class="score-circle">68</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Uploaded Photos</h3>
+          <div class="upload-grid">${previews || "<p>No photos uploaded yet.</p>"}</div>
+        </div>
+
+        <div class="card">
+          <h3>AI Analysis</h3>
+          <ul class="detail-list">
+            <li><strong>Shingle Wear:</strong> Moderate granule loss</li>
+            <li><strong>Flashing:</strong> Possible gaps around vents</li>
+            <li><strong>Storm Damage:</strong> Hail impact patterns detected</li>
+            <li><strong>Recommended Action:</strong> Replace within 12–18 months</li>
+          </ul>
+        </div>
       </div>
     </section>
   `);
@@ -335,8 +329,6 @@ function renderQuotes() {
   mount(`
     <section class="page-container fade-in-up">
       <h1>Quotes</h1>
-      <p>Compare contractor-ready quotes.</p>
-
       <div class="quotes-grid">
         <div class="quote-card"><h3>Premier Peak</h3><p>$14,200</p></div>
         <div class="quote-card"><h3>Sunrise Roofing</h3><p>$12,900</p></div>
@@ -536,7 +528,7 @@ function renderPayments() {
 }
 
 /* ============================================================
-   UPLOAD PAGE
+   UPLOAD PAGE (AI photo linking)
 ============================================================ */
 
 function renderUpload() {
@@ -551,8 +543,6 @@ function renderUpload() {
             <input id="upload-input" type="file" accept="image/*" multiple>
           </div>
 
-          <div id="upload-preview" class="upload-grid"></div>
-
           <button class="btn-primary" style="margin-top:16px;">Analyze Roof</button>
         </form>
       </div>
@@ -560,8 +550,29 @@ function renderUpload() {
   `);
 
   const input = document.getElementById("upload-input");
-  const preview = document.getElementById("upload-preview");
 
   input.onchange = () => {
-    preview.innerHTML = "";
-    [...
+    AIPhotoStore.set(input.files);
+  };
+
+  document.getElementById("upload-form").onsubmit = e => {
+    e.preventDefault();
+    if (!AIPhotoStore.get().length) {
+      alert("Please upload at least one photo");
+      return;
+    }
+    navigate("/health");
+  };
+}
+
+/* ============================================================
+   ADMIN DASHBOARD
+============================================================ */
+
+function renderAdminDashboard() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <h1>Admin Dashboard</h1>
+      <div class="grid-3">
+        <div class="card stat-card"><h3>Total Contractors</h3><p class="stat-value">142</p></div>
+        <div class="card stat-card"><h3>Active Sessions</h3><p
