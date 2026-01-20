@@ -1,23 +1,10 @@
 export async function onRequestPost(context) {
-  const { request } = context;
-  const body = await request.json().catch(() => ({}));
-  const roofArea = body.roofArea || 2100;
+  const { roofArea } = await context.request.json();
 
-  const bundles = Math.ceil((roofArea / 33) * 1.1);
-  const underlaymentRolls = Math.ceil(roofArea / 400);
-  const dripEdgeFt = Math.ceil(Math.sqrt(roofArea) * 4);
-  const vents = 10;
-
-  const materials = {
-    roofArea,
-    bundles,
-    underlaymentRolls,
-    dripEdgeFt,
-    vents,
-    notes: "Adjust quantities based on local code, manufacturer specs, and roof complexity.",
-  };
-
-  return new Response(JSON.stringify(materials), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return new Response(JSON.stringify({
+    bundles: Math.ceil((roofArea / 33) * 1.1),
+    underlaymentRolls: Math.ceil(roofArea / 400),
+    dripEdgeFt: Math.ceil(Math.sqrt(roofArea) * 4),
+    vents: 10
+  }), { headers: { "Content-Type": "application/json" }});
 }
