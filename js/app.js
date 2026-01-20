@@ -1,147 +1,185 @@
-/* ============================
-   THEME SYSTEM
-============================ */
-const THEME_KEY="roofing_theme";
-function applyTheme(t){document.documentElement.setAttribute("data-theme",t);localStorage.setItem(THEME_KEY,t)}
-function initTheme(){const s=localStorage.getItem(THEME_KEY);const p=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;applyTheme(s|| (p?"dark":"light"))}
-function toggleTheme(){const c=document.documentElement.getAttribute("data-theme")||"light";applyTheme(c==="light"?"dark":"light")}
+// ---------- Theme ----------
 
-/* ============================
-   ROUTER
-============================ */
-const routes={
-  "/home":renderHome,
-  "/features":renderFeatures,
-  "/lookup":renderHomeLookup,
-  "/intake":renderIntake,
-  "/health":renderRoofHealth,
-  "/quotes":renderQuotes,
-  "/login":renderLogin,
-  "/dashboard":renderDashboard,
-  "/leaderboard":renderLeaderboard,
-  "/billing":renderBilling,
-  "/admin":renderAdmin,
-  "/insights":renderInsights
-};
-function getRoute(){const h=window.location.hash||"#/home";const p=h.replace("#","");return routes[p]?p:"/home"}
-function navigate(p){window.location.hash=p}
-function mount(html){
-  const app=document.getElementById("app");
-  if(!app)return;
-  app.innerHTML=`
-    <div class="app-shell">
-      ${renderTopNav()}
-      <div class="app-body">${html}</div>
-    </div>`;
+function initTheme() {
+  const root = document.documentElement;
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") {
+    root.setAttribute("data-theme", saved);
+  } else {
+    root.setAttribute("data-theme", "light");
+  }
 }
 
-/* ============================
-   NAVIGATION BAR
-============================ */
-function renderTopNav(){
-  const current=getRoute();
-  const theme=document.documentElement.getAttribute("data-theme")||"light";
-  const link=(p,l)=>`<a href="#${p}" class="nav-link ${current===p?"nav-link-active":""}">${l}</a>`;
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute("data-theme") || "light";
+  const next = current === "light" ? "dark" : "light";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+
+// ---------- Routing ----------
+
+const routes = {
+  "/home": renderHome,
+  "/features": renderFeatures,
+  "/lookup": renderHomeLookup,
+  "/intake": renderIntake,
+  "/health": renderRoofHealth,
+  "/quotes": renderQuotes,
+  "/login": renderLogin,
+  "/dashboard": renderDashboard,
+  "/leaderboard": renderLeaderboard,
+  "/billing": renderBilling,
+  "/admin": renderAdmin,
+  "/insights": renderInsights,
+  "/contractor-dashboard": renderContractorDashboard,
+  "/contractor-login": renderContractorLogin,
+  "/projects": renderProjects,
+  "/payments": renderPayments,
+  "/upload": renderUpload,
+  "/admin-dashboard": renderAdminDashboard
+};
+
+function getRoute() {
+  const hash = window.location.hash || "#/home";
+  const path = hash.replace("#", "");
+  return path || "/home";
+}
+
+function navigate(path) {
+  window.location.hash = "#" + path;
+}
+
+function mount(contentHtml) {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="app-shell">
+      ${renderTopbar()}
+      ${contentHtml}
+    </div>
+  `;
+  wireTopbar();
+}
+
+// ---------- Topbar ----------
+
+function renderTopbar() {
+  const route = getRoute();
+  const links = [
+    { path: "/home", label: "Home" },
+    { path: "/features", label: "Features" },
+    { path: "/lookup", label: "Home Lookup" },
+    { path: "/intake", label: "Intake" },
+    { path: "/health", label: "Roof Health" },
+    { path: "/quotes", label: "Quotes" },
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/projects", label: "Projects" },
+    { path: "/payments", label: "Payments" },
+    { path: "/contractor-login", label: "Contractor Login" },
+    { path: "/contractor-dashboard", label: "Contractor Dashboard" },
+    { path: "/admin-dashboard", label: "Admin" },
+    { path: "/insights", label: "Insights" }
+  ];
+
+  const navHtml = links
+    .map(link => {
+      const active = route === link.path ? "nav-link nav-link-active" : "nav-link";
+      return `<button class="${active}" data-nav="${link.path}">${link.label}</button>`;
+    })
+    .join("");
+
   return `
     <header class="topbar">
       <div class="topbar-left">
-        <a href="#/home" class="logo">Roofing Marketplace</a>
+        <div class="logo">Roofing Marketplace</div>
         <nav class="nav-links">
-          ${link("/home","Home")}
-          ${link("/features","Features")}
-          ${link("/lookup","Home Lookup")}
-          ${link("/intake","Upload Photos")}
-          ${link("/health","Roof Health")}
-          ${link("/quotes","Quotes")}
+          ${navHtml}
         </nav>
       </div>
       <div class="topbar-right">
-        <nav class="nav-links">
-          ${link("/dashboard","Dashboard")}
-          ${link("/login","Roofer Login")}
-        </nav>
-        <button class="theme-toggle" onclick="toggleTheme()">${theme==="light"?"🌙":"☀️"}</button>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌓</button>
       </div>
-    </header>`;
+    </header>
+  `;
 }
 
-/* ============================
-   HOME PAGE
-============================ */
-function renderHome(){
+function wireTopbar() {
+  document.querySelectorAll("[data-nav]").forEach(btn => {
+    btn.onclick = () => navigate(btn.getAttribute("data-nav"));
+  });
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle) toggle.onclick = toggleTheme;
+}
+
+// ---------- Pages ----------
+
+function renderHome() {
   mount(`
-    <section class="hero fade-in-up">
-      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80" class="hero-img" alt="Roof" />
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <h1>AI‑Powered Roof Health & Contractor Quotes</h1>
-        <p>Instant roof scoring, satellite outlines, and verified contractor quotes — all in one clean dashboard.</p>
-        <div class="hero-actions">
-          <a href="#/lookup" class="btn-primary">Look Up My Home</a>
-          <a href="#/intake" class="btn-secondary">Upload Roof Photos</a>
-        </div>
-        <div class="hero-meta">
-          <span>⚡ Under 60 seconds</span>
-          <span>🔒 Private</span>
-          <span>🏠 No sales pressure</span>
+    <section class="page-container fade-in-up">
+      <div class="hero">
+        <img class="hero-img" src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg" alt="Roofing" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <h1>AI-powered roof analysis for every home.</h1>
+          <p>Instant roof health insights, contractor-ready reports, and smarter quotes — all from satellite and photo uploads.</p>
+          <div class="hero-actions">
+            <button class="btn-primary" onclick="navigate('/lookup')">Run a home lookup</button>
+            <button class="btn-secondary" onclick="navigate('/features')">Explore features</button>
+          </div>
+          <div class="hero-meta">
+            <span>Built for roofers & insurers</span>
+            <span>Satellite + photo AI</span>
+            <span>Homeowner-friendly reports</span>
+          </div>
         </div>
       </div>
-    </section>
-
-    <section class="features-grid fade-in-up">
-      <article class="feature-card">
-        <img src="https://images.unsplash.com/photo-1597004891283-5e4c2c8e85b2?auto=format&fit=crop&w=900&q=80" class="feature-img" />
-        <h3>Smart Material Recognition</h3>
-        <p>AI identifies shingles, tiles, metal, and more with high accuracy.</p>
-      </article>
-
-      <article class="feature-card">
-        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=900&q=80" class="feature-img" />
-        <h3>Damage Detection</h3>
-        <p>Detect hail, wind, and age‑related wear — no ladder required.</p>
-      </article>
-
-      <article class="feature-card">
-        <img src="https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=900&q=80" class="feature-img" />
-        <h3>Verified Contractors</h3>
-        <p>Homeowners see clear options. Contractors get pre‑qualified leads.</p>
-      </article>
     </section>
   `);
 }
 
-/* ============================
-   FEATURES PAGE
-============================ */
-function renderFeatures(){
+function renderFeatures() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
-        <h1>Platform Features</h1>
-        <p>Everything you need to understand a roof clearly.</p>
+        <h1>Features</h1>
+        <p>Everything you need to turn roof data into decisions.</p>
       </header>
 
-      <div class="grid-2">
+      <div class="grid-3">
         <div class="card">
-          <div class="card-header"><h3 class="card-title">For Homeowners</h3></div>
-          <ul class="feature-list">
-            <li><strong>Home lookup:</strong> Pull roof details instantly.</li>
-            <li><strong>Satellite outline:</strong> Auto‑detected roof shape.</li>
-            <li><strong>Health score:</strong> 0–100 with explanation.</li>
-            <li><strong>Damage detection:</strong> Hail, wind, aging.</li>
-            <li><strong>Cost ranges:</strong> Localized estimates.</li>
-            <li><strong>Multiple quotes:</strong> Compare contractors.</li>
+          <div class="card-header">
+            <h3 class="card-title">AI Roof Scan</h3>
+            <p class="card-subtitle">Detect damage, aging, and risk from satellite and photo uploads.</p>
+          </div>
+          <ul class="detail-list">
+            <li><strong>Inputs:</strong> Satellite + photos</li>
+            <li><strong>Outputs:</strong> Risk score, damage map</li>
+            <li><strong>Use cases:</strong> Claims, inspections, sales</li>
           </ul>
         </div>
 
         <div class="card">
-          <div class="card-header"><h3 class="card-title">For Contractors</h3></div>
-          <ul class="feature-list">
-            <li><strong>Pre‑qualified leads:</strong> Homeowners arrive informed.</li>
-            <li><strong>AI takeoffs:</strong> Area, pitch, materials.</li>
-            <li><strong>Quote workspace:</strong> Start from AI ranges.</li>
-            <li><strong>Dashboard:</strong> Leads, bids, insights.</li>
-            <li><strong>Billing:</strong> Simple subscription.</li>
+          <div class="card-header">
+            <h3 class="card-title">Contractor Workflow</h3>
+            <p class="card-subtitle">From lead intake to signed quote in one flow.</p>
+          </div>
+          <ul class="detail-list">
+            <li><strong>Intake:</strong> Homeowner + property details</li>
+            <li><strong>Analysis:</strong> AI roof health</li>
+            <li><strong>Quotes:</strong> Side-by-side comparisons</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Homeowner Reports</h3>
+            <p class="card-subtitle">Plain-language roof health reports homeowners actually understand.</p>
+          </div>
+          <ul class="detail-list">
+            <li><strong>Summary:</strong> Roof health score</li>
+            <li><strong>Findings:</strong> Damage, aging, risk</li>
+            <li><strong>Next steps:</strong> Repair vs replace</li>
           </ul>
         </div>
       </div>
@@ -149,266 +187,210 @@ function renderFeatures(){
   `);
 }
 
-/* ============================
-   HOME LOOKUP PAGE
-============================ */
-function renderHomeLookup(){
+function renderHomeLookup() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
         <h1>Home Lookup</h1>
-        <p>Start with an address. We’ll do the rest.</p>
-      </header>
-
-      <div class="card">
-        <div class="card-header"><h3 class="card-title">Property Address</h3></div>
-        <div class="form-field">
-          <label>Address</label>
-          <input id="lookup-address" type="text" placeholder="123 Main St, City, State" />
-        </div>
-        <div class="form-actions">
-          <button id="lookup-btn" class="btn-primary">Search</button>
-        </div>
-      </div>
-
-      <div id="lookup-results" class="card" style="display:none;"></div>
-    </section>
-  `);
-
-  const btn=document.getElementById("lookup-btn");
-  const box=document.getElementById("lookup-results");
-
-  btn.onclick=async()=>{
-    const address=document.getElementById("lookup-address").value.trim();
-    if(!address){alert("Enter an address");return;}
-    box.style.display="block";
-    box.innerHTML="<p>Searching property records...</p>";
-
-    try{
-      const res=await fetch("/functions/home-lookup",{method:"POST",body:JSON.stringify({address})});
-      const data=res.ok?await res.json():{};
-      const oRes=await fetch("/functions/roof-outline",{method:"POST",body:JSON.stringify({address})});
-      const outline=oRes.ok?await oRes.json():null;
-
-      box.innerHTML=`
-        <div class="card-header"><h3 class="card-title">Property Details</h3></div>
-        <ul class="detail-list">
-          <li><strong>Roof Area:</strong> ${data.roofArea||"—"} sq ft</li>
-          <li><strong>Pitch:</strong> ${data.pitch||"—"}</li>
-          <li><strong>Material:</strong> ${data.material||"—"}</li>
-          <li><strong>Year Built:</strong> ${data.yearBuilt||"—"}</li>
-          <li><strong>Roof Age:</strong> ${data.roofAge||"—"} years</li>
-        </ul>
-
-        ${
-          outline?`
-            <div class="card-header" style="margin-top:16px;"><h3 class="card-title">Satellite Roof Outline</h3></div>
-            <img src="${outline.imageUrl}" class="satellite-img" />
-            <ul class="detail-list">
-              <li><strong>Detected Area:</strong> ${outline.areaSqFt||"—"} sq ft</li>
-              <li><strong>Pitch Estimate:</strong> ${outline.pitch||"—"}</li>
-              <li><strong>Complexity:</strong> ${outline.complexity||"—"}</li>
-            </ul>
-          `:`<p>No satellite outline available.</p>`
-        }
-
-        <div class="form-actions" style="margin-top:16px;">
-          <a href="#/intake" class="btn-primary">Continue to Photo Upload</a>
-        </div>
-      `;
-    }catch(e){
-      box.innerHTML="<p>Lookup failed. Try again or continue to photo upload.</p>";
-    }
-  };
-}
-/* ============================
-   INTAKE PAGE
-============================ */
-function renderIntake(){
-  mount(`
-    <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Upload Roof Photos</h1>
-        <p>Upload up to 5 clear roof photos for AI analysis.</p>
-      </header>
-
-      <form id="intake-form" class="card">
-        <div class="card-header">
-          <h3 class="card-title">Roof Photos</h3>
-          <p class="card-subtitle">Include different angles for best results.</p>
-        </div>
-
-        <div class="form-field">
-          <label>Photos</label>
-          <input id="photos" type="file" accept="image/*" multiple />
-        </div>
-
-        <div class="form-actions">
-          <button class="btn-primary">Run AI Analysis</button>
-        </div>
-      </form>
-    </section>
-  `);
-
-  const form=document.getElementById("intake-form");
-  form.onsubmit=async(e)=>{
-    e.preventDefault();
-    const files=document.getElementById("photos").files;
-    if(!files||files.length===0){alert("Upload at least one photo.");return;}
-
-    const fd=new FormData();
-    for(let i=0;i<files.length&&i<5;i++) fd.append("photos",files[i]);
-
-    try{
-      const res=await fetch("/functions/analyze-multiple-roof-photos",{method:"POST",body:fd});
-      if(!res.ok) throw new Error("AI failed");
-      const data=await res.json();
-      localStorage.setItem("roofAnalysis",JSON.stringify(data));
-      navigate("/health");
-    }catch(err){
-      alert("Unable to run AI analysis right now.");
-    }
-  };
-}
-
-/* ============================
-   ROOF HEALTH PAGE
-============================ */
-function renderRoofHealth(){
-  const data=JSON.parse(localStorage.getItem("roofAnalysis")||"{}");
-  const score=data.score??72;
-  const severity=score>=85?"Excellent":score>=70?"Good":score>=50?"Fair":"Poor";
-
-  mount(`
-    <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Roof Health Score</h1>
-        <p>AI‑generated assessment based on materials, age, and visible damage.</p>
+        <p>Start with an address to pull roof geometry and risk signals.</p>
       </header>
 
       <div class="grid-2">
         <div class="card">
-          <div class="card-header"><h3 class="card-title">Overall Score</h3></div>
+          <div class="card-header">
+            <h3 class="card-title">Property Search</h3>
+            <p class="card-subtitle">Enter an address to simulate a lookup.</p>
+          </div>
+
+          <form id="lookup-form">
+            <div class="form-field">
+              <label>Address</label>
+              <input id="lookup-address" type="text" placeholder="123 Oak St, St Augustine, FL" />
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary">Run Lookup</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Lookup Result</h3>
+            <p class="card-subtitle">Demo data for now.</p>
+          </div>
+          <ul class="detail-list" id="lookup-result">
+            <li><strong>Roof Type:</strong> —</li>
+            <li><strong>Stories:</strong> —</li>
+            <li><strong>Estimated Age:</strong> —</li>
+            <li><strong>Risk Score:</strong> —</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  `);
+
+  const form = document.getElementById("lookup-form");
+  const result = document.getElementById("lookup-result");
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const addr = document.getElementById("lookup-address").value.trim();
+    if (!addr) {
+      alert("Please enter an address");
+      return;
+    }
+    result.innerHTML = `
+      <li><strong>Address:</strong> ${addr}</li>
+      <li><strong>Roof Type:</strong> Architectural Shingle</li>
+      <li><strong>Stories:</strong> 2</li>
+      <li><strong>Estimated Age:</strong> 14 years</li>
+      <li><strong>Risk Score:</strong> 72 / 100</li>
+    `;
+  };
+}
+
+function renderIntake() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Intake</h1>
+        <p>Collect homeowner details and notes.</p>
+      </header>
+
+      <div class="grid-2">
+        <form id="intake-form" class="card">
+          <div class="card-header">
+            <h3 class="card-title">Homeowner Details</h3>
+          </div>
+
+          <div class="form-field">
+            <label>Name</label>
+            <input id="intake-name" type="text" placeholder="Jane Doe" />
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input id="intake-email" type="email" placeholder="jane@example.com" />
+          </div>
+          <div class="form-field">
+            <label>Address</label>
+            <input id="intake-address" type="text" placeholder="123 Oak St, St Augustine, FL" />
+          </div>
+          <div class="form-field">
+            <label>Notes</label>
+            <textarea id="intake-notes" placeholder="Hail storm last month, visible granule loss..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary">Save Intake</button>
+          </div>
+        </form>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Next Steps</h3>
+          </div>
+          <ul class="detail-list">
+            <li>Upload roof photos on the <strong>Upload</strong> page.</li>
+            <li>Run AI analysis on the <strong>Roof Health</strong> page.</li>
+            <li>Generate quotes on the <strong>Quotes</strong> page.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  `);
+
+  const form = document.getElementById("intake-form");
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    alert("Intake saved (demo). Continue to Upload or Roof Health.");
+  };
+}
+
+function renderRoofHealth() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Roof Health</h1>
+        <p>AI-generated roof health summary based on uploaded photos.</p>
+      </header>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Health Score</h3>
+          </div>
           <div class="score-row">
-            <div class="score-circle">${score}</div>
+            <div class="score-circle">68</div>
             <div>
-              <div class="score-label">${severity}</div>
-              <p class="card-subtitle">Estimated remaining life and visible condition.</p>
+              <div class="score-label">Moderate Risk</div>
+              <p class="card-subtitle">Aging shingles, granule loss, and minor flashing issues detected.</p>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><h3 class="card-title">Roof Details</h3></div>
+          <div class="card-header">
+            <h3 class="card-title">Key Findings</h3>
+          </div>
           <ul class="detail-list">
-            <li><strong>Material:</strong> ${data.material||"Asphalt Shingle"}</li>
-            <li><strong>Pitch:</strong> ${data.pitch||"6/12"}</li>
-            <li><strong>Roof Age:</strong> ${data.roofAge||"—"} years</li>
-            <li><strong>Roof Area:</strong> ${data.roofArea||"—"} sq ft</li>
-            <li><strong>Damage:</strong> ${data.damage||"—"}</li>
+            <li><strong>Shingle Wear:</strong> Moderate granule loss across south-facing slopes.</li>
+            <li><strong>Flashing:</strong> Suspected gaps around chimney and vent stacks.</li>
+            <li><strong>Storm Impact:</strong> Hail impact patterns consistent with recent storms.</li>
+            <li><strong>Recommended Action:</strong> Full replacement within 12–18 months.</li>
           </ul>
         </div>
       </div>
-
-      <div id="materials"></div>
-
-      <div class="page-actions">
-        <a href="#/quotes" class="btn-primary">View Quotes</a>
-        <a href="/functions/homeowner-report" class="btn-secondary">Download Report</a>
-      </div>
     </section>
   `);
-
-  loadMaterials(data.roofArea||2100);
 }
 
-/* ============================
-   MATERIALS LIST LOADER
-============================ */
-async function loadMaterials(area){
-  try{
-    const res=await fetch("/functions/generate-materials-list",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({roofArea:area})
-    });
-    const m=res.ok?await res.json():null;
-    if(!m)return;
-
-    const box=document.getElementById("materials");
-    if(!box)return;
-
-    box.innerHTML=`
-      <div class="card">
-        <div class="card-header"><h3 class="card-title">Suggested Materials</h3></div>
-        <ul class="detail-list">
-          <li><strong>Shingle Bundles:</strong> ${m.bundles}</li>
-          <li><strong>Underlayment Rolls:</strong> ${m.underlaymentRolls}</li>
-          <li><strong>Drip Edge:</strong> ${m.dripEdgeFt} ft</li>
-          <li><strong>Roof Vents:</strong> ${m.vents}</li>
-        </ul>
-        <p class="card-subtitle">${m.notes||"Estimates only — verify on site."}</p>
-      </div>
-    `;
-  }catch(e){}
-}
-/* ============================
-   QUOTES PAGE (MOCK)
-============================ */
-function renderQuotes(){
-  const mockQuotes=[
-    {contractor:"Sunrise Roofing Co.",price:"$12,400",timeline:"2–3 days",rating:"4.8",notes:"Includes tear‑off, disposal, upgraded underlayment."},
-    {contractor:"Atlantic Coast Exteriors",price:"$11,900",timeline:"3–4 days",rating:"4.6",notes:"Standard shingles, 10‑year workmanship warranty."},
-    {contractor:"Premier Peak Roofing",price:"$13,200",timeline:"2 days",rating:"4.9",notes:"Premium shingles, ridge vent upgrade, extended warranty."}
-  ];
-
+function renderQuotes() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
-        <h1>AI‑Generated Quotes</h1>
-        <p>These sample quotes show how contractors will respond to your roof report.</p>
+        <h1>Quotes</h1>
+        <p>Compare contractor-ready quotes based on AI roof analysis.</p>
       </header>
 
-      <div class="card">
-        <div class="card-header"><h3 class="card-title">Quote Comparison</h3></div>
-        <div class="quotes-grid">
-          ${mockQuotes.map(q=>`
-            <article class="quote-card">
-              <h3>${q.contractor}</h3>
-              <p class="quote-price">${q.price}</p>
-              <p><strong>Timeline:</strong> ${q.timeline}</p>
-              <p><strong>Rating:</strong> ⭐ ${q.rating}</p>
-              <p class="card-subtitle">${q.notes}</p>
-              <button class="btn-secondary" disabled>Request Quote (demo)</button>
-            </article>
-          `).join("")}
+      <div class="quotes-grid">
+        <div class="quote-card">
+          <h3>Premier Peak Roofing</h3>
+          <p class="quote-price">$14,200</p>
+          <p class="card-subtitle">Architectural shingles, full tear-off, 25-year warranty.</p>
+        </div>
+        <div class="quote-card">
+          <h3>Sunrise Roofing Co.</h3>
+          <p class="quote-price">$12,900</p>
+          <p class="card-subtitle">Architectural shingles, overlay, 20-year warranty.</p>
+        </div>
+        <div class="quote-card">
+          <h3>Atlantic Coast Exteriors</h3>
+          <p class="quote-price">$15,400</p>
+          <p class="card-subtitle">Metal roof upgrade, 35-year warranty.</p>
         </div>
       </div>
     </section>
   `);
 }
 
-/* ============================
-   LOGIN PAGE
-============================ */
-function renderLogin(){
+function renderLogin() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
-        <h1>Roofer Login</h1>
-        <p>Access your leads, quotes, and performance insights.</p>
+        <h1>Login</h1>
+        <p>Access your reports and saved quotes.</p>
       </header>
 
       <div class="grid-2">
         <form id="login-form" class="card">
           <div class="card-header">
             <h3 class="card-title">Magic Link Login</h3>
-            <p class="card-subtitle">No passwords — we’ll email you a secure link.</p>
+            <p class="card-subtitle">Enter your email to receive a secure login link.</p>
           </div>
 
           <div class="form-field">
-            <label>Work Email</label>
-            <input id="login-email" type="email" placeholder="you@roofingcompany.com" />
+            <label>Email</label>
+            <input id="login-email" type="email" placeholder="you@example.com" />
           </div>
 
           <div class="form-actions">
@@ -417,11 +399,12 @@ function renderLogin(){
         </form>
 
         <div class="card">
-          <div class="card-header"><h3 class="card-title">Why Magic Links?</h3></div>
-          <p class="card-subtitle">Crews move fast. Passwords slow them down.</p>
+          <div class="card-header">
+            <h3 class="card-title">Why Magic Links?</h3>
+          </div>
           <ul class="detail-list">
-            <li>Fast and secure</li>
             <li>No passwords to remember</li>
+            <li>Fast and secure</li>
             <li>Works on any device</li>
           </ul>
         </div>
@@ -429,171 +412,320 @@ function renderLogin(){
     </section>
   `);
 
-  const form=document.getElementById("login-form");
-  form.onsubmit=async(e)=>{
+  const form = document.getElementById("login-form");
+  form.onsubmit = (e) => {
     e.preventDefault();
-    const email=document.getElementById("login-email").value.trim();
-    if(!email){alert("Enter your email");return;}
-
-    try{
-      await fetch("/functions/request-login-code",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({email})
-      });
-      alert("Demo login — redirecting to dashboard.");
-      navigate("/dashboard");
-    }catch(err){
-      alert("Unable to send login link.");
+    const email = document.getElementById("login-email").value.trim();
+    if (!email) {
+      alert("Please enter your email");
+      return;
     }
+    alert("Demo login — redirecting to Dashboard.");
+    navigate("/dashboard");
   };
 }
-/* ============================
-   DASHBOARD (MOCK)
-============================ */
-function renderDashboard(){
-  const mockLeads=[
-    {name:"123 Oak St",status:"New",value:"$12,400"},
-    {name:"45 Pine Ave",status:"Quoted",value:"$9,800"},
-    {name:"78 Maple Dr",status:"Won",value:"$14,200"}
-  ];
-   function renderDashboard(){
+
+function renderDashboard() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
-        <h1>Contractor Dashboard</h1>
-        <p>At‑a‑glance view of your pipeline and performance.</p>
+        <h1>Dashboard</h1>
+        <p>Your roof reports, quotes, and activity.</p>
       </header>
+
+      <div class="grid-3">
+        <div class="card stat-card">
+          <h3>Reports</h3>
+          <p class="stat-value">3</p>
+          <p class="stat-sub">Roof health reports generated</p>
+        </div>
+        <div class="card stat-card">
+          <h3>Quotes</h3>
+          <p class="stat-value">2</p>
+          <p class="stat-sub">Active contractor quotes</p>
+        </div>
+        <div class="card stat-card">
+          <h3>Last Scan</h3>
+          <p class="stat-value">5 days ago</p>
+          <p class="stat-sub">Based on latest upload</p>
+        </div>
+      </div>
+    </section>
   `);
 }
-<div class="grid-3">
-  <div class="card stat-card">
-    <h3>Total Leads</h3>
-    <p class="stat-value">32</p>
-    <p class="stat-sub">+8 this week</p>
-  </div>
 
-  <div class="card stat-card">
-    <h3>Close Rate</h3>
-    <p class="stat-value">41%</p>
-    <p class="stat-sub">+6% vs last month</p>
-  </div>
-
-  <div class="card stat-card">
-    <h3>Avg. Job Size</h3>
-    <p class="stat-value">$11,900</p>
-    <p class="stat-sub">Based on last 10 wins</p>
-  </div>
-</div>
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">Recent Leads</h3>
-  </div>
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Property</th>
-        <th>Status</th>
-        <th>Est. Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>123 Oak St</td><td>New</td><td>$12,400</td></tr>
-      <tr><td>45 Pine Ave</td><td>Quoted</td><td>$9,800</td></tr>
-      <tr><td>78 Maple Dr</td><td>Won</td><td>$14,200</td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">Recent Leads</h3>
-  </div>
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Property</th>
-        <th>Status</th>
-        <th>Est. Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>123 Oak St</td><td>New</td><td>$12,400</td></tr>
-      <tr><td>45 Pine Ave</td><td>Quoted</td><td>$9,800</td></tr>
-      <tr><td>78 Maple Dr</td><td>Won</td><td>$14,200</td></tr>
-    </tbody>
-  </table>
-</div>
-</section> `); }
-   /* ============================
-   LEADERBOARD PAGE
-============================ */
-function renderLeaderboard(){
+function renderLeaderboard() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
-        <h1>Contractor Leaderboard</h1>
-        <p>Top performers based on close rate, job size, and customer satisfaction.</p>
+        <h1>Leaderboard</h1>
+        <p>Top-performing contractors on the platform.</p>
       </header>
 
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Top Contractors</h3>
         </div>
-
         <table class="table">
           <thead>
             <tr>
-              <th>Rank</th>
-              <th>Company</th>
-              <th>Close Rate</th>
-              <th>Avg. Job Size</th>
-              <th>Rating</th>
+              <th>Contractor</th>
+              <th>Jobs Completed</th>
+              <th>Avg. Rating</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>#1</td>
-              <td>Premier Peak Roofing</td>
-              <td>54%</td>
-              <td>$14,200</td>
-              <td>⭐ 4.9</td>
-            </tr>
-            <tr>
-              <td>#2</td>
-              <td>Sunrise Roofing Co.</td>
-              <td>49%</td>
-              <td>$12,800</td>
-              <td>⭐ 4.8</td>
-            </tr>
-            <tr>
-              <td>#3</td>
-              <td>Atlantic Coast Exteriors</td>
-              <td>46%</td>
-              <td>$11,900</td>
-              <td>⭐ 4.6</td>
-            </tr>
+            <tr><td>Premier Peak Roofing</td><td>128</td><td>4.9</td></tr>
+            <tr><td>Sunrise Roofing Co.</td><td>94</td><td>4.8</td></tr>
+            <tr><td>Atlantic Coast Exteriors</td><td>76</td><td>4.7</td></tr>
           </tbody>
         </table>
       </div>
     </section>
   `);
 }
-/* ============================
-   BILLING PAGE
-============================ */
-function renderBilling(){
+
+function renderBilling() {
   mount(`
     <section class="page-container fade-in-up">
       <header class="page-header">
-        <h1>Billing & Subscription</h1>
-        <p>Manage your plan, usage, and payment details.</p>
+        <h1>Billing</h1>
+        <p>Subscription and billing overview.</p>
+      </header>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Plan</h3>
+        </div>
+        <ul class="detail-list">
+          <li><strong>Plan:</strong> Pro</li>
+          <li><strong>Price:</strong> $149 / month</li>
+          <li><strong>Status:</strong> Active</li>
+        </ul>
+      </div>
+    </section>
+  `);
+}
+
+function renderAdmin() {
+  mount(`
+    <section class.page-container fade-in-up">
+      <header class="page-header">
+        <h1>Admin Console</h1>
+        <p>Manage platform settings and configuration.</p>
+      </header>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Controls</h3>
+        </div>
+        <ul class="detail-list">
+          <li>Toggle AI providers (demo)</li>
+          <li>Manage feature flags (demo)</li>
+          <li>View system logs (demo)</li>
+        </ul>
+      </div>
+    </section>
+  `);
+}
+
+function renderInsights() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Insights</h1>
+        <p>High-level trends across roofs, quotes, and contractors.</p>
+      </header>
+
+      <div class="grid-3">
+        <div class="card stat-card">
+          <h3>Avg. Roof Age</h3>
+          <p class="stat-value">17 yrs</p>
+          <p class="stat-sub">Across scanned properties</p>
+        </div>
+        <div class="card stat-card">
+          <h3>Replacement Rate</h3>
+          <p class="stat-value">38%</p>
+          <p class="stat-sub">Within 12 months of scan</p>
+        </div>
+        <div class="card stat-card">
+          <h3>Avg. Quote Spread</h3>
+          <p class="stat-value">$3,200</p>
+          <p class="stat-sub">Between lowest and highest bid</p>
+        </div>
+      </div>
+    </section>
+  `);
+}
+
+function renderContractorDashboard() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Contractor Dashboard</h1>
+        <p>Your active jobs, leads, and performance metrics.</p>
+      </header>
+
+      <div class="grid-3">
+        <div class="card stat-card">
+          <h3>Active Jobs</h3>
+          <p class="stat-value">6</p>
+          <p class="stat-sub">2 scheduled this week</p>
+        </div>
+
+        <div class="card stat-card">
+          <h3>Pending Quotes</h3>
+          <p class="stat-value">4</p>
+          <p class="stat-sub">Awaiting homeowner response</p>
+        </div>
+
+        <div class="card stat-card">
+          <h3>Avg. Job Value</h3>
+          <p class="stat-value">$12,300</p>
+          <p class="stat-sub">Based on last 10 jobs</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3 class="card-title">Recent Jobs</h3>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>123 Oak St</td><td>In Progress</td><td>$14,200</td></tr>
+            <tr><td>45 Pine Ave</td><td>Scheduled</td><td>$9,800</td></tr>
+            <tr><td>78 Maple Dr</td><td>Completed</td><td>$12,900</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `);
+}
+
+function renderContractorLogin() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Contractor Login</h1>
+        <p>Access your dashboard, leads, and performance insights.</p>
       </header>
 
       <div class="grid-2">
+        <form id="contractor-login-form" class="card">
+          <div class="card-header">
+            <h3 class="card-title">Magic Link Login</h3>
+            <p class="card-subtitle">Enter your work email to receive a secure login link.</p>
+          </div>
 
-        <!-- Current Plan -->
+          <div class="form-field">
+            <label>Email</label>
+            <input id="contractor-login-email" type="email" placeholder="you@roofingcompany.com" />
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary">Send Login Link</button>
+          </div>
+        </form>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Why Magic Links?</h3>
+          </div>
+          <ul class="detail-list">
+            <li>No passwords to remember</li>
+            <li>Fast and secure</li>
+            <li>Works on any device</li>
+            <li>Perfect for crews in the field</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  `);
+
+  const form = document.getElementById("contractor-login-form");
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const email = document.getElementById("contractor-login-email").value.trim();
+    if (!email) {
+      alert("Please enter your email");
+      return;
+    }
+    alert("Demo login — redirecting to contractor dashboard.");
+    navigate("/contractor-dashboard");
+  };
+}
+
+function renderProjects() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Projects</h1>
+        <p>Track your active, scheduled, and completed roofing projects.</p>
+      </header>
+
+      <div class="grid-3">
+        <div class="card stat-card">
+          <h3>Active</h3>
+          <p class="stat-value">6</p>
+          <p class="stat-sub">Currently in progress</p>
+        </div>
+
+        <div class="card stat-card">
+          <h3>Scheduled</h3>
+          <p class="stat-value">4</p>
+          <p class="stat-sub">Upcoming this week</p>
+        </div>
+
+        <div class="card stat-card">
+          <h3>Completed</h3>
+          <p class="stat-value">28</p>
+          <p class="stat-sub">Last 90 days</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3 class="card-title">Project List</h3>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Start Date</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>123 Oak St</td><td>In Progress</td><td>Jan 12</td><td>$14,200</td></tr>
+            <tr><td>45 Pine Ave</td><td>Scheduled</td><td>Jan 20</td><td>$9,800</td></tr>
+            <tr><td>78 Maple Dr</td><td>Completed</td><td>Jan 3</td><td>$12,900</td></tr>
+            <tr><td>90 Cedar Ln</td><td>In Progress</td><td>Jan 15</td><td>$11,400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `);
+}
+
+function renderPayments() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Payments</h1>
+        <p>View your invoices, payment history, and billing details.</p>
+      </header>
+
+      <div class="grid-2">
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Current Plan</h3>
@@ -606,309 +738,159 @@ function renderBilling(){
             <li><strong>Next Billing Date:</strong> Feb 12, 2026</li>
             <li><strong>Status:</strong> Active</li>
           </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Payment Method</h3>
+            <p class="card-subtitle">Your saved card on file.</p>
+          </div>
+
+          <ul class="detail-list">
+            <li><strong>Card:</strong> Visa ending in 4242</li>
+            <li><strong>Expires:</strong> 08/28</li>
+            <li><strong>Billing Email:</strong> billing@roofingcompany.com</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3 class="card-title">Invoice History</h3>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Invoice #</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Jan 12, 2026</td><td>INV-1023</td><td>$149.00</td><td>Paid</td></tr>
+            <tr><td>Dec 12, 2025</td><td>INV-1012</td><td>$149.00</td><td>Paid</td></tr>
+            <tr><td>Nov 12, 2025</td><td>INV-1001</td><td>$149.00</td><td>Paid</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `);
+}
+
+function renderUpload() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Upload Photos</h1>
+        <p>Upload roof images for AI analysis and damage detection.</p>
+      </header>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Upload Roof Images</h3>
+          <p class="card-subtitle">Supported formats: JPG, PNG. Max 10 images.</p>
+        </div>
+
+        <form id="upload-form">
+          <div class="form-field">
+            <label>Select Photos</label>
+            <input id="upload-input" type="file" accept="image/*" multiple />
+          </div>
+
+          <div id="upload-preview" class="upload-grid" style="margin-top:16px;"></div>
 
           <div class="form-actions" style="margin-top:16px;">
-            <button class="btn-secondary" disabled>Manage Payment (demo)</button>
+            <button class="btn-primary">Analyze Roof</button>
           </div>
-        </div>
-
-        <!-- Usage Summary -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Usage Summary</h3>
-            <p class="card-subtitle">Your activity this billing cycle.</p>
-          </div>
-
-          <ul class="detail-list">
-            <li><strong>Leads Received:</strong> 18</li>
-            <li><strong>Quotes Sent:</strong> 12</li>
-            <li><strong>Reports Downloaded:</strong> 7</li>
-            <li><strong>AI Analyses:</strong> Unlimited</li>
-          </ul>
-        </div>
-
+        </form>
       </div>
-
-      <!-- Upgrade Options -->
-      <div class="card" style="margin-top:24px;">
-        <div class="card-header">
-          <h3 class="card-title">Upgrade Options</h3>
-          <p class="card-subtitle">Scale your business with higher‑tier plans.</p>
-        </div>
-
-        <div class="grid-3">
-
-          <div class="card">
-            <h3 class="card-title">Starter</h3>
-            <p class="stat-value">$79/mo</p>
-            <ul class="detail-list">
-              <li>Up to 10 leads</li>
-              <li>Basic analytics</li>
-              <li>Email support</li>
-            </ul>
-            <button class="btn-secondary" disabled>Select (demo)</button>
-          </div>
-
-          <div class="card">
-            <h3 class="card-title">Pro Contractor</h3>
-            <p class="stat-value">$149/mo</p>
-            <ul class="detail-list">
-              <li>Unlimited leads</li>
-              <li>AI takeoffs</li>
-              <li>Priority support</li>
-            </ul>
-            <button class="btn-primary" disabled>Current Plan</button>
-          </div>
-
-          <div class="card">
-            <h3 class="card-title">Enterprise</h3>
-            <p class="stat-value">$299/mo</p>
-            <ul class="detail-list">
-              <li>Multi‑crew support</li>
-              <li>Custom integrations</li>
-              <li>Dedicated rep</li>
-            </ul>
-            <button class="btn-secondary" disabled>Contact Sales (demo)</button>
-          </div>
-
-        </div>
-      </div>
-
     </section>
   `);
-}
-/* ============================
-   ADMIN PAGE
-============================ */
-function renderAdmin(){
-  mount(`
-    <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Admin Console</h1>
-        <p>Manage users, system settings, and platform activity.</p>
-      </header>
 
-      <div class="grid-2">
+  const input = document.getElementById("upload-input");
+  const preview = document.getElementById("upload-preview");
 
-        <!-- User Management -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">User Management</h3>
-            <p class="card-subtitle">Active contractors on the platform.</p>
-          </div>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Status</th>
-                <th>Plan</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Premier Peak Roofing</td>
-                <td>Active</td>
-                <td>Pro</td>
-              </tr>
-              <tr>
-                <td>Sunrise Roofing Co.</td>
-                <td>Active</td>
-                <td>Starter</td>
-              </tr>
-              <tr>
-                <td>Atlantic Coast Exteriors</td>
-                <td>Suspended</td>
-                <td>Pro</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="form-actions" style="margin-top:12px;">
-            <button class="btn-secondary" disabled>Manage Users (demo)</button>
-          </div>
+  input.onchange = () => {
+    preview.innerHTML = "";
+    [...input.files].forEach(file => {
+      const url = URL.createObjectURL(file);
+      preview.innerHTML += `
+        <div class="card" style="padding:8px;">
+          <img src="${url}" style="width:100%; border-radius:6px;" />
         </div>
-
-        <!-- System Metrics -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">System Metrics</h3>
-            <p class="card-subtitle">Platform‑wide performance indicators.</p>
-          </div>
-
-          <ul class="detail-list">
-            <li><strong>AI Analyses Today:</strong> 142</li>
-            <li><strong>Active Sessions:</strong> 58</li>
-            <li><strong>API Latency:</strong> 182 ms avg</li>
-            <li><strong>Error Rate:</strong> 0.4%</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <!-- Feature Toggles -->
-      <div class="card" style="margin-top:24px;">
-        <div class="card-header">
-          <h3 class="card-title">Feature Toggles</h3>
-          <p class="card-subtitle">Enable or disable experimental features.</p>
-        </div>
-
-        <ul class="detail-list">
-          <li><strong>AI Damage Heatmap:</strong> Enabled</li>
-          <li><strong>Contractor Chat:</strong> Disabled</li>
-          <li><strong>Auto‑Generated Quotes:</strong> Enabled</li>
-        </ul>
-
-        <div class="form-actions" style="margin-top:12px;">
-          <button class="btn-secondary" disabled>Modify Features (demo)</button>
-        </div>
-      </div>
-
-      <!-- Audit Log -->
-      <div class="card" style="margin-top:24px;">
-        <div class="card-header">
-          <h3 class="card-title">Recent Activity</h3>
-          <p class="card-subtitle">System‑level events and admin actions.</p>
-        </div>
-
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Event</th>
-              <th>User</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Updated feature flags</td>
-              <td>admin@roofing.com</td>
-              <td>2 hours ago</td>
-            </tr>
-            <tr>
-              <td>Suspended contractor account</td>
-              <td>admin@roofing.com</td>
-              <td>5 hours ago</td>
-            </tr>
-            <tr>
-              <td>Generated platform report</td>
-              <td>system</td>
-              <td>Yesterday</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    </section>
-  `);
-}
-/* ============================
-   INSIGHTS PAGE
-============================ */
-function renderInsights(){
-  mount(`
-    <section class="page-container fade-in-up">
-      <header class="page-header">
-        <h1>Performance Insights</h1>
-        <p>AI‑powered analytics to help you understand your roofing business.</p>
-      </header>
-
-      <!-- Trend Cards -->
-      <div class="grid-3">
-        <div class="card stat-card">
-          <h3>Lead Growth</h3>
-          <p class="stat-value">+18%</p>
-          <p class="stat-sub">vs last 30 days</p>
-        </div>
-
-        <div class="card stat-card">
-          <h3>Quote Acceptance</h3>
-          <p class="stat-value">42%</p>
-          <p class="stat-sub">Steady performance</p>
-        </div>
-
-        <div class="card stat-card">
-          <h3>Avg. Response Time</h3>
-          <p class="stat-value">1.8 hrs</p>
-          <p class="stat-sub">Faster than competitors</p>
-        </div>
-      </div>
-
-      <!-- Insights Summary -->
-      <div class="card" style="margin-top:24px;">
-        <div class="card-header">
-          <h3 class="card-title">AI Summary</h3>
-          <p class="card-subtitle">Key insights generated from your recent activity.</p>
-        </div>
-
-        <ul class="detail-list">
-          <li>Your close rate improves significantly when quotes are sent within 2 hours.</li>
-          <li>Homes built before 1990 show a 23% higher likelihood of needing full replacement.</li>
-          <li>Premium shingles lead to a 12% increase in accepted quotes.</li>
-          <li>Repeat customers generate 28% higher average job value.</li>
-        </ul>
-      </div>
-
-      <!-- Performance Table -->
-      <div class="card" style="margin-top:24px;">
-        <div class="card-header">
-          <h3 class="card-title">Recent Performance Metrics</h3>
-        </div>
-
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Value</th>
-              <th>Trend</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Lead Conversion</td>
-              <td>41%</td>
-              <td>▲ Improving</td>
-            </tr>
-            <tr>
-              <td>Quote Turnaround</td>
-              <td>1.8 hrs</td>
-              <td>▲ Improving</td>
-            </tr>
-            <tr>
-              <td>Avg. Job Size</td>
-              <td>$11,900</td>
-              <td>▶ Stable</td>
-            </tr>
-            <tr>
-              <td>Customer Rating</td>
-              <td>4.7 / 5</td>
-              <td>▲ Improving</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    </section>
-  `);
-}
-/* ============================
-   ROUTER BOOTSTRAP
-============================ */
-function startRouter(){
-  const load=()=> {
-    const route=getRoute();
-    const fn=routes[route];
-    if(typeof fn==="function") fn();
+      `;
+    });
   };
 
-  window.addEventListener("hashchange", load);
-  load();
+  const form = document.getElementById("upload-form");
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    if (!input.files.length) {
+      alert("Please upload at least one photo");
+      return;
+    }
+    alert("Demo upload complete — redirecting to Roof Health page.");
+    navigate("/health");
+  };
 }
 
-/* ============================
-   APP INIT
-============================ */
+function renderAdminDashboard() {
+  mount(`
+    <section class="page-container fade-in-up">
+      <header class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Platform-wide metrics, system health, and contractor activity.</p>
+      </header>
+
+      <div class="grid-3">
+        <div class="card stat-card">
+          <h3>Total Contractors</h3>
+          <p class="stat-value">142</p>
+          <p class="stat-sub">+12 this month</p>
+        </div>
+
+        <div class="card stat-card">
+          <h3>Active Sessions</h3>
+          <p class="stat-value">58</p>
+          <p class="stat-sub">Real-time usage</p>
+        </div>
+
+        <div class="card stat-card">
+          <h3>AI Analyses Today</h3>
+          <p class="stat-value">142</p>
+          <p class="stat-sub">Steady volume</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3 class="card-title">System Health</h3>
+        </div>
+
+        <ul class="detail-list">
+          <li><strong>API Latency:</strong> 182 ms avg</li>
+          <li><strong>Error Rate:</strong> 0.4%</li>
+          <li><strong>Uptime:</strong> 99.98%</li>
+          <li><strong>Queue Depth:</strong> Normal</li>
+        </ul>
+      </div>
+    </section>
+  `);
+}
+
+// ---------- Router bootstrap ----------
+
+function loadRoute() {
+  const route = getRoute();
+  const fn = routes[route];
+  if (typeof fn === "function") fn();
+  else renderHome();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
-  startRouter();
+  window.addEventListener("hashchange", loadRoute);
+  loadRoute();
 });
