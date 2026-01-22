@@ -1,13 +1,13 @@
 // js/views/homeownerDashboardView.js
-import { getProjectWithQuotes } from '../services/projects.js';
+import { getProjectWithQuotes } from "../services/projects.js";
 
 export async function renderHomeownerDashboardView() {
-  const app = document.getElementById('app');
+  const app = document.getElementById("app");
 
   app.innerHTML = `
     <section class="dashboard-hero">
       <h1>Your roof quotes</h1>
-      <p>Compare options side by side and choose the best fit.</p>
+      <p>AI‑powered roof analysis and competing bids.</p>
     </section>
 
     <div class="dashboard-grid">
@@ -15,7 +15,7 @@ export async function renderHomeownerDashboardView() {
         <div class="card" id="quotes-card">
           <div class="section-header">
             <h2>Competing bids</h2>
-            <p class="muted">When roofers compete, you win.</p>
+            <p class="muted">Roofers are reviewing your project.</p>
           </div>
           <div id="quotes-list"></div>
         </div>
@@ -40,36 +40,39 @@ export async function renderHomeownerDashboardView() {
 
         <div class="card dashboard-image">
           <img src="https://images.unsplash.com/photo-1597004891283-5e1e7b3b18a4" alt="Roof inspection">
-          <p class="muted" style="font-size:12px;">Licensed, insured roofers reviewing your project details.</p>
+          <p class="muted" style="font-size:12px;">Licensed roofers reviewing your project.</p>
         </div>
       </div>
     </div>
   `;
 
   const data = await getProjectWithQuotes();
-  const quotesList = document.getElementById('quotes-list');
-  const healthSummary = document.getElementById('health-summary');
-  const damageDetails = document.getElementById('damage-details');
-  const geometrySummary = document.getElementById('geometry-summary');
-  const materialsListEl = document.getElementById('materials-list');
+  const quotesList = document.getElementById("quotes-list");
+  const healthSummary = document.getElementById("health-summary");
+  const damageDetails = document.getElementById("damage-details");
+  const geometrySummary = document.getElementById("geometry-summary");
+  const materialsListEl = document.getElementById("materials-list");
 
   if (!data) {
     quotesList.innerHTML = `<p class="muted">No active project found.</p>`;
-    healthSummary.textContent = 'No roof health data yet.';
-    geometrySummary.textContent = 'No AI geometry data yet.';
     return;
   }
 
   const { project, quotes = [], roofHealth } = data;
 
+  // -----------------------------
+  // Quotes
+  // -----------------------------
   if (!quotes.length) {
-    quotesList.innerHTML = `<p class="muted">Roofers are preparing your quotes. Check back soon.</p>`;
+    quotesList.innerHTML = `<p class="muted">Roofers are preparing your quotes.</p>`;
   } else {
-    quotesList.innerHTML = quotes.map(q => `
+    quotesList.innerHTML = quotes
+      .map(
+        (q) => `
       <div class="quote-row">
         <div class="quote-main">
           <h3>${q.rooferName}</h3>
-          <p class="muted">${q.tagline || 'Licensed & insured roofer'}</p>
+          <p class="muted">${q.tagline || "Licensed & insured roofer"}</p>
         </div>
         <div class="quote-metrics">
           <div>
@@ -78,65 +81,62 @@ export async function renderHomeownerDashboardView() {
           </div>
           <div>
             <span class="label">Shingle</span>
-            <span class="value">${q.shingleType || 'Architectural'}</span>
+            <span class="value">${q.shingleType || "Architectural"}</span>
           </div>
           <div>
             <span class="label">Timeline</span>
-            <span class="value">${q.timeline || '1–2 weeks'}</span>
+            <span class="value">${q.timeline || "1–2 weeks"}</span>
           </div>
         </div>
         <div class="quote-cta">
           <button class="btn-secondary small">View details</button>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
   }
 
-  if (roofHealth) {
-    const { hailScore, roofAge, eligibility, damageReport } = roofHealth;
-
-    healthSummary.textContent =
-      `Insurance eligibility: ${eligibility.toUpperCase()} · Hail risk: ${hailScore}/100 · Estimated roof age: ${roofAge} years`;
-
-    if (damageReport) {
-      const entries = Object.entries(damageReport)
-        .map(([k, v]) => {
-          if (!v || typeof v !== 'object') return null;
-          const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
-          return `${label}: ${v.present ? v.severity : 'none'}`;
-        })
-        .filter(Boolean);
-
-      damageDetails.innerHTML = entries.length
-        ? entries.join('<br/>')
-        : 'No significant damage indicators detected.';
-    } else {
-      damageDetails.textContent = 'Damage classification still processing.';
-    }
-  } else {
-    healthSummary.textContent = 'Roof health check is still running.';
-    damageDetails.textContent = '';
-  }
-
+  // -----------------------------
+  // Materials list
+  // -----------------------------
   if (project.materialsList) {
-    const list = project.materialsList;
-    materialsListEl.innerHTML = Object.entries(list)
+    materialsListEl.innerHTML = Object.entries(project.materialsList)
       .map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`)
-      .join('');
+      .join("");
   } else {
-    materialsListEl.innerHTML = `<li class="muted">AI materials list will appear here once analysis completes.</li>`;
+    materialsListEl.innerHTML = `<li class="muted">AI materials list is still processing.</li>`;
   }
 
+  // -----------------------------
+  // Geometry
+  // -----------------------------
   if (project.aiGeometry) {
     const g = project.aiGeometry;
     geometrySummary.innerHTML = `
-      Square footage: <strong>${g.sqFt || '—'}</strong><br/>
-      Pitch: <strong>${g.pitch || '—'}</strong><br/>
-      Valleys: <strong>${g.valleys || '—'}</strong><br/>
-      Ridges: <strong>${g.ridges || '—'}</strong><br/>
-      Facets: <strong>${g.facets || '—'}</strong>
+      Square footage: <strong>${g.sqFt}</strong><br/>
+      Pitch: <strong>${g.pitch}</strong><br/>
+      Valleys: <strong>${g.valleys}</strong><br/>
+      Ridges: <strong>${g.ridges}</strong><br/>
+      Facets: <strong>${g.facets}</strong>
     `;
-  } else {
-    geometrySummary.textContent = 'AI roof geometry is still processing.';
+  }
+
+  // -----------------------------
+  // Roof health
+  // -----------------------------
+  if (roofHealth) {
+    const { hailScore, roofAge, eligibility, damageReport } = roofHealth;
+
+    healthSummary.textContent = `Eligibility: ${eligibility.toUpperCase()} · Hail risk: ${hailScore}/100 · Estimated roof age: ${roofAge} years`;
+
+    if (damageReport) {
+      damageDetails.innerHTML = Object.entries(damageReport)
+        .map(([k, v]) => {
+          const label = k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
+          return `${label}: ${v.present ? v.severity : "none"}`;
+        })
+        .join("<br/>");
+    }
   }
 }
