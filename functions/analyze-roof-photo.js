@@ -1,3 +1,4 @@
+// functions/analyze-roof-photo.js
 export async function onRequestPost(context) {
   const { projectId, photos } = await context.request.json();
 
@@ -7,7 +8,7 @@ export async function onRequestPost(context) {
     const aiRes = await context.env.AI.run(
       "@cf/llava-hf/llava-1.5-7b-hf",
       {
-        prompt: "Analyze this roof photo. Return JSON with: materialType, sqFtEstimate, pitchEstimate, valleys, ridges, facets, damageIndicators.",
+        prompt: "Analyze this roof photo. Return JSON with: materialType, sqFtEstimate, pitchEstimate, valleys, ridges, facets, damageIndicators (array of strings).",
         image: base64
       }
     );
@@ -15,7 +16,6 @@ export async function onRequestPost(context) {
     results.push(JSON.parse(aiRes));
   }
 
-  // Combine multiple photo results
   const combined = {
     materialType: mostCommon(results.map(r => r.materialType)),
     sqFt: average(results.map(r => r.sqFtEstimate)),
@@ -23,10 +23,9 @@ export async function onRequestPost(context) {
     valleys: max(results.map(r => r.valleys)),
     ridges: max(results.map(r => r.ridges)),
     facets: max(results.map(r => r.facets)),
-    damageIndicators: [...new Set(results.flatMap(r => r.damageIndicators))]
+    damageIndicators: [...new Set(results.flatMap(r => r.damageIndicators || []))]
   };
 
-  // Generate materials list using AI
   const materialsPrompt = `
     Based on this roof:
     - Material: ${combined.materialType}
@@ -36,8 +35,9 @@ export async function onRequestPost(context) {
     - Ridges: ${combined.ridges}
     - Facets: ${combined.facets}
 
-    Return a JSON materials list with quantities for:
+    Return a JSON object with keys:
     shingles, ridgeCap, underlayment, nails, dripEdge, vents.
+    Values should be human-readable quantities (e.g. "32 bundles").
   `;
 
   const materialsAI = await context.env.AI.run(
@@ -47,7 +47,6 @@ export async function onRequestPost(context) {
 
   const materialsList = JSON.parse(materialsAI);
 
-  // Save to Firestore
   await saveToFirestore(projectId, combined, materialsList, context);
 
   return new Response(JSON.stringify({ combined, materialsList }), {
@@ -56,16 +55,19 @@ export async function onRequestPost(context) {
 }
 
 function mostCommon(arr) {
-  return arr.sort((a,b) =>
-    arr.filter(v => v===a).length - arr.filter(v => v===b).length
+  if (!arr.length) return null;
+  return arr.sort((a, b) =>
+    arr.filter(v => v === a).length - arr.filter(v => v === b).length
   ).pop();
 }
 
 function average(arr) {
-  return Math.round(arr.reduce((a,b)=>a+b,0) / arr.length);
+  if (!arr.length) return 0;
+  return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
 }
 
 function max(arr) {
+  if (!arr.length) return 0;
   return Math.max(...arr);
 }
 
@@ -80,7 +82,7 @@ async function saveToFirestore(projectId, geometry, materials, context) {
       aiGeometry: {
         mapValue: {
           fields: Object.fromEntries(
-            Object.entries(geometry).map(([k,v]) =>
+            Object.entries(geometry).map(([k, v]) =>
               typeof v === "number"
                 ? [k, { integerValue: v }]
                 : Array.isArray(v)
@@ -93,7 +95,7 @@ async function saveToFirestore(projectId, geometry, materials, context) {
       materialsList: {
         mapValue: {
           fields: Object.fromEntries(
-            Object.entries(materials).map(([k,v]) => [k, { stringValue: v }])
+            Object.entries(materials).map(([k, v]) => [k, { stringValue: v }])
           )
         }
       }
