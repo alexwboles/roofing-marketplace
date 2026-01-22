@@ -15,8 +15,19 @@ export async function renderHomeownerDashboardView() {
         <div class="card" id="quotes-card">
           <div class="section-header">
             <h2>Competing bids</h2>
+            <p class="muted">When roofers compete, you win.</p>
           </div>
           <div id="quotes-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>AI Materials List</h2>
+          <ul id="materials-list"></ul>
+        </div>
+
+        <div class="card" id="geometry-card">
+          <h2>AI Roof Geometry</h2>
+          <p class="muted" id="geometry-summary">Analyzing roof facets, pitch, and square footage...</p>
         </div>
       </div>
 
@@ -25,6 +36,11 @@ export async function renderHomeownerDashboardView() {
           <h2>Roof health</h2>
           <p class="muted" id="health-summary">Checking hail history and roof age...</p>
         </div>
+
+        <div class="card dashboard-image">
+          <img src="https://images.unsplash.com/photo-1597004891283-5e1e7b3b18a4" alt="Roof inspection">
+          <p class="muted" style="font-size:12px;">Licensed, insured roofers reviewing your project details.</p>
+        </div>
       </div>
     </div>
   `;
@@ -32,14 +48,17 @@ export async function renderHomeownerDashboardView() {
   const data = await getProjectWithQuotes();
   const quotesList = document.getElementById('quotes-list');
   const healthSummary = document.getElementById('health-summary');
+  const geometrySummary = document.getElementById('geometry-summary');
+  const materialsListEl = document.getElementById('materials-list');
 
   if (!data) {
     quotesList.innerHTML = `<p class="muted">No active project found.</p>`;
     healthSummary.textContent = 'No roof health data yet.';
+    geometrySummary.textContent = 'No AI geometry data yet.';
     return;
   }
 
-  const { quotes = [], roofHealth } = data;
+  const { project, quotes = [], roofHealth } = data;
 
   if (!quotes.length) {
     quotesList.innerHTML = `<p class="muted">Roofers are preparing your quotes. Check back soon.</p>`;
@@ -75,5 +94,27 @@ export async function renderHomeownerDashboardView() {
     healthSummary.textContent = `Insurance eligibility: ${roofHealth.eligibilityLabel.toUpperCase()} (${roofHealth.hailRiskScore}/100)`;
   } else {
     healthSummary.textContent = 'Roof health check is still running.';
+  }
+
+  if (project.materialsList) {
+    const list = project.materialsList;
+    materialsListEl.innerHTML = Object.entries(list)
+      .map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`)
+      .join('');
+  } else {
+    materialsListEl.innerHTML = `<li class="muted">AI materials list will appear here once analysis completes.</li>`;
+  }
+
+  if (project.aiGeometry) {
+    const g = project.aiGeometry;
+    geometrySummary.innerHTML = `
+      Square footage: <strong>${g.sqFt || '—'}</strong><br/>
+      Pitch: <strong>${g.pitch || '—'}</strong><br/>
+      Valleys: <strong>${g.valleys || '—'}</strong><br/>
+      Ridges: <strong>${g.ridges || '—'}</strong><br/>
+      Facets: <strong>${g.facets || '—'}</strong>
+    `;
+  } else {
+    geometrySummary.textContent = 'AI roof geometry is still processing.';
   }
 }
