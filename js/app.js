@@ -35,7 +35,7 @@ document.addEventListener('click', (e) => {
 });
 
 onAuthStateChanged(auth, (user) => {
-  if (!user && window.location.pathname !== '/login') {
+  if (!user && window.location.pathname === '/dashboard') {
     navigate('/');
   } else {
     renderRoute(window.location.pathname || '/');
