@@ -3,7 +3,8 @@ export async function onRequestPost(context) {
   const { rooferId, amountCents } = await context.request.json();
   const STRIPE_SECRET_KEY = context.env.STRIPE_SECRET_KEY;
 
-  const connectedAccountId = "acct_1234567890"; // TODO: look up via Firestore REST
+  // TODO: look up connected account via Firestore REST using rooferId
+  const connectedAccountId = "acct_1234567890";
 
   const body = new URLSearchParams({
     amount: amountCents,
