@@ -1,9 +1,13 @@
-// js/views/homeownerIntakeView.js
-import { navigate } from '../app.js';
-import { createProject } from '../services/projects.js';
+/* ============================================================
+   homeownerIntakeView.js — UPDATED WITH SESSION STORAGE,
+   AI CALLS, AND WORKING NAVIGATION
+   ============================================================ */
+
+import { navigate } from "../app.js";
+import { createProject } from "../services/projects.js";
 
 export function renderHomeownerIntakeView() {
-  const app = document.getElementById('app');
+  const app = document.getElementById("app");
 
   app.innerHTML = `
     <section class="intake-hero">
@@ -61,26 +65,36 @@ export function renderHomeownerIntakeView() {
         <h2>Optional: upload roof photos</h2>
         <input type="file" id="photos" accept="image/*" multiple />
 
-        <button type="submit" class="btn-primary full-width">See available roof quotes</button>
-        <p class="trust-text">Your information is securely stored. No impact to your credit score.</p>
+        <button type="submit" class="btn-primary full-width">
+          See available roof quotes
+        </button>
+
+        <p class="trust-text">
+          Your information is securely stored. No impact to your credit score.
+        </p>
       </form>
     </div>
   `;
 
-  document.getElementById('intake-form').addEventListener('submit', handleSubmit);
+  document.getElementById("intake-form").addEventListener("submit", handleSubmit);
 }
+
+// ------------------------------------------------------------
+// Handle form submission
+// ------------------------------------------------------------
 
 async function handleSubmit(e) {
   e.preventDefault();
 
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-  const address = document.getElementById('address').value.trim();
-  const roofType = document.getElementById('roofType').value;
-  const insurance = document.getElementById('insurance').value;
-  const photoFiles = document.getElementById('photos').files;
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const roofType = document.getElementById("roofType").value;
+  const insurance = document.getElementById("insurance").value;
+  const photoFiles = document.getElementById("photos").files;
 
+  // 1. Create project
   const projectId = await createProject({
     name,
     email,
@@ -90,34 +104,47 @@ async function handleSubmit(e) {
     insurance
   });
 
+  // 2. Save projectId to session
+  localStorage.setItem("activeProjectId", projectId);
+
+  // 3. Convert photos to base64
   const base64Photos = [];
   for (const file of photoFiles) {
     const b64 = await fileToBase64(file);
     base64Photos.push(b64);
   }
 
+  // 4. Run AI geometry + materials
   if (base64Photos.length > 0) {
-    await fetch('/functions/analyze-roof-photo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetch("/functions/analyze-roof-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ projectId, photos: base64Photos })
     });
   }
 
-  await fetch('/functions/roof-health-check', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  // 5. Run roof health check
+  await fetch("/functions/roof-health-check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ projectId, address, photos: base64Photos })
   });
 
-  navigate('/dashboard');
+  // 6. Navigate to dashboard
+  navigate("/dashboard");
 }
+
+// ------------------------------------------------------------
+// Helper: convert file → base64
+// ------------------------------------------------------------
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onload = () =>
+      resolve(reader.result.split(",")[1]); // strip prefix
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
+
