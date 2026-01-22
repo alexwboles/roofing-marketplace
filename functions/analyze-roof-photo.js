@@ -1,15 +1,13 @@
+// functions/analyze-roof-photo.js
 export async function onRequestPost(context) {
   const { projectId, imageBase64 } = await context.request.json();
 
-  // ---- AI CALL (replace with your provider) ----
-  // For now, return mock values so deployment succeeds.
   const aiResult = {
     materialType: "architectural_shingle",
     sqFt: 2400,
     pitch: "6/12"
   };
 
-  // ---- WRITE TO FIRESTORE (REST API) ----
   const FIREBASE_PROJECT_ID = "roofing-app-84ecc";
   const FIREBASE_API_KEY = "<YOUR_FIREBASE_API_KEY>";
 
