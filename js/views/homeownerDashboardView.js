@@ -33,8 +33,9 @@ export async function renderHomeownerDashboardView() {
 
       <div class="dashboard-side">
         <div class="card" id="health-card">
-          <h2>Roof health</h2>
-          <p class="muted" id="health-summary">Checking hail history and roof age...</p>
+          <h2>Roof health & damage</h2>
+          <p class="muted" id="health-summary">Checking hail history, roof age, and damage...</p>
+          <div id="damage-details" class="muted" style="margin-top:8px;font-size:12px;"></div>
         </div>
 
         <div class="card dashboard-image">
@@ -48,6 +49,7 @@ export async function renderHomeownerDashboardView() {
   const data = await getProjectWithQuotes();
   const quotesList = document.getElementById('quotes-list');
   const healthSummary = document.getElementById('health-summary');
+  const damageDetails = document.getElementById('damage-details');
   const geometrySummary = document.getElementById('geometry-summary');
   const materialsListEl = document.getElementById('materials-list');
 
@@ -91,9 +93,29 @@ export async function renderHomeownerDashboardView() {
   }
 
   if (roofHealth) {
-    healthSummary.textContent = `Insurance eligibility: ${roofHealth.eligibilityLabel.toUpperCase()} (${roofHealth.hailRiskScore}/100)`;
+    const { hailScore, roofAge, eligibility, damageReport } = roofHealth;
+
+    healthSummary.textContent =
+      `Insurance eligibility: ${eligibility.toUpperCase()} · Hail risk: ${hailScore}/100 · Estimated roof age: ${roofAge} years`;
+
+    if (damageReport) {
+      const entries = Object.entries(damageReport)
+        .map(([k, v]) => {
+          if (!v || typeof v !== 'object') return null;
+          const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+          return `${label}: ${v.present ? v.severity : 'none'}`;
+        })
+        .filter(Boolean);
+
+      damageDetails.innerHTML = entries.length
+        ? entries.join('<br/>')
+        : 'No significant damage indicators detected.';
+    } else {
+      damageDetails.textContent = 'Damage classification still processing.';
+    }
   } else {
     healthSummary.textContent = 'Roof health check is still running.';
+    damageDetails.textContent = '';
   }
 
   if (project.materialsList) {
