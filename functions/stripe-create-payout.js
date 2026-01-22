@@ -1,10 +1,9 @@
+// functions/stripe-create-payout.js
 export async function onRequestPost(context) {
   const { rooferId, amountCents } = await context.request.json();
-
   const STRIPE_SECRET_KEY = context.env.STRIPE_SECRET_KEY;
 
-  // TODO: Replace with Firestore lookup via REST
-  const connectedAccountId = "acct_1234567890";
+  const connectedAccountId = "acct_1234567890"; // TODO: look up via Firestore REST
 
   const body = new URLSearchParams({
     amount: amountCents,
