@@ -11,6 +11,10 @@ export function renderHomeownerIntakeView() {
       <p>Enter your info once. Roofers compete for your business.</p>
     </section>
 
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Modern home roof">
+    </div>
+
     <div class="card">
       <form id="intake-form" class="intake-form">
         <h2>Basic info</h2>
@@ -54,8 +58,8 @@ export function renderHomeownerIntakeView() {
           </div>
         </div>
 
-        <h2>Optional: upload a roof photo</h2>
-        <input type="file" id="photo" accept="image/*" />
+        <h2>Optional: upload roof photos</h2>
+        <input type="file" id="photos" accept="image/*" multiple />
 
         <button type="submit" class="btn-primary full-width">See available roof quotes</button>
         <p class="trust-text">Your information is securely stored. No impact to your credit score.</p>
@@ -75,7 +79,7 @@ async function handleSubmit(e) {
   const address = document.getElementById('address').value.trim();
   const roofType = document.getElementById('roofType').value;
   const insurance = document.getElementById('insurance').value;
-  const photoFile = document.getElementById('photo').files[0];
+  const photoFiles = document.getElementById('photos').files;
 
   const projectId = await createProject({
     name,
@@ -86,12 +90,17 @@ async function handleSubmit(e) {
     insurance
   });
 
-  if (photoFile) {
-    const base64 = await fileToBase64(photoFile);
+  const base64Photos = [];
+  for (const file of photoFiles) {
+    const b64 = await fileToBase64(file);
+    base64Photos.push(b64);
+  }
+
+  if (base64Photos.length > 0) {
     await fetch('/functions/analyze-roof-photo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId, imageBase64: base64 })
+      body: JSON.stringify({ projectId, photos: base64Photos })
     });
   }
 
