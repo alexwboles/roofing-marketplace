@@ -1,7 +1,8 @@
+// functions/roof-health-check.js
 export async function onRequestPost(context) {
   const { projectId, address, photos } = await context.request.json();
 
-  // 1. Convert address → lat/lng
+  // 1. Geocode address → lat/lng
   const geoRes = await fetch(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${context.env.GOOGLE_MAPS_KEY}`
   );
@@ -22,56 +23,79 @@ export async function onRequestPost(context) {
   );
   const hailCsv = await hailRes.text();
   const hailEvents = hailCsv.split("\n").filter(line => line.includes(county));
-  const severeHail = hailEvents.filter(e => parseFloat(e.split(",")[10]) >= 1.0);
+  const severeHail = hailEvents.filter(e => {
+    const cols = e.split(",");
+    const size = parseFloat(cols[10] || "0");
+    return size >= 1.0;
+  });
   const hailScore = Math.min(100, severeHail.length * 10);
 
-  // 4. County property appraiser lookup (Florida example)
-  const countyRes = await fetch(
-    `https://apps2.coj.net/PAO_PropertySearch/ParcelSearch?address=${encodeURIComponent(address)}`
-  );
-  const countyData = await countyRes.json();
-  const yearBuilt = countyData[0]?.YearBuilt || 2000;
-  const effectiveYear = countyData[0]?.EffectiveYear || yearBuilt;
-  const roofAgeCounty = new Date().getFullYear() - effectiveYear;
+  // 4. County property appraiser lookup (example: Jacksonville / Duval style)
+  let roofAgeCounty = 20;
+  try {
+    const countyRes = await fetch(
+      `https://apps2.coj.net/PAO_PropertySearch/ParcelSearch?address=${encodeURIComponent(address)}`
+    );
+    const countyData = await countyRes.json();
+    const yearBuilt = countyData[0]?.YearBuilt || 2000;
+    const effectiveYear = countyData[0]?.EffectiveYear || yearBuilt;
+    roofAgeCounty = new Date().getFullYear() - effectiveYear;
+  } catch {
+    roofAgeCounty = 20;
+  }
 
   // 5. AI roof age estimation from photos
-  let aiAges = [];
-  for (const base64 of photos) {
-    const aiRes = await context.env.AI.run(
-      "@cf/llava-hf/llava-1.5-7b-hf",
-      {
-        prompt: "Estimate roof age in years based on shingle wear, granule loss, cracking, curling, discoloration. Return only a number.",
-        image: base64
-      }
-    );
-    aiAges.push(parseInt(aiRes));
+  let roofAgeAI = roofAgeCounty;
+  try {
+    const ages = [];
+    for (const base64 of photos || []) {
+      const aiRes = await context.env.AI.run(
+        "@cf/llava-hf/llava-1.5-7b-hf",
+        {
+          prompt: "Estimate roof age in years based on shingle wear, granule loss, cracking, curling, discoloration. Return only a number.",
+          image: base64
+        }
+      );
+      const parsed = parseInt(aiRes);
+      if (!isNaN(parsed)) ages.push(parsed);
+    }
+    if (ages.length) {
+      roofAgeAI = Math.round(ages.reduce((a, b) => a + b, 0) / ages.length);
+    }
+  } catch {
+    // fall back silently
   }
-  const roofAgeAI = Math.round(aiAges.reduce((a,b)=>a+b,0) / aiAges.length);
 
-  // 6. Final blended roof age
   const roofAge = Math.round((roofAgeCounty * 0.6) + (roofAgeAI * 0.4));
 
-  // 7. AI damage classification
-  const damagePrompt = `
-    Analyze all uploaded roof photos and classify:
-    - hail bruising
-    - granule loss
-    - lifted shingles
-    - cracking
-    - curling
-    - soft spots
-    - missing shingles
-    Return JSON with booleans and severity (low/medium/high).
-  `;
+  // 6. AI damage classification
+  let damageReport = {};
+  try {
+    const damagePrompt = `
+      Analyze all uploaded roof photos and classify:
+      - hailBruising
+      - granuleLoss
+      - liftedShingles
+      - cracking
+      - curling
+      - softSpots
+      - missingShingles
+      For each, return JSON:
+      { present: boolean, severity: "low" | "medium" | "high" }.
+      Return a single JSON object keyed by damage type.
+    `;
 
-  const damageAI = await context.env.AI.run(
-    "@cf/meta/llama-3-8b-instruct",
-    { prompt: damagePrompt }
-  );
+    const damageAI = await context.env.AI.run(
+      "@cf/meta/llama-3-8b-instruct",
+      { prompt: damagePrompt }
+    );
 
-  const damageReport = JSON.parse(damageAI);
+    damageReport = JSON.parse(damageAI);
+  } catch {
+    damageReport = {};
+  }
 
-  // 8. Insurance eligibility
+  // 7. Insurance eligibility
   const eligibility =
     hailScore > 60 || damageReport.hailBruising?.severity === "high"
       ? "high"
@@ -79,7 +103,6 @@ export async function onRequestPost(context) {
       ? "medium"
       : "low";
 
-  // 9. Save to Firestore
   await saveToFirestore(projectId, {
     hailScore,
     roofAge,
