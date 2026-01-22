@@ -2,6 +2,7 @@
 export async function onRequestPost(context) {
   const { projectId, address } = await context.request.json();
 
+  // Mock hail/property data; replace with real APIs later.
   const hailData = { recentSevereHail: true, multipleEvents: true };
   const propertyData = { roofAge: 14 };
 
