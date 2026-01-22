@@ -1,48 +1,99 @@
-// functions/analyze-roof-photo.js
 export async function onRequestPost(context) {
   const { projectId, photos } = await context.request.json();
 
-  // ---- AI ANALYSIS (mock for now) ----
-  // In production, call your AI provider here with `photos`.
-  const materialsList = {
-    shingles: "32 bundles architectural",
-    ridgeCap: "4 bundles",
-    underlayment: "9 rolls synthetic",
-    nails: "12 boxes",
-    dripEdge: "220 linear ft",
-    vents: "3 turtle vents"
+  const results = [];
+
+  for (const base64 of photos) {
+    const aiRes = await context.env.AI.run(
+      "@cf/llava-hf/llava-1.5-7b-hf",
+      {
+        prompt: "Analyze this roof photo. Return JSON with: materialType, sqFtEstimate, pitchEstimate, valleys, ridges, facets, damageIndicators.",
+        image: base64
+      }
+    );
+
+    results.push(JSON.parse(aiRes));
+  }
+
+  // Combine multiple photo results
+  const combined = {
+    materialType: mostCommon(results.map(r => r.materialType)),
+    sqFt: average(results.map(r => r.sqFtEstimate)),
+    pitch: mostCommon(results.map(r => r.pitchEstimate)),
+    valleys: max(results.map(r => r.valleys)),
+    ridges: max(results.map(r => r.ridges)),
+    facets: max(results.map(r => r.facets)),
+    damageIndicators: [...new Set(results.flatMap(r => r.damageIndicators))]
   };
 
-  const aiGeometry = {
-    sqFt: 2450,
-    pitch: "6/12",
-    valleys: 3,
-    ridges: 2,
-    facets: 8
-  };
+  // Generate materials list using AI
+  const materialsPrompt = `
+    Based on this roof:
+    - Material: ${combined.materialType}
+    - SqFt: ${combined.sqFt}
+    - Pitch: ${combined.pitch}
+    - Valleys: ${combined.valleys}
+    - Ridges: ${combined.ridges}
+    - Facets: ${combined.facets}
 
+    Return a JSON materials list with quantities for:
+    shingles, ridgeCap, underlayment, nails, dripEdge, vents.
+  `;
+
+  const materialsAI = await context.env.AI.run(
+    "@cf/meta/llama-3-8b-instruct",
+    { prompt: materialsPrompt }
+  );
+
+  const materialsList = JSON.parse(materialsAI);
+
+  // Save to Firestore
+  await saveToFirestore(projectId, combined, materialsList, context);
+
+  return new Response(JSON.stringify({ combined, materialsList }), {
+    headers: { "Content-Type": "application/json" }
+  });
+}
+
+function mostCommon(arr) {
+  return arr.sort((a,b) =>
+    arr.filter(v => v===a).length - arr.filter(v => v===b).length
+  ).pop();
+}
+
+function average(arr) {
+  return Math.round(arr.reduce((a,b)=>a+b,0) / arr.length);
+}
+
+function max(arr) {
+  return Math.max(...arr);
+}
+
+async function saveToFirestore(projectId, geometry, materials, context) {
   const FIREBASE_PROJECT_ID = "roofing-app-84ecc";
-  const FIREBASE_API_KEY = "<YOUR_FIREBASE_API_KEY>";
+  const FIREBASE_API_KEY = context.env.FIREBASE_API_KEY;
 
   const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/projects/${projectId}?key=${FIREBASE_API_KEY}`;
 
   const body = {
     fields: {
-      materialsList: {
-        mapValue: {
-          fields: Object.fromEntries(
-            Object.entries(materialsList).map(([k, v]) => [k, { stringValue: v }])
-          )
-        }
-      },
       aiGeometry: {
         mapValue: {
           fields: Object.fromEntries(
-            Object.entries(aiGeometry).map(([k, v]) =>
+            Object.entries(geometry).map(([k,v]) =>
               typeof v === "number"
                 ? [k, { integerValue: v }]
+                : Array.isArray(v)
+                ? [k, { arrayValue: { values: v.map(x => ({ stringValue: x })) } }]
                 : [k, { stringValue: v }]
             )
+          )
+        }
+      },
+      materialsList: {
+        mapValue: {
+          fields: Object.fromEntries(
+            Object.entries(materials).map(([k,v]) => [k, { stringValue: v }])
           )
         }
       }
@@ -53,9 +104,5 @@ export async function onRequestPost(context) {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
-  });
-
-  return new Response(JSON.stringify({ materialsList, aiGeometry }), {
-    headers: { "Content-Type": "application/json" }
   });
 }
