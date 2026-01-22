@@ -11,7 +11,7 @@ export async function renderRooferDashboardView() {
     </section>
 
     <div class="hero-image">
-      <img src="https://images.unsplash.com/photo-1597004891283-5e1e7b3b18a4" alt="Roofer working">
+      <img src="https://images.unsplash.com/photo-1600585154154-3d26f4f8b9a6" alt="Professional roofer installing shingles">
     </div>
 
     <div class="card">
@@ -51,22 +51,62 @@ export async function renderRooferDashboardView() {
         <button class="btn-secondary small" data-project="${p.id}">Submit bid</button>
       </div>
     </div>
+    <div class="card" style="margin-top:8px;">
+      <h3>Materials & Cost Calculator</h3>
+      <div id="materials-${p.id}">
+        ${p.materialsList ? renderMaterialsCalculator(p.id, p.materialsList) : '<p class="muted">AI materials list not available yet.</p>'}
+      </div>
+    </div>
   `).join('');
 
   list.addEventListener('click', async (e) => {
     const projectId = e.target.getAttribute('data-project');
-    if (!projectId) return;
+    if (projectId) {
+      const price = prompt('Enter your bid price (USD):');
+      if (!price) return;
 
-    const price = prompt('Enter your bid price (USD):');
-    if (!price) return;
+      await submitBid(projectId, {
+        price: Number(price),
+        rooferName: 'Sample Roofer',
+        shingleType: 'Architectural',
+        timeline: '1–2 weeks'
+      });
 
-    await submitBid(projectId, {
-      price: Number(price),
-      rooferName: 'Sample Roofer',
-      shingleType: 'Architectural',
-      timeline: '1–2 weeks'
-    });
+      alert('Bid submitted.');
+      return;
+    }
 
-    alert('Bid submitted.');
+    const calcId = e.target.getAttribute('data-calc');
+    if (calcId) {
+      const rows = document.querySelectorAll(`#materials-${calcId} .material-row`);
+      let total = 0;
+
+      rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('.qty').value);
+        const cost = parseFloat(row.querySelector('.cost').value);
+        if (!isNaN(qty) && !isNaN(cost)) total += qty * cost;
+      });
+
+      document.getElementById(`total-${calcId}`).textContent =
+        `Estimated materials cost: $${total.toFixed(2)}`;
+    }
   });
+}
+
+function renderMaterialsCalculator(id, materialsList) {
+  const rows = Object.entries(materialsList)
+    .map(([k, v]) => `
+      <div class="material-row">
+        <span class="material-name">${k}</span>
+        <input type="number" class="qty" data-key="${k}" value="${parseInt(v) || 0}" />
+        <input type="number" class="cost" data-key="${k}" placeholder="Unit cost" />
+      </div>
+    `)
+    .join('');
+
+  return `
+    ${rows}
+    <button class="btn-secondary small" data-calc="${id}">Calculate Total</button>
+    <p id="total-${id}" class="muted" style="margin-top:6px;"></p>
+  `;
 }
