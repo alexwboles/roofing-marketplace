@@ -1,7 +1,7 @@
+// functions/roof-health-check.js
 export async function onRequestPost(context) {
   const { projectId, address } = await context.request.json();
 
-  // ---- HAIL + PROPERTY LOOKUP (mock for now) ----
   const hailData = { recentSevereHail: true, multipleEvents: true };
   const propertyData = { roofAge: 14 };
 
@@ -10,11 +10,9 @@ export async function onRequestPost(context) {
   if (hailData.multipleEvents) score += 20;
   if (propertyData.roofAge <= 10) score -= 20;
   if (propertyData.roofAge >= 15) score += 20;
-
   score = Math.max(0, Math.min(100, score));
   const label = score > 70 ? "high" : score > 40 ? "medium" : "low";
 
-  // ---- WRITE TO FIRESTORE (REST API) ----
   const FIREBASE_PROJECT_ID = "roofing-app-84ecc";
   const FIREBASE_API_KEY = "<YOUR_FIREBASE_API_KEY>";
 
