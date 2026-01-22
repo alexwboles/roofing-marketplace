@@ -1,11 +1,9 @@
 // js/services/payments.js
-// Stripe Connect helper calls to your Cloudflare functions
-
-export async function createRooferPayoutIntent({ rooferId, amountCents, currency = 'usd' }) {
+export async function createRooferPayout(rooferId, amountCents) {
   const res = await fetch('/functions/stripe-create-payout', {
     method: 'POST',
-    body: JSON.stringify({ rooferId, amountCents, currency }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rooferId, amountCents })
   });
-  if (!res.ok) throw new Error('Failed to create payout');
   return await res.json();
 }
