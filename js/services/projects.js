@@ -1,102 +1,59 @@
 // js/services/projects.js
-import { db } from '../firebase.js';
 import {
+  db,
+  auth,
   collection,
   doc,
-  setDoc,
-  addDoc,
   getDoc,
   getDocs,
+  setDoc,
+  addDoc,
   query,
-  where,
-  orderBy,
-} from 'firebase/firestore';
-
-export async function upsertHomeownerUser({ name, email, phone }) {
-  const userRef = doc(collection(db, 'users'), email);
-  await setDoc(
-    userRef,
-    {
-      name,
-      email,
-      phone,
-      role: 'homeowner',
-      updatedAt: Date.now(),
-    },
-    { merge: true }
-  );
-  return { id: email };
-}
+  where
+} from '../firebase.js';
 
 export async function createProject(data) {
+  const user = auth.currentUser;
+  const email = user?.email || data.email;
+
   const ref = await addDoc(collection(db, 'projects'), {
     ...data,
-    createdAt: Date.now(),
-    status: 'intake_complete',
+    email,
+    status: 'open',
+    createdAt: Date.now()
   });
+
   return ref.id;
 }
 
-export async function getProject(projectId) {
-  const snap = await getDoc(doc(db, 'projects', projectId));
-  return { id: projectId, ...snap.data() };
-}
+export async function getProjectWithQuotes() {
+  const user = auth.currentUser;
+  if (!user) return null;
 
-export async function getLastProjectForUser(email) {
-  const q = query(
-    collection(db, 'projects'),
-    where('homeownerId', '==', email),
-    orderBy('createdAt', 'desc')
-  );
+  const q = query(collection(db, 'projects'), where('email', '==', user.email));
   const snap = await getDocs(q);
   if (snap.empty) return null;
-  const docSnap = snap.docs[0];
-  return { id: docSnap.id, ...docSnap.data() };
+
+  const docRef = snap.docs[0];
+  const project = { id: docRef.id, ...docRef.data() };
+
+  const quotesSnap = await getDocs(collection(db, 'projects', docRef.id, 'quotes'));
+  const quotes = quotesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const healthDoc = await getDoc(doc(db, 'roofHealthChecks', docRef.id));
+  const roofHealth = healthDoc.exists() ? healthDoc.data() : null;
+
+  return { project, quotes, roofHealth };
 }
 
-export async function getQuotesForProject(projectId) {
-  const q = query(collection(db, 'quotes'), where('projectId', '==', projectId));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+export async function getRooferProjects() {
+  const snap = await getDocs(collection(db, 'projects'));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-export async function getRoofHealthForProject(projectId) {
-  const snap = await getDoc(doc(db, 'roofHealthChecks', projectId));
-  if (!snap.exists()) return null;
-  return snap.data();
-}
-
-export async function getOpenProjectsForRoofer() {
-  const q = query(
-    collection(db, 'projects'),
-    where('status', '==', 'intake_complete')
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-}
-
-export async function getQuotesForRoofer(rooferId) {
-  const q = query(collection(db, 'quotes'), where('rooferId', '==', rooferId));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-}
-
-export async function createQuote(data) {
-  await addDoc(collection(db, 'quotes'), {
-    ...data,
-    createdAt: Date.now(),
-    status: 'submitted',
+export async function submitBid(projectId, bid) {
+  await addDoc(collection(db, 'projects', projectId, 'quotes'), {
+    ...bid,
+    createdAt: Date.now()
   });
-}
-
-export async function acceptQuote(quoteId) {
-  const quoteRef = doc(db, 'quotes', quoteId);
-  await setDoc(
-    quoteRef,
-    {
-      status: 'accepted',
-      acceptedAt: Date.now(),
-    },
-    { merge: true }
-  );
 }
