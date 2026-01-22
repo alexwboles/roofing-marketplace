@@ -42,7 +42,7 @@ export function renderLoginView() {
             <label>Password</label>
             <input type="password" id="login-password" required />
             <button type="submit" class="btn-primary full-width">Log In</button>
-            <p id="login-error" class="muted" style="margin-top:10px;color:#dc2626;"></p>
+            <p id="login-error" class="error-text"></p>
           </form>
 
           <form id="register-form" class="auth-form">
@@ -58,7 +58,7 @@ export function renderLoginView() {
               <option value="roofer">Roofer</option>
             </select>
             <button type="submit" class="btn-primary full-width">Create Account</button>
-            <p id="register-error" class="muted" style="margin-top:10px;color:#dc2626;"></p>
+            <p id="register-error" class="error-text"></p>
           </form>
         </div>
       </div>
