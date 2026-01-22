@@ -107,7 +107,7 @@ async function handleSubmit(e) {
   await fetch('/functions/roof-health-check', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ projectId, address })
+    body: JSON.stringify({ projectId, address, photos: base64Photos })
   });
 
   navigate('/dashboard');
