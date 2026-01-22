@@ -1,46 +1,41 @@
-// functions/analyze-roof-photo.js
-// Cloudflare Pages Function: POST /functions/analyze-roof-photo
-import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-
-const firebaseConfig = {
-  // your Firebase config
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 export async function onRequestPost(context) {
-  const body = await context.request.json();
-  const { projectId, imageBase64 } = body;
+  const { projectId, imageBase64 } = await context.request.json();
 
-  // Call your AI provider here (OpenAI Vision / Workers AI)
-  const aiResult = await detectRoofFeatures(imageBase64);
+  // ---- AI CALL (replace with your provider) ----
+  // For now, return mock values so deployment succeeds.
+  const aiResult = {
+    materialType: "architectural_shingle",
+    sqFt: 2400,
+    pitch: "6/12"
+  };
 
-  await setDoc(
-    doc(db, 'projects', projectId),
-    {
-      aiMaterialGuess: aiResult.materialType,
+  // ---- WRITE TO FIRESTORE (REST API) ----
+  const FIREBASE_PROJECT_ID = "roofing-app-84ecc";
+  const FIREBASE_API_KEY = "<YOUR_FIREBASE_API_KEY>";
+
+  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/projects/${projectId}?key=${FIREBASE_API_KEY}`;
+
+  const body = {
+    fields: {
+      aiMaterialGuess: { stringValue: aiResult.materialType },
       aiGeometry: {
-        sqFt: aiResult.sqFt,
-        pitch: aiResult.pitch,
-      },
-    },
-    { merge: true }
-  );
+        mapValue: {
+          fields: {
+            sqFt: { integerValue: aiResult.sqFt },
+            pitch: { stringValue: aiResult.pitch }
+          }
+        }
+      }
+    }
+  };
+
+  await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
 
   return new Response(JSON.stringify(aiResult), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" }
   });
-}
-
-async function detectRoofFeatures(imageBase64) {
-  // Placeholder: wire to your actual AI call
-  // Return a consistent shape
-  return {
-    materialType: 'architectural_shingle',
-    sqFt: 2400,
-    pitch: '6/12',
-  };
 }
