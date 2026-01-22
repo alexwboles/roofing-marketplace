@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roofing Marketplace – Intake</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand">
+        <div class="brand-mark">RM</div>
+        <div class="brand-text">
+          <span class="brand-title">Roofing Marketplace</span>
+          <span class="brand-subtitle">AI Roof Analysis</span>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <a href="/">Home</a>
+        <a href="/intake" class="active">Get a Roof Report</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="card">
+        <h1>Tell Us About Your Roof</h1>
+        <p class="card-intro">
+          We’ll use your answers and roof photos to generate a roof health report and
+          a materials list you can share with contractors.
+        </p>
+
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="John Doe" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+
+        <label for="address">Property Address</label>
+        <input type="text" id="address" placeholder="123 Main St, City, State" />
+
+        <label for="roofType">Roof Type</label>
+        <select id="roofType">
+          <option value="">Select roof type</option>
+          <option value="shingle">Shingle</option>
+          <option value="tile">Tile</option>
+          <option value="metal">Metal</option>
+          <option value="flat">Flat / Low‑slope</option>
+        </select>
+
+        <label for="age">Approximate Roof Age (years)</label>
+        <input type="number" id="age" min="0" max="80" placeholder="e.g. 12" />
+
+        <label for="notes">Anything we should know?</label>
+        <textarea id="notes" rows="3" placeholder="Leaks, past repairs, storm damage, etc."></textarea>
+
+        <h2>Upload Roof Photos</h2>
+        <p class="section-subtitle">
+          Clear photos from the street and any close‑ups of problem areas help our AI give a better assessment.
+        </p>
+
+        <label class="photo-upload">
+          <span class="photo-upload-title">Click to upload up to 5 photos</span>
+          <span class="photo-upload-subtitle">JPG or PNG, max 10MB each</span>
+          <input type="file" id="photoInput" accept="image/*" multiple />
+        </label>
+
+        <div id="preview" class="preview-grid"></div>
+
+        <button id="submitIntake">Generate My Roof Report</button>
+        <p class="disclaimer">
+          By continuing, you agree to receive communications about your roof report and potential contractor matches.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/intake.js"></script>
+</body>
+</html>
