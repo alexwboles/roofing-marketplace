@@ -1,4 +1,5 @@
 // js/views/rooferDashboardView.js
+
 import { getRooferProjects, submitBid } from "../services/projects.js";
 
 export async function renderRooferDashboardView() {
@@ -72,9 +73,6 @@ export async function renderRooferDashboardView() {
     )
     .join("");
 
-  // -----------------------------
-  // Event listeners
-  // -----------------------------
   list.addEventListener("click", async (e) => {
     const projectId = e.target.getAttribute("data-project");
     if (projectId) {
