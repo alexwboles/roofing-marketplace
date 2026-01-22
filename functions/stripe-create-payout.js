@@ -1,29 +1,26 @@
 // functions/stripe-create-payout.js
+
 export async function onRequestPost(context) {
-  const { rooferId, amountCents } = await context.request.json();
-  const STRIPE_SECRET_KEY = context.env.STRIPE_SECRET_KEY;
+  const { amount, connectedAccountId } = await context.request.json();
 
-  // TODO: look up connected account via Firestore REST using rooferId
-  const connectedAccountId = "acct_1234567890";
+  const stripeKey = context.env.STRIPE_SECRET_KEY;
 
-  const body = new URLSearchParams({
-    amount: amountCents,
-    currency: "usd",
-    destination: connectedAccountId
-  });
-
-  const res = await fetch("https://api.stripe.com/v1/transfers", {
+  const res = await fetch("https://api.stripe.com/v1/payouts", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
-      "Content-Type": "application/x-www-form-urlencoded"
+      Authorization: `Bearer ${stripeKey}`,
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body
+    body: new URLSearchParams({
+      amount: Math.round(amount * 100),
+      currency: "usd",
+      stripe_account: connectedAccountId,
+    }),
   });
 
   const data = await res.json();
 
   return new Response(JSON.stringify(data), {
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
   });
 }
