@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,14 +10,14 @@
   <header class="top-nav">
     <div class="top-nav-inner">
       <div class="brand">
-        <span class="brand-mark">RM</span>
-        <span class="brand-text">Roofing Marketplace</span>
+        <div class="brand-mark">RM</div>
+        <div class="brand-text">Roofing Marketplace</div>
       </div>
-      <nav class="nav-links">
-        <button id="nav-homeowner" class="nav-link">Homeowners</button>
-        <button id="nav-roofer" class="nav-link">Roofers</button>
-        <button id="nav-login" class="nav-link nav-link-primary">Log in</button>
-      </nav>
+      <div class="nav-links">
+        <button class="nav-link" data-route="/">Homeowners</button>
+        <button class="nav-link" data-route="/roofer">Roofers</button>
+        <button class="nav-link nav-link-primary" data-route="/login">Log in</button>
+      </div>
     </div>
   </header>
 
@@ -26,8 +25,7 @@
 
   <footer class="site-footer">
     <div class="footer-inner">
-      <p>© Roofing Marketplace. When roofers compete, you win.</p>
-      <p class="muted">Your information is securely encrypted · No impact to your credit score</p>
+      Roofing Marketplace · When roofers compete, you win.
     </div>
   </footer>
 
