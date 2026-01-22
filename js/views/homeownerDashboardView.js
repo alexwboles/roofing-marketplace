@@ -1,135 +1,58 @@
-// js/views/homeownerDashboardView.js
+export default function homeownerDashboardView() {
+  return `
+  <div class="dashboard-wrapper">
+    <header class="dash-header">
+      <div class="dash-brand">
+        <div class="dash-mark">RM</div>
+        <div class="dash-brand-text">
+          <span class="dash-title">Roofing Marketplace</span>
+          <span class="dash-subtitle">Homeowner Dashboard</span>
+        </div>
+      </div>
+    </header>
 
-import { getProjectWithQuotes } from "../services/projects.js";
+    <main class="dash-main">
 
-export async function renderHomeownerDashboardView() {
-  const app = document.getElementById("app");
+      <section class="dash-card roof-health-card">
+        <h2>Your Roof Health</h2>
 
-  app.innerHTML = `
-    <section class="dashboard-hero">
-      <h1>Your roof quotes</h1>
-      <p>AI‑powered roof analysis and competing bids.</p>
-    </section>
-
-    <div class="dashboard-grid">
-      <div class="dashboard-main">
-        <div class="card" id="quotes-card">
-          <div class="section-header">
-            <h2>Competing bids</h2>
-            <p class="muted">Roofers are reviewing your project.</p>
+        <div class="roof-health-score">
+          <div class="score-circle">
+            <span id="roofScore">--</span>
           </div>
-          <div id="quotes-list"></div>
+          <div class="score-details">
+            <p class="score-label">Overall Condition</p>
+            <p id="roofCondition" class="score-value">Loading...</p>
+          </div>
         </div>
 
-        <div class="card">
-          <h2>AI Materials List</h2>
-          <ul id="materials-list"></ul>
+        <div class="roof-metrics">
+          <div class="metric">
+            <span class="metric-label">Estimated Age</span>
+            <span id="roofAge" class="metric-value">--</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Material</span>
+            <span id="roofMaterial" class="metric-value">--</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Square Footage</span>
+            <span id="roofSqft" class="metric-value">--</span>
+          </div>
         </div>
+      </section>
 
-        <div class="card" id="geometry-card">
-          <h2>AI Roof Geometry</h2>
-          <p class="muted" id="geometry-summary">Analyzing roof facets, pitch, and square footage...</p>
-        </div>
-      </div>
+      <section class="dash-card">
+        <h2>Your Uploaded Photos</h2>
+        <div id="homeownerPhotoGrid" class="photo-grid"></div>
+      </section>
 
-      <div class="dashboard-side">
-        <div class="card" id="health-card">
-          <h2>Roof health & damage</h2>
-          <p class="muted" id="health-summary">Checking hail history, roof age, and damage...</p>
-          <div id="damage-details" class="muted" style="margin-top:8px;font-size:12px;"></div>
-        </div>
+      <section class="dash-card">
+        <h2>Available Quotes</h2>
+        <div id="quotesList" class="quotes-list"></div>
+      </section>
 
-        <div class="card dashboard-image">
-          <img src="https://images.unsplash.com/photo-1597004891283-5e1e7b3b18a4" alt="Roof inspection">
-          <p class="muted" style="font-size:12px;">Licensed roofers reviewing your project.</p>
-        </div>
-      </div>
-    </div>
+    </main>
+  </div>
   `;
-
-  const data = await getProjectWithQuotes();
-  const quotesList = document.getElementById("quotes-list");
-  const healthSummary = document.getElementById("health-summary");
-  const damageDetails = document.getElementById("damage-details");
-  const geometrySummary = document.getElementById("geometry-summary");
-  const materialsListEl = document.getElementById("materials-list");
-
-  if (!data) {
-    quotesList.innerHTML = `<p class="muted">No active project found.</p>`;
-    return;
-  }
-
-  const { project, quotes = [], roofHealth } = data;
-
-  // Quotes
-  if (!quotes.length) {
-    quotesList.innerHTML = `<p class="muted">Roofers are preparing your quotes.</p>`;
-  } else {
-    quotesList.innerHTML = quotes
-      .map(
-        (q) => `
-      <div class="quote-row">
-        <div class="quote-main">
-          <h3>${q.rooferName}</h3>
-          <p class="muted">${q.tagline || "Licensed & insured roofer"}</p>
-        </div>
-        <div class="quote-metrics">
-          <div>
-            <span class="label">Price</span>
-            <span class="value">$${q.price}</span>
-          </div>
-          <div>
-            <span class="label">Shingle</span>
-            <span class="value">${q.shingleType || "Architectural"}</span>
-          </div>
-          <div>
-            <span class="label">Timeline</span>
-            <span class="value">${q.timeline || "1–2 weeks"}</span>
-          </div>
-        </div>
-        <div class="quote-cta">
-          <button class="btn-secondary small">View details</button>
-        </div>
-      </div>
-    `
-      )
-      .join("");
-  }
-
-  // Materials list
-  if (project.materialsList) {
-    materialsListEl.innerHTML = Object.entries(project.materialsList)
-      .map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`)
-      .join("");
-  } else {
-    materialsListEl.innerHTML = `<li class="muted">AI materials list is still processing.</li>`;
-  }
-
-  // Geometry
-  if (project.aiGeometry) {
-    const g = project.aiGeometry;
-    geometrySummary.innerHTML = `
-      Square footage: <strong>${g.sqFt}</strong><br/>
-      Pitch: <strong>${g.pitch}</strong><br/>
-      Valleys: <strong>${g.valleys}</strong><br/>
-      Ridges: <strong>${g.ridges}</strong><br/>
-      Facets: <strong>${g.facets}</strong>
-    `;
-  }
-
-  // Roof health
-  if (roofHealth) {
-    const { hailScore, roofAge, eligibility, damageReport } = roofHealth;
-
-    healthSummary.textContent = `Eligibility: ${eligibility.toUpperCase()} · Hail risk: ${hailScore}/100 · Estimated roof age: ${roofAge} years`;
-
-    if (damageReport) {
-      damageDetails.innerHTML = Object.entries(damageReport)
-        .map(([k, v]) => {
-          const label = k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
-          return `${label}: ${v.present ? v.severity : "none"}`;
-        })
-        .join("<br/>");
-    }
-  }
 }
