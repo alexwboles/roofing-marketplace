@@ -1,3 +1,5 @@
+// functions/analyze-roof-photo.js
+
 export async function onRequestPost(context) {
   const { projectId, photos } = await context.request.json();
 
