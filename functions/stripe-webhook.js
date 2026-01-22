@@ -1,37 +1,41 @@
 // functions/stripe-webhook.js
+
 export async function onRequestPost(context) {
-  const STRIPE_WEBHOOK_SECRET = context.env.STRIPE_WEBHOOK_SECRET;
-
+  const payload = await context.request.text();
   const signature = context.request.headers.get("stripe-signature");
-  const rawBody = await context.request.text();
+  const webhookSecret = context.env.STRIPE_WEBHOOK_SECRET;
 
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(STRIPE_WEBHOOK_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
+  // Stripe signature verification must be done server-side
+  const res = await fetch("https://api.stripe.com/v1/webhook_endpoints/verify", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${context.env.STRIPE_SECRET_KEY}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      payload,
+      sig_header: signature,
+      secret: webhookSecret,
+    }),
+  });
 
-  const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
-  const expected = [...new Uint8Array(signed)]
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
+  const verified = await res.json();
 
-  if (!signature || !signature.includes(expected)) {
+  if (!verified.valid) {
     return new Response("Invalid signature", { status: 400 });
   }
 
-  const event = JSON.parse(rawBody);
+  const event = JSON.parse(payload);
 
+  // Handle events
   switch (event.type) {
     case "payout.paid":
-      // TODO: update Firestore via REST
+      console.log("Payout completed:", event.data.object.id);
+      break;
+    case "payment_intent.succeeded":
+      console.log("Payment succeeded:", event.data.object.id);
       break;
   }
 
-  return new Response(JSON.stringify({ received: true }), {
-    headers: { "Content-Type": "application/json" }
-  });
+  return new Response("OK", { status: 200 });
 }
