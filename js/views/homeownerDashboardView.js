@@ -1,4 +1,5 @@
 // js/views/homeownerDashboardView.js
+
 import { getProjectWithQuotes } from "../services/projects.js";
 
 export async function renderHomeownerDashboardView() {
@@ -60,9 +61,7 @@ export async function renderHomeownerDashboardView() {
 
   const { project, quotes = [], roofHealth } = data;
 
-  // -----------------------------
   // Quotes
-  // -----------------------------
   if (!quotes.length) {
     quotesList.innerHTML = `<p class="muted">Roofers are preparing your quotes.</p>`;
   } else {
@@ -97,9 +96,7 @@ export async function renderHomeownerDashboardView() {
       .join("");
   }
 
-  // -----------------------------
   // Materials list
-  // -----------------------------
   if (project.materialsList) {
     materialsListEl.innerHTML = Object.entries(project.materialsList)
       .map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`)
@@ -108,9 +105,7 @@ export async function renderHomeownerDashboardView() {
     materialsListEl.innerHTML = `<li class="muted">AI materials list is still processing.</li>`;
   }
 
-  // -----------------------------
   // Geometry
-  // -----------------------------
   if (project.aiGeometry) {
     const g = project.aiGeometry;
     geometrySummary.innerHTML = `
@@ -122,9 +117,7 @@ export async function renderHomeownerDashboardView() {
     `;
   }
 
-  // -----------------------------
   // Roof health
-  // -----------------------------
   if (roofHealth) {
     const { hailScore, roofAge, eligibility, damageReport } = roofHealth;
 
