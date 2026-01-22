@@ -1,46 +1,75 @@
-// js/app.js
-import { auth, onAuthStateChanged } from './firebase.js';
-import { renderHomeownerIntakeView } from './views/homeownerIntakeView.js';
-import { renderHomeownerDashboardView } from './views/homeownerDashboardView.js';
-import { renderRooferDashboardView } from './views/rooferDashboardView.js';
-import { renderLoginView } from './views/loginView.js';
+/* ============================================================
+   app.js — UPDATED ROUTER + SESSION PROJECT HANDLING
+   ============================================================ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import { renderHomeView } from "./views/homeView.js";
+import { renderHomeownerIntakeView } from "./views/homeownerIntakeView.js";
+import { renderHomeownerDashboardView } from "./views/homeownerDashboardView.js";
+import { renderRooferDashboardView } from "./views/rooferDashboardView.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "roofing-app-84ecc",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_ID",
+  appId: "YOUR_APP"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// ------------------------------
+// Router
+// ------------------------------
 
 const routes = {
-  '/': renderHomeownerIntakeView,
-  '/dashboard': renderHomeownerDashboardView,
-  '/roofer': renderRooferDashboardView,
-  '/login': renderLoginView
+  "/": renderHomeView,
+  "/intake": renderHomeownerIntakeView,
+  "/dashboard": renderHomeownerDashboardView,
+  "/roofer": renderRooferDashboardView
 };
 
 export function navigate(path) {
-  window.history.pushState({}, '', path);
+  window.history.pushState({}, "", path);
   renderRoute(path);
 }
 
 function renderRoute(path) {
-  const view = routes[path] || routes['/'];
+  const view = routes[path] || renderHomeView;
   view();
 }
 
-window.addEventListener('popstate', () => {
+window.addEventListener("popstate", () => {
   renderRoute(window.location.pathname);
 });
 
-document.addEventListener('click', (e) => {
-  const route = e.target.getAttribute('data-route');
-  if (route) {
-    e.preventDefault();
-    navigate(route);
-  }
+// ------------------------------
+// REMOVE AUTH-GATE (IMPORTANT)
+// ------------------------------
+
+onAuthStateChanged(auth, () => {
+  renderRoute(window.location.pathname || "/");
 });
 
-onAuthStateChanged(auth, (user) => {
-  if (!user && window.location.pathname === '/dashboard') {
-    navigate('/');
-  } else {
-    renderRoute(window.location.pathname || '/');
-  }
-});
+// ------------------------------
+// Logout helper
+// ------------------------------
 
-// initial load
-renderRoute(window.location.pathname || '/');
+export function logout() {
+  signOut(auth);
+  navigate("/");
+}
+
