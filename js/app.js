@@ -5,46 +5,42 @@ import { renderHomeownerDashboardView } from './views/homeownerDashboardView.js'
 import { renderRooferDashboardView } from './views/rooferDashboardView.js';
 import { renderLoginView } from './views/loginView.js';
 
-export let currentUser = null;
-export let currentProjectId = null;
-
 const routes = {
   '/': renderHomeownerIntakeView,
   '/dashboard': renderHomeownerDashboardView,
   '/roofer': renderRooferDashboardView,
-  '/login': renderLoginView,
+  '/login': renderLoginView
 };
 
 export function navigate(path) {
   window.history.pushState({}, '', path);
-  router();
+  renderRoute(path);
 }
 
-function router() {
-  const path = window.location.pathname || '/';
-  const view = routes[path] || renderHomeownerIntakeView;
+function renderRoute(path) {
+  const view = routes[path] || routes['/'];
   view();
 }
 
-window.onpopstate = router;
+window.addEventListener('popstate', () => {
+  renderRoute(window.location.pathname);
+});
+
+document.addEventListener('click', (e) => {
+  const route = e.target.getAttribute('data-route');
+  if (route) {
+    e.preventDefault();
+    navigate(route);
+  }
+});
 
 onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (!user && window.location.pathname !== '/') {
-    navigate('/login');
-    return;
+  if (!user && window.location.pathname !== '/login') {
+    navigate('/');
+  } else {
+    renderRoute(window.location.pathname || '/');
   }
-  router();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const navHomeowner = document.getElementById('nav-homeowner');
-  const navRoofer = document.getElementById('nav-roofer');
-  const navLogin = document.getElementById('nav-login');
-
-  if (navHomeowner) navHomeowner.onclick = () => navigate('/');
-  if (navRoofer) navRoofer.onclick = () => navigate('/roofer');
-  if (navLogin) navLogin.onclick = () => navigate('/login');
-
-  router();
-});
+// initial load
+renderRoute(window.location.pathname || '/');
