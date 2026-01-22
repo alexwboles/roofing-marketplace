@@ -1,6 +1,4 @@
 // js/firebase.js
-// Firebase Modular SDK (v9+)
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getAuth,
@@ -9,7 +7,6 @@ import {
   createUserWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
 import {
   getFirestore,
   collection,
@@ -24,9 +21,6 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// -------------------------------
-// Your Firebase Project Config
-// -------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyA-HINhOFbNrzCtqrIwbXfvh-3L-c3r-gY",
   authDomain: "roofing-app-84ecc.firebaseapp.com",
@@ -37,13 +31,26 @@ const firebaseConfig = {
   measurementId: "G-9888FJXF0F"
 };
 
-// -------------------------------
-// Initialize Firebase
-// -------------------------------
 const app = initializeApp(firebaseConfig);
-
-// Auth + Firestore
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Export everything your
+export {
+  app,
+  auth,
+  db,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  addDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy
+};
