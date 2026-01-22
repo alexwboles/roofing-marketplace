@@ -10,9 +10,14 @@ export async function renderRooferDashboardView() {
       <p>See available projects and submit bids.</p>
     </section>
 
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1597004891283-5e1e7b3b18a4" alt="Roofer working">
+    </div>
+
     <div class="card">
       <div class="section-header">
         <h2>Available projects</h2>
+        <p class="muted">AI‑assisted measurements and materials lists included.</p>
       </div>
       <div id="projects-list"></div>
     </div>
@@ -35,11 +40,11 @@ export async function renderRooferDashboardView() {
       <div class="project-metrics">
         <div>
           <span class="label">AI sq ft</span>
-          <span class="value">${p.aiSqFt || '—'}</span>
+          <span class="value">${p.aiGeometry?.sqFt || '—'}</span>
         </div>
         <div>
-          <span class="label">AI material</span>
-          <span class="value">${p.aiMaterial || '—'}</span>
+          <span class="label">AI pitch</span>
+          <span class="value">${p.aiGeometry?.pitch || '—'}</span>
         </div>
       </div>
       <div class="project-cta">
