@@ -1,10 +1,10 @@
+// functions/stripe-webhook.js
 export async function onRequestPost(context) {
   const STRIPE_WEBHOOK_SECRET = context.env.STRIPE_WEBHOOK_SECRET;
 
   const signature = context.request.headers.get("stripe-signature");
   const rawBody = await context.request.text();
 
-  // ---- VERIFY SIGNATURE (manual HMAC) ----
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
@@ -14,23 +14,17 @@ export async function onRequestPost(context) {
     ["sign"]
   );
 
-  const signed = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    encoder.encode(rawBody)
-  );
-
+  const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
   const expected = [...new Uint8Array(signed)]
     .map(b => b.toString(16).padStart(2, "0"))
     .join("");
 
-  if (!signature.includes(expected)) {
+  if (!signature || !signature.includes(expected)) {
     return new Response("Invalid signature", { status: 400 });
   }
 
   const event = JSON.parse(rawBody);
 
-  // ---- HANDLE EVENTS ----
   switch (event.type) {
     case "payout.paid":
       // TODO: update Firestore via REST
