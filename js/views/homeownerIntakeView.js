@@ -1,125 +1,114 @@
 // js/views/homeownerIntakeView.js
-import { upsertHomeownerUser, createProject } from '../services/projects.js';
-import { navigate, currentUser, currentProjectId as cpId } from '../app.js';
+import { navigate } from '../app.js';
+import { createProject } from '../services/projects.js';
 
 export function renderHomeownerIntakeView() {
   const app = document.getElementById('app');
+
   app.innerHTML = `
     <section class="intake-hero">
-      <h1>Get competing roof quotes in minutes</h1>
-      <p>One simple form. Roofers compete for your business.</p>
+      <h1>Get competing roof quotes</h1>
+      <p>Enter your info once. Roofers compete for your business.</p>
     </section>
 
-    <form id="intake-form" class="card intake-form">
-      <h2>Your info</h2>
-      <div class="grid-2">
-        <div>
-          <label>Full name</label>
-          <input type="text" id="intake-name" required />
+    <div class="card">
+      <form id="intake-form" class="intake-form">
+        <h2>Basic info</h2>
+        <div class="grid-2">
+          <div>
+            <label>Full name</label>
+            <input type="text" id="name" required />
+          </div>
+          <div>
+            <label>Email</label>
+            <input type="email" id="email" required />
+          </div>
+          <div>
+            <label>Mobile phone</label>
+            <input type="tel" id="phone" required />
+          </div>
+          <div>
+            <label>Street address</label>
+            <input type="text" id="address" required />
+          </div>
         </div>
-        <div>
-          <label>Email</label>
-          <input type="email" id="intake-email" required />
-        </div>
-        <div>
-          <label>Mobile phone</label>
-          <input type="tel" id="intake-phone" required />
-        </div>
-      </div>
 
-      <h2>Property</h2>
-      <div class="grid-2">
-        <div>
-          <label>Street address</label>
-          <input type="text" id="intake-address" required />
+        <h2>Roof details</h2>
+        <div class="grid-2">
+          <div>
+            <label>Roof type</label>
+            <select id="roofType" required>
+              <option value="shingle">Shingle</option>
+              <option value="metal">Metal</option>
+              <option value="tile">Tile</option>
+              <option value="flat">Flat</option>
+            </select>
+          </div>
+          <div>
+            <label>Is this an insurance claim?</label>
+            <select id="insurance" required>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+              <option value="not_sure">Not sure</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label>City</label>
-          <input type="text" id="intake-city" required />
-        </div>
-        <div>
-          <label>State</label>
-          <input type="text" id="intake-state" required />
-        </div>
-        <div>
-          <label>ZIP</label>
-          <input type="text" id="intake-zip" required />
-        </div>
-      </div>
 
-      <h2>Roof details</h2>
-      <div class="grid-2">
-        <div>
-          <label>Roof type you want</label>
-          <select id="intake-roof-type" required>
-            <option value="">Select</option>
-            <option value="architectural_shingle">Architectural shingle</option>
-            <option value="metal">Metal</option>
-            <option value="tile">Tile</option>
-            <option value="flat">Flat / membrane</option>
-          </select>
-        </div>
-        <div>
-          <label>Is this through insurance?</label>
-          <select id="intake-insurance" required>
-            <option value="">Select</option>
-            <option value="yes">Yes, insurance claim</option>
-            <option value="no">No, paying out of pocket</option>
-            <option value="unsure">Not sure yet</option>
-          </select>
-        </div>
-      </div>
+        <h2>Optional: upload a roof photo</h2>
+        <input type="file" id="photo" accept="image/*" />
 
-      <button type="submit" class="btn-primary full-width">
-        See my roof quotes
-      </button>
-
-      <p class="trust-text">
-        Your information is securely encrypted · No impact to your credit score
-      </p>
-    </form>
+        <button type="submit" class="btn-primary full-width">See available roof quotes</button>
+        <p class="trust-text">Your information is securely stored. No impact to your credit score.</p>
+      </form>
+    </div>
   `;
 
-  const form = document.getElementById('intake-form');
-  form.addEventListener('submit', handleIntakeSubmit);
+  document.getElementById('intake-form').addEventListener('submit', handleSubmit);
 }
 
-async function handleIntakeSubmit(e) {
+async function handleSubmit(e) {
   e.preventDefault();
 
-  const name = document.getElementById('intake-name').value.trim();
-  const email = document.getElementById('intake-email').value.trim();
-  const phone = document.getElementById('intake-phone').value.trim();
-  const address = document.getElementById('intake-address').value.trim();
-  const city = document.getElementById('intake-city').value.trim();
-  const state = document.getElementById('intake-state').value.trim();
-  const zip = document.getElementById('intake-zip').value.trim();
-  const desiredRoofType = document.getElementById('intake-roof-type').value;
-  const insurance = document.getElementById('intake-insurance').value;
-
-  const user = await upsertHomeownerUser({ name, email, phone });
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const roofType = document.getElementById('roofType').value;
+  const insurance = document.getElementById('insurance').value;
+  const photoFile = document.getElementById('photo').files[0];
 
   const projectId = await createProject({
-    homeownerId: user.id,
+    name,
+    email,
+    phone,
     address,
-    city,
-    state,
-    zip,
-    desiredRoofType,
-    isInsuranceClaim: insurance === 'yes',
+    roofType,
+    insurance
   });
 
-  window.currentProjectId = projectId;
+  if (photoFile) {
+    const base64 = await fileToBase64(photoFile);
+    await fetch('/functions/analyze-roof-photo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, imageBase64: base64 })
+    });
+  }
 
-  // Fire-and-forget AI enrichment (Cloudflare function)
-  fetch('/functions/roof-health-check', {
+  await fetch('/functions/roof-health-check', {
     method: 'POST',
-    body: JSON.stringify({
-      projectId,
-      address: `${address}, ${city}, ${state} ${zip}`,
-    }),
-  }).catch(() => {});
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ projectId, address })
+  });
 
   navigate('/dashboard');
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
