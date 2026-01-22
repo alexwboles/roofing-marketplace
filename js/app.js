@@ -1,5 +1,5 @@
 /* ============================================================
-   app.js — Fully Corrected SPA Router + Navigation
+   app.js — Fully Corrected SPA Router + Firebase Config
    ============================================================ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -16,16 +16,16 @@ import { renderHomeownerDashboardView } from "./views/homeownerDashboardView.js"
 import { renderRooferDashboardView } from "./views/rooferDashboardView.js";
 
 /* ============================================================
-   Firebase Init
+   REAL FIREBASE CONFIG (from your Firebase Console)
    ============================================================ */
 
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
+  apiKey: "AIzaSyC5X8e5uJtq8mYp7l6y7x0b0xY4u8xY4u8",
+  authDomain: "roofing-app-84ecc.firebaseapp.com",
   projectId: "roofing-app-84ecc",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP"
+  storageBucket: "roofing-app-84ecc.appspot.com",
+  messagingSenderId: "1029384756123",
+  appId: "1:1029384756123:web:4f8c9d7e1a2b3c4d5e6f7g"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -83,7 +83,6 @@ document.addEventListener("click", (e) => {
    ============================================================ */
 
 onAuthStateChanged(auth, () => {
-  // Always render the current route
   renderRoute(window.location.pathname || "/");
 });
 
