@@ -1,11 +1,24 @@
 // functions/analyze-roof-photo.js
 export async function onRequestPost(context) {
-  const { projectId, imageBase64 } = await context.request.json();
+  const { projectId, photos } = await context.request.json();
 
-  const aiResult = {
-    materialType: "architectural_shingle",
-    sqFt: 2400,
-    pitch: "6/12"
+  // ---- AI ANALYSIS (mock for now) ----
+  // In production, call your AI provider here with `photos`.
+  const materialsList = {
+    shingles: "32 bundles architectural",
+    ridgeCap: "4 bundles",
+    underlayment: "9 rolls synthetic",
+    nails: "12 boxes",
+    dripEdge: "220 linear ft",
+    vents: "3 turtle vents"
+  };
+
+  const aiGeometry = {
+    sqFt: 2450,
+    pitch: "6/12",
+    valleys: 3,
+    ridges: 2,
+    facets: 8
   };
 
   const FIREBASE_PROJECT_ID = "roofing-app-84ecc";
@@ -15,13 +28,22 @@ export async function onRequestPost(context) {
 
   const body = {
     fields: {
-      aiMaterialGuess: { stringValue: aiResult.materialType },
+      materialsList: {
+        mapValue: {
+          fields: Object.fromEntries(
+            Object.entries(materialsList).map(([k, v]) => [k, { stringValue: v }])
+          )
+        }
+      },
       aiGeometry: {
         mapValue: {
-          fields: {
-            sqFt: { integerValue: aiResult.sqFt },
-            pitch: { stringValue: aiResult.pitch }
-          }
+          fields: Object.fromEntries(
+            Object.entries(aiGeometry).map(([k, v]) =>
+              typeof v === "number"
+                ? [k, { integerValue: v }]
+                : [k, { stringValue: v }]
+            )
+          )
         }
       }
     }
@@ -33,7 +55,7 @@ export async function onRequestPost(context) {
     body: JSON.stringify(body)
   });
 
-  return new Response(JSON.stringify(aiResult), {
+  return new Response(JSON.stringify({ materialsList, aiGeometry }), {
     headers: { "Content-Type": "application/json" }
   });
 }
