@@ -12,15 +12,14 @@ export async function handleIntakeSubmit() {
 
   statusEl.innerHTML = `<span class="status-dot"></span><span>Analyzing your roof…</span>`;
 
-  // Simulate analysis delay
-  await new Promise((r) => setTimeout(r, 1500));
+  // Simulate async analysis
+  await new Promise((r) => setTimeout(r, 1200));
 
-  // Mock analysis result
   const mock = {
     roofScore: 87,
     materials: ["Architectural shingles", "Aluminum drip edge"],
-    findings: ["Granule loss", "Minor lifting"],
-    summary: "Moderate wear with localized damage.",
+    findings: ["Granule loss", "Minor lifting on south slope"],
+    summary: "Moderate wear with localized damage. Ideal for targeted repair or near-term replacement planning.",
   };
 
   setAnalysis(mock);
@@ -29,5 +28,5 @@ export async function handleIntakeSubmit() {
 
   setTimeout(() => {
     navigateTo(state.role === "roofer" ? "rooferDashboard" : "homeownerDashboard");
-  }, 800);
+  }, 700);
 }
