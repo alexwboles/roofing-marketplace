@@ -1,5 +1,5 @@
 // js/views/intakeWizard.js
-// LendingTree-style multi-step intake wizard
+// Clean, production-ready LendingTree-style 3-step intake wizard
 
 import { createButton, createInputGroup } from "../uiComponents.js";
 import { navigate } from "../router.js";
@@ -14,7 +14,7 @@ export async function renderIntakeWizardView({ root }) {
   title.textContent = "Get Your Free Roof Report";
 
   /* ---------------------------------------------
-     Wizard Progress
+     Progress Dots
   --------------------------------------------- */
   const progress = document.createElement("div");
   progress.className = "wizard-progress";
@@ -27,16 +27,19 @@ export async function renderIntakeWizardView({ root }) {
   });
 
   /* ---------------------------------------------
-     Step Containers
+     Steps
   --------------------------------------------- */
   const steps = [step1(), step2(), step3()];
   let current = 0;
 
   function showStep(i) {
     steps.forEach((s, idx) => (s.style.display = idx === i ? "block" : "none"));
-    dots.forEach((d, idx) =>
-      d.classList.toggle("active", idx === i)
-    );
+    dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
+
+    prev.style.display = i === 0 ? "none" : "inline-flex";
+    next.style.display = i === steps.length - 1 ? "none" : "inline-flex";
+    submit.style.display = i === steps.length - 1 ? "inline-flex" : "none";
+
     current = i;
   }
 
@@ -200,23 +203,6 @@ export async function renderIntakeWizardView({ root }) {
       console.error(err);
       alert("We couldn’t analyze your roof. Please try again.");
     }
-  }
-
-  /* ---------------------------------------------
-     Step Navigation Logic
-  --------------------------------------------- */
-
-  function showStep(i) {
-    steps.forEach((s, idx) => (s.style.display = idx === i ? "block" : "none"));
-    dots.forEach((d, idx) =>
-      d.classList.toggle("active", idx === i)
-    );
-
-    prev.style.display = i === 0 ? "none" : "inline-flex";
-    next.style.display = i === steps.length - 1 ? "none" : "inline-flex";
-    submit.style.display = i === steps.length - 1 ? "inline-flex" : "none";
-
-    current = i;
   }
 }
 
