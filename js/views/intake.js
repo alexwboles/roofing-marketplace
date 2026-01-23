@@ -1,4 +1,6 @@
 // js/views/intake.js
+// LendingTree-style intake flow with address-first AI analysis
+
 import { createButton, createInputGroup } from "../uiComponents.js";
 import { navigate } from "../router.js";
 
@@ -41,7 +43,6 @@ export async function renderIntakeView({ root }) {
 
   const status = document.createElement("div");
   status.id = "intake-status";
-  status.textContent = "";
 
   const analyzeBtn = createButton({
     label: "Analyze my roof with AI",
@@ -54,11 +55,13 @@ export async function renderIntakeView({ root }) {
       }
 
       status.textContent = "Analyzing your roof from satellite imagery...";
+
       try {
         const res = await fetch(
           `/api/roof-analysis?address=${encodeURIComponent(address)}`
         );
         if (!res.ok) throw new Error("Analysis failed");
+
         const data = await res.json();
 
         sessionStorage.setItem(
