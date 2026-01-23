@@ -4,10 +4,10 @@ export async function onRequestPost(context) {
   const report = {
     url: "https://example.com/mock-report.pdf",
     createdAt: new Date().toISOString(),
-    meta: body || null,
+    meta: body || null
   };
 
   return new Response(JSON.stringify(report), {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" }
   });
 }
