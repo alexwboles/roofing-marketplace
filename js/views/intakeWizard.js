@@ -1,5 +1,5 @@
 // js/views/intakeWizard.js
-// Clean, production-ready LendingTree-style 3-step intake wizard
+// 3-step LendingTree-style wizard
 
 import { createButton, createInputGroup } from "../uiComponents.js";
 import { navigate } from "../router.js";
@@ -13,9 +13,6 @@ export async function renderIntakeWizardView({ root }) {
   const title = document.createElement("h1");
   title.textContent = "Get Your Free Roof Report";
 
-  /* ---------------------------------------------
-     Progress Dots
-  --------------------------------------------- */
   const progress = document.createElement("div");
   progress.className = "wizard-progress";
 
@@ -26,26 +23,9 @@ export async function renderIntakeWizardView({ root }) {
     return dot;
   });
 
-  /* ---------------------------------------------
-     Steps
-  --------------------------------------------- */
   const steps = [step1(), step2(), step3()];
   let current = 0;
 
-  function showStep(i) {
-    steps.forEach((s, idx) => (s.style.display = idx === i ? "block" : "none"));
-    dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
-
-    prev.style.display = i === 0 ? "none" : "inline-flex";
-    next.style.display = i === steps.length - 1 ? "none" : "inline-flex";
-    submit.style.display = i === steps.length - 1 ? "inline-flex" : "none";
-
-    current = i;
-  }
-
-  /* ---------------------------------------------
-     Navigation Buttons
-  --------------------------------------------- */
   const nav = document.createElement("div");
   nav.className = "wizard-nav";
 
@@ -73,17 +53,21 @@ export async function renderIntakeWizardView({ root }) {
 
   nav.append(prev, next, submit);
 
-  /* ---------------------------------------------
-     Assemble Wizard
-  --------------------------------------------- */
   container.append(title, progress, ...steps, nav);
   root.appendChild(container);
 
   showStep(0);
 
-  /* ---------------------------------------------
-     Step Definitions
-  --------------------------------------------- */
+  function showStep(i) {
+    steps.forEach((s, idx) => (s.style.display = idx === i ? "block" : "none"));
+    dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
+
+    prev.style.display = i === 0 ? "none" : "inline-flex";
+    next.style.display = i === steps.length - 1 ? "none" : "inline-flex";
+    submit.style.display = i === steps.length - 1 ? "inline-flex" : "none";
+
+    current = i;
+  }
 
   function step1() {
     const step = document.createElement("div");
@@ -163,10 +147,6 @@ export async function renderIntakeWizardView({ root }) {
 
     return step;
   }
-
-  /* ---------------------------------------------
-     Submit Wizard → AI Analysis
-  --------------------------------------------- */
 
   async function submitWizard() {
     const data = Object.assign({}, ...steps.map((s) => s.getData()));
