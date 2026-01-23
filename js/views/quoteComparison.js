@@ -1,93 +1,53 @@
-import { getState } from "../state.js";
-import { acceptQuoteById } from "../controllers/projectController.js";
+// js/views/quoteComparison.js
 
-export function renderQuoteComparisonView(root) {
-  const state = getState();
-  const quotes = state.quotes || [];
-  const report = state.analysis;
+export async function renderQuoteComparisonView({ root }) {
+  root.innerHTML = "";
 
-  if (!report) {
-    root.innerHTML = `
-      <section class="card">
-        <h2>No Report Available</h2>
-        <p>Complete the intake to generate your AI roof report.</p>
-      </section>
+  const container = document.createElement("section");
+  container.className = "intake-wizard";
+
+  const title = document.createElement("h1");
+  title.textContent = "Compare roof quotes side by side";
+
+  const subtitle = document.createElement("p");
+  subtitle.textContent =
+    "We’ve matched you with local roofers. Compare price, timeline, and warranty to choose the best fit.";
+
+  const table = document.createElement("div");
+  table.className = "quote-table";
+
+  // TODO: replace with real backend data
+  const quotes = [
+    {
+      roofer: "Sunshine Roofing",
+      price: 14800,
+      timeline: "2 weeks",
+      warranty: "25 years",
+      rating: 4.8
+    },
+    {
+      roofer: "Atlantic Coast Roofers",
+      price: 13950,
+      timeline: "3 weeks",
+      warranty: "20 years",
+      rating: 4.6
+    }
+  ];
+
+  quotes.forEach((q) => {
+    const row = document.createElement("div");
+    row.className = "quote-row";
+    row.innerHTML = `
+      <div class="quote-roofer">${q.roofer}</div>
+      <div class="quote-price">$${q.price.toLocaleString()}</div>
+      <div class="quote-meta">${q.timeline} • ${q.warranty}</div>
+      <div class="quote-rating">${q.rating}★</div>
     `;
-    return;
-  }
-
-  root.innerHTML = `
-    <section class="dashboard">
-      <div>
-        <h2>Compare Roofer Quotes</h2>
-        <p class="hero-visual-sub">
-          AI estimated range:
-          $${report.quote.estimatedLow.toLocaleString()} – 
-          $${report.quote.estimatedHigh.toLocaleString()}
-        </p>
-
-        <div class="card">
-          <h3>Quotes Received</h3>
-
-          ${
-            quotes.length === 0
-              ? `<p>No quotes submitted yet. Roofers will respond soon.</p>`
-              : `
-            <table class="quote-table">
-              <thead>
-                <tr>
-                  <th>Roofer</th>
-                  <th>Price</th>
-                  <th>Timeline</th>
-                  <th>Warranty</th>
-                  <th>Notes</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${quotes
-                  .map(
-                    (q) => `
-                  <tr>
-                    <td>${q.rooferName || "Roofer"}</td>
-                    <td>$${q.price.toLocaleString()}</td>
-                    <td>${q.timeline}</td>
-                    <td>${q.warranty}</td>
-                    <td>${q.notes || "—"}</td>
-                    <td>
-                      <button class="btn-primary accept-quote-btn" data-id="${q.id}">
-                        Accept
-                      </button>
-                    </td>
-                  </tr>
-                `
-                  )
-                  .join("")}
-              </tbody>
-            </table>
-          `
-          }
-          <div id="quote-status-global"></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <h3>Next Steps</h3>
-          <ul>
-            <li>Review each roofer’s quote carefully</li>
-            <li>Compare price, timeline, and warranty</li>
-            <li>Accept a quote to begin your project</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  `;
-
-  document.querySelectorAll(".accept-quote-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const quoteId = btn.getAttribute("data-id");
-      acceptQuoteById(quoteId);
-    });
+    table.appendChild(row);
   });
+
+  container.append(title, subtitle, table);
+  root.appendChild(container);
 }
+
+export const renderView = renderQuoteComparisonView;
