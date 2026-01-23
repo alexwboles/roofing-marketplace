@@ -40,8 +40,6 @@ export async function onRequestPost(context) {
     createdAt: Date.now()
   };
 
-  // In production: persist project in DB
-
   return new Response(JSON.stringify({
     message: "Project created successfully",
     project
