@@ -1,95 +1,96 @@
-import { getState } from "../state.js";
-import { navigateTo } from "../router.js";
+// js/views/homeownerDashboard.js
+// Homeowner dashboard showing AI roof data + quotes
 
-export function renderHomeownerDashboardView(root) {
-  const state = getState();
-  const report = state.analysis;
+import { createCard, createButton, createMetricRow } from "../uiComponents.js";
+import { navigate } from "../router.js";
 
-  if (!report) {
-    root.innerHTML = `
-      <section class="dashboard">
-        <div class="card">
-          <h2>No Report Yet</h2>
-          <p>Complete the intake to generate your AI roof report.</p>
-        </div>
-      </section>
-    `;
-    return;
+export async function renderHomeownerDashboardView({ root }) {
+  root.innerHTML = "";
+
+  const container = document.createElement("section");
+  container.className = "dashboard";
+
+  /* ---------------------------------------------
+     LEFT SIDE — AI Roof Report Summary
+  --------------------------------------------- */
+  const left = document.createElement("div");
+
+  const stored = sessionStorage.getItem("roofAnalysis");
+  let analysis = null;
+
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    analysis = parsed.analysis;
   }
 
-  const { address, photosAnalyzed, roofModel, quote, findings, summary } = report;
+  const roofCard = createCard({
+    title: "Your AI Roof Report",
+    subtext: analysis ? parsed.address : "No report available",
+    variant: "light",
+    content: analysis
+      ? [
+          createMetricRow("Roof area", `${analysis.areaSqFt} sq ft`),
+          createMetricRow("Pitch", analysis.pitchLabel),
+          createMetricRow("Complexity", analysis.complexity),
+          createMetricRow("Condition score", `${analysis.conditionScore}/100`),
+          createMetricRow(
+            "Estimated replacement range",
+            `$${analysis.estimateLow} – $${analysis.estimateHigh}`
+          ),
+          createButton({
+            label: "View Quotes",
+            variant: "primary",
+            onClick: () => navigate("/quotes")
+          })
+        ]
+      : [
+          createButton({
+            label: "Get My Free Roof Report",
+            variant: "primary",
+            onClick: () => navigate("/intake")
+          })
+        ]
+  });
 
-  root.innerHTML = `
-    <section class="dashboard">
-      <div>
-        <h2>AI Roof Report</h2>
+  left.appendChild(roofCard);
 
-        <div class="card">
-          <h3>Property</h3>
-          <p><strong>Address:</strong> ${address}</p>
-          <p><strong>Photos analyzed:</strong> ${photosAnalyzed}</p>
-          <button class="btn-primary" id="compare-quotes-btn">Compare Quotes</button>
-        </div>
+  /* ---------------------------------------------
+     RIGHT SIDE — Quotes Overview
+  --------------------------------------------- */
+  const right = document.createElement("div");
 
-        <div class="card">
-          <h3>Roof Geometry</h3>
-          <p><strong>Square footage:</strong> ${roofModel.sqFt} sq ft</p>
-          <p><strong>Pitch:</strong> ${roofModel.pitch}</p>
-          <p><strong>Facets:</strong> ${roofModel.facets}</p>
-          <p><strong>Valleys:</strong> ${roofModel.valleys}</p>
-          <p><strong>Ridges:</strong> ${roofModel.ridges}</p>
-          <p><strong>Layers:</strong> ${roofModel.layers}</p>
-          <p><strong>Material detected:</strong> ${roofModel.materialDetected}</p>
-          <p><strong>Waste factor:</strong> ${roofModel.wasteFactor}%</p>
-          <p><strong>Complexity:</strong> ${roofModel.complexity}</p>
-        </div>
+  const quotesCard = createCard({
+    title: "Your Quotes",
+    variant: "light",
+    content: [
+      quoteRow("Sunshine Roofing", "$14,800", "25 yrs • 2 weeks"),
+      quoteRow("Atlantic Coast Roofers", "$13,950", "20 yrs • 3 weeks"),
+      createButton({
+        label: "Compare Quotes",
+        variant: "primary",
+        onClick: () => navigate("/quotes")
+      })
+    ]
+  });
 
-        <div class="card">
-          <h3>Condition</h3>
-          <p><strong>Condition score:</strong> ${roofModel.conditionScore}/100</p>
-          <p><strong>Status:</strong> ${roofModel.conditionLabel}</p>
-          <p><strong>Summary:</strong> ${summary}</p>
-        </div>
+  right.appendChild(quotesCard);
 
-        <div class="card">
-          <h3>Estimated Replacement Cost</h3>
-          <p><strong>Estimated range:</strong> $${quote.estimatedLow.toLocaleString()} – $${quote.estimatedHigh.toLocaleString()}</p>
-          <p><strong>Confidence:</strong> ${(quote.confidence * 100).toFixed(0)}%</p>
-
-          <h4>Breakdown</h4>
-          <ul>
-            <li>Materials: $${quote.breakdown.materials.toLocaleString()}</li>
-            <li>Labor: $${quote.breakdown.labor.toLocaleString()}</li>
-            <li>Dumpster: $${quote.breakdown.dumpster.toLocaleString()}</li>
-            <li>Misc: $${quote.breakdown.misc.toLocaleString()}</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>AI Findings</h3>
-          <ul>
-            ${findings.map(f => `<li>${f}</li>`).join("")}
-          </ul>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <h3>Next Steps</h3>
-          <ul>
-            <li>Review your AI roof report</li>
-            <li>Compare quotes from verified roofers</li>
-            <li>Choose a roofer and schedule your project</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  `;
-
-  const compareBtn = document.getElementById("compare-quotes-btn");
-  if (compareBtn) {
-    compareBtn.addEventListener("click", () => {
-      navigateTo("quoteComparison");
-    });
-  }
+  container.append(left, right);
+  root.appendChild(container);
 }
+
+function quoteRow(name, price, meta) {
+  const row = document.createElement("div");
+  row.className = "card-row";
+
+  const left = document.createElement("span");
+  left.textContent = name;
+
+  const right = document.createElement("strong");
+  right.textContent = `${price} • ${meta}`;
+
+  row.append(left, right);
+  return row;
+}
+
+export const renderView = renderHomeownerDashboardView;
