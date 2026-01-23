@@ -1,16 +1,54 @@
+/* --------------------------------------------------
+   1. THEME TOKENS (LendingTree + Dark SaaS Hybrid)
+-------------------------------------------------- */
+
 :root {
+  /* Core dark theme */
   --bg: #050816;
   --bg-soft: #0b1020;
   --card: #111827;
+
+  /* Accent system (LendingTree green) */
   --accent: #22c55e;
   --accent-soft: rgba(34, 197, 94, 0.15);
   --accent-strong: #16a34a;
+
+  /* Text + muted */
   --text: #e5e7eb;
   --muted: #9ca3af;
+
+  /* Borders */
   --border-subtle: rgba(148, 163, 184, 0.3);
+
+  /* Pills */
   --pill-bg: rgba(15, 23, 42, 0.9);
   --pill-border: rgba(148, 163, 184, 0.5);
+
+  /* LendingTree theme additions */
+  --lt-green: #2bb673;
+  --lt-green-dark: #25a466;
+  --lt-teal: #1a3e3e;
+  --lt-teal-light: #d9e7e7;
+  --lt-bg: #f8fbfb;
+  --lt-border: #e3efef;
+
+  /* Typography */
+  --font-primary: "Inter", system-ui, sans-serif;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
 }
+
+/* --------------------------------------------------
+   2. GLOBAL RESET
+-------------------------------------------------- */
 
 *,
 *::before,
@@ -20,8 +58,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Segoe UI", sans-serif;
+  font-family: var(--font-primary);
   background: radial-gradient(circle at top, #0b1120 0, #020617 45%, #020617 100%);
   color: var(--text);
   min-height: 100vh;
@@ -29,7 +66,9 @@ body {
   flex-direction: column;
 }
 
-/* Top bar */
+/* --------------------------------------------------
+   3. TOP BAR
+-------------------------------------------------- */
 
 .top-bar {
   position: sticky;
@@ -88,7 +127,9 @@ body {
   color: var(--text);
 }
 
-/* Bottom bar */
+/* --------------------------------------------------
+   4. BOTTOM BAR
+-------------------------------------------------- */
 
 .bottom-bar {
   margin-top: auto;
@@ -101,7 +142,9 @@ body {
   color: var(--muted);
 }
 
-/* Main layout */
+/* --------------------------------------------------
+   5. MAIN LAYOUT
+-------------------------------------------------- */
 
 #app {
   padding: 1.5rem;
@@ -110,7 +153,9 @@ body {
   margin: 0 auto;
 }
 
-/* Hero */
+/* --------------------------------------------------
+   6. HERO SECTION
+-------------------------------------------------- */
 
 .hero {
   display: grid;
@@ -197,7 +242,9 @@ body {
   border-color: var(--accent);
 }
 
-/* Hero visual */
+/* --------------------------------------------------
+   7. HERO VISUAL
+-------------------------------------------------- */
 
 .hero-visual {
   position: relative;
@@ -233,11 +280,7 @@ body {
   margin-bottom: 0.75rem;
 }
 
-.hero-visual-title {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
+.hero-visual-title,
 .hero-visual-sub {
   font-size: 0.8rem;
   color: var(--muted);
@@ -249,7 +292,9 @@ body {
   color: var(--accent);
 }
 
-/* Intake */
+/* --------------------------------------------------
+   8. INTAKE (Existing)
+-------------------------------------------------- */
 
 .intake-polished {
   max-width: 640px;
@@ -292,7 +337,6 @@ body {
   margin-top: 1rem;
   min-height: 1.5rem;
 }
-
 
 .intake {
   max-width: 720px;
@@ -359,7 +403,9 @@ body {
   background: var(--accent);
 }
 
-/* Dashboards */
+/* --------------------------------------------------
+   9. DASHBOARD
+-------------------------------------------------- */
 
 .dashboard {
   display: grid;
@@ -389,7 +435,9 @@ body {
   color: var(--muted);
 }
 
-/* Project management */
+/* --------------------------------------------------
+   10. PROJECT MANAGEMENT
+-------------------------------------------------- */
 
 .project-list {
   display: flex;
@@ -438,7 +486,110 @@ body {
   color: var(--text);
 }
 
-/* Responsive */
+/* --------------------------------------------------
+   11. LENDINGTREE‑STYLE INTAKE WIZARD
+-------------------------------------------------- */
+
+.intake-wizard {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-primary);
+  color: var(--lt-teal);
+}
+
+.intake-wizard h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.wizard-progress {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.wizard-progress .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lt-teal-light);
+  transition: background 0.25s ease;
+}
+
+.wizard-progress .dot.active {
+  background: var(--lt-green);
+}
+
+.wizard-steps {
+  margin-bottom: 32px;
+}
+
+.wizard-step {
+  display: none;
+  padding: 24px;
+  background: var(--lt-bg);
+  border-radius: 12px;
+  border: 1px solid var(--lt-border);
+}
+
+.wizard-step label {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--lt-teal);
+}
+
+.wizard-step input,
+.wizard-step select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--lt-border);
+  background: #ffffff;
+  font-size: 15px;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.wizard-nav button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+#prevStep {
+  background: var(--lt-teal-light);
+  color: var(--lt-teal);
+}
+
+#nextStep {
+  background: var(--lt-green);
+  color: #ffffff;
+}
+
+#submitWizard {
+  background: var(--lt-teal);
+  color: #ffffff;
+}
+
+/* --------------------------------------------------
+   12. RESPONSIVE
+-------------------------------------------------- */
 
 @media (max-width: 900px) {
   .hero {
@@ -454,54 +605,12 @@ body {
     gap: 0.25rem;
   }
 
-  .wizard {
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  .wizard-nav {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wizard-nav button {
+    width: 100%;
+  }
 }
-
-.wizard-steps {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.wizard-step {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.4;
-  font-weight: 600;
-}
-
-.wizard-step.active {
-  background: var(--accent);
-  color: #022c22;
-  opacity: 1;
-}
-
-.wizard-body {
-  background: rgba(255,255,255,0.05);
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.wizard-nav {
-  display: flex;
-  justify-content: space-between;
-}
-
-#wizard-status {
-  min-height: 1.5rem;
-}
-
-}
-
-
