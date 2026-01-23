@@ -2,7 +2,7 @@ import { getState, setProjects } from "../state.js";
 
 export function renderRooferDashboardView(root) {
   const state = getState();
-  const analysis = state.analysis;
+  const report = state.analysis;
   const projects = state.projects || [];
 
   root.innerHTML = `
@@ -13,13 +13,14 @@ export function renderRooferDashboardView(root) {
         <div class="card">
           <h3>Lead Snapshot</h3>
           ${
-            analysis
+            report
               ? `
-            <p><strong>Address:</strong> ${state.intake.address || "Unknown"}</p>
-            <p><strong>Roof Score:</strong> ${analysis.roofScore}/100 (${analysis.conditionLabel})</p>
-            <p><strong>Size:</strong> ${analysis.estimatedSqFt} sq ft</p>
-            <p><strong>Complexity:</strong> ${analysis.complexity}</p>
-            <p><strong>Suggested range:</strong> $${analysis.estimatedLow.toLocaleString()} – $${analysis.estimatedHigh.toLocaleString()}</p>
+            <p><strong>Address:</strong> ${report.address}</p>
+            <p><strong>Square footage:</strong> ${report.roofModel.sqFt} sq ft</p>
+            <p><strong>Pitch:</strong> ${report.roofModel.pitch}</p>
+            <p><strong>Complexity:</strong> ${report.roofModel.complexity}</p>
+            <p><strong>Condition:</strong> ${report.roofModel.conditionLabel} (${report.roofModel.conditionScore}/100)</p>
+            <p><strong>AI Estimated Range:</strong> $${report.quote.estimatedLow.toLocaleString()} – $${report.quote.estimatedHigh.toLocaleString()}</p>
           `
               : `
             <p>No active lead yet. Have a homeowner complete the intake flow.</p>
@@ -29,14 +30,25 @@ export function renderRooferDashboardView(root) {
 
         <div class="card">
           <h3>Project Management</h3>
-          <p class="hero-visual-sub">
-            Track quotes and job status for this lead.
-          </p>
+          <p class="hero-visual-sub">Track quotes and job status for this lead.</p>
           <div class="project-list" id="project-list"></div>
         </div>
       </div>
 
       <div>
+        <div class="card">
+          <h3>AI Findings</h3>
+          ${
+            report
+              ? `
+            <ul>
+              ${report.findings.map(f => `<li>${f}</li>`).join("")}
+            </ul>
+          `
+              : `<p>No findings available.</p>`
+          }
+        </div>
+
         <div class="card">
           <h3>Recent Activity</h3>
           <ul>
@@ -48,14 +60,17 @@ export function renderRooferDashboardView(root) {
     </section>
   `;
 
+  // -----------------------------
+  // Project Management Logic
+  // -----------------------------
   const listEl = document.getElementById("project-list");
 
-  // Ensure at least one project derived from current intake/analysis
   let updatedProjects = [...projects];
-  if (analysis && !updatedProjects.length) {
+
+  if (report && !updatedProjects.length) {
     updatedProjects.push({
       id: "proj-1",
-      address: state.intake.address || "Unknown",
+      address: report.address,
       status: "New",
       quote: "",
       notes: ""
