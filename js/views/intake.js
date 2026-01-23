@@ -1,143 +1,87 @@
-import { setIntakeField, getState } from "../state.js";
-import { handleIntakeSubmit } from "../controllers/intakeController.js";
+// js/views/intake.js
+import { createButton, createInputGroup } from "../uiComponents.js";
+import { navigate } from "../router.js";
 
-export function renderIntakeView(root) {
-  const state = getState();
+export async function renderIntakeView({ root }) {
+  root.innerHTML = "";
 
-  root.innerHTML = `
-    <section class="intake intake-polished">
+  const container = document.createElement("section");
+  container.className = "intake-wizard";
 
-      <div class="intake-header">
-        <h2>Roof Intake</h2>
-        <p class="hero-visual-sub">
-          Upload photos and enter basic details.  
-          Our AI will analyze your roof and generate a full report.
-        </p>
-      </div>
+  const title = document.createElement("h1");
+  title.textContent = "Get personalized roof quotes in minutes";
 
-      <div class="intake-section">
-        <h3>Property Details</h3>
+  const subtitle = document.createElement("p");
+  subtitle.textContent =
+    "Start with your address. We’ll analyze your roof from satellite imagery and match you with vetted roofers.";
 
-        <label>Address</label>
-        <input 
-          id="intake-address" 
-          type="text" 
-          placeholder="123 Main St, City, State"
-          value="${state.intake.address || ""}"
-        />
-        <small class="input-hint">Full address helps us match satellite imagery.</small>
+  const form = document.createElement("div");
 
-        <label>Roof Age (years)</label>
-        <input 
-          id="intake-roofAge" 
-          type="number" 
-          min="0" 
-          placeholder="e.g. 15"
-          value="${state.intake.roofAge || ""}"
-        />
+  const { group: addressGroup, input: addressInput } = createInputGroup({
+    label: "Property address",
+    name: "address",
+    placeholder: "123 Main St, St Augustine, FL"
+  });
 
-        <label>Square Footage (optional)</label>
-        <input 
-          id="intake-squareFootage" 
-          type="number" 
-          min="0" 
-          placeholder="e.g. 2400"
-          value="${state.intake.squareFootage || ""}"
-        />
-      </div>
+  const { group: emailGroup, input: emailInput } = createInputGroup({
+    label: "Email",
+    name: "email",
+    type: "email",
+    placeholder: "you@example.com"
+  });
 
-      <div class="intake-section">
-        <h3>Roof Structure</h3>
+  const { group: phoneGroup, input: phoneInput } = createInputGroup({
+    label: "Mobile phone",
+    name: "phone",
+    type: "tel",
+    placeholder: "555-123-4567"
+  });
 
-        <label>Pitch</label>
-        <input 
-          id="intake-pitch" 
-          type="text" 
-          placeholder="e.g. 6/12"
-          value="${state.intake.pitch || ""}"
-        />
+  form.append(addressGroup, emailGroup, phoneGroup);
 
-        <label>Number of Valleys</label>
-        <input 
-          id="intake-valleys" 
-          type="number" 
-          min="0" 
-          placeholder="e.g. 3"
-          value="${state.intake.valleys || ""}"
-        />
+  const status = document.createElement("div");
+  status.id = "intake-status";
+  status.textContent = "";
 
-        <label>Number of Layers</label>
-        <input 
-          id="intake-layers" 
-          type="number" 
-          min="1" 
-          placeholder="e.g. 1"
-          value="${state.intake.layers || ""}"
-        />
+  const analyzeBtn = createButton({
+    label: "Analyze my roof with AI",
+    variant: "primary",
+    onClick: async () => {
+      const address = addressInput.value.trim();
+      if (!address) {
+        status.textContent = "Please enter your address.";
+        return;
+      }
 
-        <label>Material</label>
-        <input 
-          id="intake-material" 
-          type="text" 
-          placeholder="e.g. Architectural Asphalt"
-          value="${state.intake.material || ""}"
-        />
-      </div>
+      status.textContent = "Analyzing your roof from satellite imagery...";
+      try {
+        const res = await fetch(
+          `/api/roof-analysis?address=${encodeURIComponent(address)}`
+        );
+        if (!res.ok) throw new Error("Analysis failed");
+        const data = await res.json();
 
-      <div class="intake-section">
-        <h3>Additional Notes</h3>
+        sessionStorage.setItem(
+          "roofAnalysis",
+          JSON.stringify({
+            address,
+            email: emailInput.value.trim(),
+            phone: phoneInput.value.trim(),
+            analysis: data
+          })
+        );
 
-        <textarea 
-          id="intake-notes" 
-          placeholder="Anything else we should know?"
-        >${state.intake.notes || ""}</textarea>
-      </div>
+        navigate("/analysis");
+      } catch (err) {
+        console.error(err);
+        status.textContent =
+          "We couldn’t analyze your roof. Please try again.";
+      }
+    }
+  });
 
-      <div class="intake-section">
-        <h3>Upload Photos</h3>
-
-        <input 
-          id="intake-photos" 
-          type="file" 
-          accept="image/*" 
-          multiple
-        />
-        <small class="input-hint">Upload 3–6 photos for best accuracy.</small>
-      </div>
-
-      <button class="btn-primary intake-submit" id="intake-submit-btn">
-        Analyze Roof
-      </button>
-
-      <div id="intake-status" class="intake-status"></div>
-
-    </section>
-  `;
-
-  // -----------------------------
-  // Field listeners → setIntakeField
-  // -----------------------------
-  const bind = (id, field) => {
-    document.getElementById(id).addEventListener("input", (e) => {
-      setIntakeField(field, e.target.value);
-    });
-  };
-
-  bind("intake-address", "address");
-  bind("intake-roofAge", "roofAge");
-  bind("intake-squareFootage", "squareFootage");
-  bind("intake-pitch", "pitch");
-  bind("intake-valleys", "valleys");
-  bind("intake-layers", "layers");
-  bind("intake-material", "material");
-  bind("intake-notes", "notes");
-
-  // -----------------------------
-  // Submit handler
-  // -----------------------------
-  document.getElementById("intake-submit-btn")
-    .addEventListener("click", () => {
-      const files = document.getElementById("intake-photos").files;
-      handleIntakeSubmit(files);
-    });
+  container.append(title, subtitle, form, analyzeBtn, status);
+  root.appendChild(container);
 }
+
+export const renderView = renderIntakeView;
