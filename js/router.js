@@ -4,6 +4,7 @@ import { renderHomeownerDashboardView } from "./views/homeownerDashboard.js";
 import { renderRooferDashboardView } from "./views/rooferDashboard.js";
 import { renderQuoteSubmissionView } from "./views/quoteSubmission.js";
 import { renderQuoteComparisonView } from "./views/quoteComparison.js";
+import { renderProjectDashboardView } from "./views/projectDashboard.js";
 
 const routes = {
   home: renderHomeView,
@@ -11,7 +12,8 @@ const routes = {
   homeownerDashboard: renderHomeownerDashboardView,
   rooferDashboard: renderRooferDashboardView,
   quoteSubmission: renderQuoteSubmissionView,
-  quoteComparison: renderQuoteComparisonView
+  quoteComparison: renderQuoteComparisonView,
+  projectDashboard: renderProjectDashboardView
 };
 
 function renderRoute(routeKey) {
