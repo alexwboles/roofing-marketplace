@@ -1,5 +1,5 @@
 // js/views/projectDashboard.js
-// Project detail dashboard for homeowners or roofers
+// Project detail dashboard
 
 import { createCard, createButton } from "../uiComponents.js";
 
@@ -12,9 +12,6 @@ export async function renderProjectDashboardView({ root }) {
   const title = document.createElement("h1");
   title.textContent = "Project Dashboard";
 
-  /* ---------------------------------------------
-     Placeholder project (replace with backend)
-  --------------------------------------------- */
   const project = {
     id: "proj123",
     homeowner: "John Smith",
