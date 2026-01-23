@@ -5,116 +5,132 @@ export function renderIntakeView(root) {
   const state = getState();
 
   root.innerHTML = `
-    <section class="intake">
-      <h2>Roof Intake Form</h2>
-      <p class="hero-visual-sub">Upload photos and enter details to generate your AI roof report.</p>
+    <section class="intake intake-polished">
 
-      <label>Address</label>
-      <input 
-        id="intake-address" 
-        type="text" 
-        placeholder="123 Main St"
-        value="${state.intake.address || ""}"
-      />
+      <div class="intake-header">
+        <h2>Roof Intake</h2>
+        <p class="hero-visual-sub">
+          Upload photos and enter basic details.  
+          Our AI will analyze your roof and generate a full report.
+        </p>
+      </div>
 
-      <label>Roof Age (years)</label>
-      <input 
-        id="intake-roofAge" 
-        type="number" 
-        min="0" 
-        placeholder="e.g. 15"
-        value="${state.intake.roofAge || ""}"
-      />
+      <div class="intake-section">
+        <h3>Property Details</h3>
 
-      <label>Square Footage (optional)</label>
-      <input 
-        id="intake-squareFootage" 
-        type="number" 
-        min="0" 
-        placeholder="e.g. 2400"
-        value="${state.intake.squareFootage || ""}"
-      />
+        <label>Address</label>
+        <input 
+          id="intake-address" 
+          type="text" 
+          placeholder="123 Main St, City, State"
+          value="${state.intake.address || ""}"
+        />
+        <small class="input-hint">Full address helps us match satellite imagery.</small>
 
-      <label>Pitch</label>
-      <input 
-        id="intake-pitch" 
-        type="text" 
-        placeholder="e.g. 6/12"
-        value="${state.intake.pitch || ""}"
-      />
+        <label>Roof Age (years)</label>
+        <input 
+          id="intake-roofAge" 
+          type="number" 
+          min="0" 
+          placeholder="e.g. 15"
+          value="${state.intake.roofAge || ""}"
+        />
 
-      <label>Number of Valleys</label>
-      <input 
-        id="intake-valleys" 
-        type="number" 
-        min="0" 
-        placeholder="e.g. 3"
-        value="${state.intake.valleys || ""}"
-      />
+        <label>Square Footage (optional)</label>
+        <input 
+          id="intake-squareFootage" 
+          type="number" 
+          min="0" 
+          placeholder="e.g. 2400"
+          value="${state.intake.squareFootage || ""}"
+        />
+      </div>
 
-      <label>Number of Layers</label>
-      <input 
-        id="intake-layers" 
-        type="number" 
-        min="1" 
-        placeholder="e.g. 1"
-        value="${state.intake.layers || ""}"
-      />
+      <div class="intake-section">
+        <h3>Roof Structure</h3>
 
-      <label>Material</label>
-      <input 
-        id="intake-material" 
-        type="text" 
-        placeholder="e.g. Architectural Asphalt"
-        value="${state.intake.material || ""}"
-      />
+        <label>Pitch</label>
+        <input 
+          id="intake-pitch" 
+          type="text" 
+          placeholder="e.g. 6/12"
+          value="${state.intake.pitch || ""}"
+        />
 
-      <label>Notes (optional)</label>
-      <textarea 
-        id="intake-notes" 
-        placeholder="Anything else we should know?"
-      >${state.intake.notes || ""}</textarea>
+        <label>Number of Valleys</label>
+        <input 
+          id="intake-valleys" 
+          type="number" 
+          min="0" 
+          placeholder="e.g. 3"
+          value="${state.intake.valleys || ""}"
+        />
 
-      <label>Upload Photos</label>
-      <input 
-        id="intake-photos" 
-        type="file" 
-        accept="image/*" 
-        multiple
-      />
+        <label>Number of Layers</label>
+        <input 
+          id="intake-layers" 
+          type="number" 
+          min="1" 
+          placeholder="e.g. 1"
+          value="${state.intake.layers || ""}"
+        />
 
-      <button class="btn-primary" id="intake-submit-btn">Analyze Roof</button>
+        <label>Material</label>
+        <input 
+          id="intake-material" 
+          type="text" 
+          placeholder="e.g. Architectural Asphalt"
+          value="${state.intake.material || ""}"
+        />
+      </div>
 
-      <div id="intake-status"></div>
+      <div class="intake-section">
+        <h3>Additional Notes</h3>
+
+        <textarea 
+          id="intake-notes" 
+          placeholder="Anything else we should know?"
+        >${state.intake.notes || ""}</textarea>
+      </div>
+
+      <div class="intake-section">
+        <h3>Upload Photos</h3>
+
+        <input 
+          id="intake-photos" 
+          type="file" 
+          accept="image/*" 
+          multiple
+        />
+        <small class="input-hint">Upload 3–6 photos for best accuracy.</small>
+      </div>
+
+      <button class="btn-primary intake-submit" id="intake-submit-btn">
+        Analyze Roof
+      </button>
+
+      <div id="intake-status" class="intake-status"></div>
+
     </section>
   `;
 
   // -----------------------------
   // Field listeners → setIntakeField
   // -----------------------------
-  document.getElementById("intake-address")
-    .addEventListener("input", (e) => setIntakeField("address", e.target.value));
+  const bind = (id, field) => {
+    document.getElementById(id).addEventListener("input", (e) => {
+      setIntakeField(field, e.target.value);
+    });
+  };
 
-  document.getElementById("intake-roofAge")
-    .addEventListener("input", (e) => setIntakeField("roofAge", e.target.value));
-
-  document.getElementById("intake-squareFootage")
-    .addEventListener("input", (e) => setIntakeField("squareFootage", e.target.value));
-
-  document.getElementById("intake-pitch")
-    .addEventListener("input", (e) => setIntakeField("pitch", e.target.value));
-
-  document.getElementById("intake-valleys")
-    .addEventListener("input", (e) => setIntakeField("valleys", e.target.value));
-
-  document.getElementById("intake-layers")
-    .addEventListener("input", (e) => setIntakeField("layers", e.target.value));
-
-  document.getElementById("intake-material")
-    .addEventListener("input", (e) => setIntakeField("material", e.target.value));
-
-  document.getElementById("intake-notes")
-    .addEventListener("input", (e) => setIntakeField("notes", e.target.value));
+  bind("intake-address", "address");
+  bind("intake-roofAge", "roofAge");
+  bind("intake-squareFootage", "squareFootage");
+  bind("intake-pitch", "pitch");
+  bind("intake-valleys", "valleys");
+  bind("intake-layers", "layers");
+  bind("intake-material", "material");
+  bind("intake-notes", "notes");
 
   // -----------------------------
   // Submit handler
