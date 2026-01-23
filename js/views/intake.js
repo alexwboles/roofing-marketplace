@@ -1,5 +1,5 @@
 // js/views/intake.js
-// LendingTree-style intake flow with address-first AI analysis
+// Address-first AI intake
 
 import { createButton, createInputGroup } from "../uiComponents.js";
 import { navigate } from "../router.js";
