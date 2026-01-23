@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const appRoot = document.getElementById("app");
   initRouter(appRoot);
 
-  // Top nav buttons
   document.querySelectorAll(".top-link").forEach((btn) => {
     btn.addEventListener("click", () => {
       const route = btn.getAttribute("data-nav") || "home";
