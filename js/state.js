@@ -1,31 +1,23 @@
-const appState = {
+const state = {
   role: "homeowner",
   intake: {
     address: "",
-    notes: "",
-    photos: [],
   },
-  analysis: {
-    status: "idle",
-    roofScore: null,
-    materials: [],
-    findings: [],
-    summary: "",
-  },
+  analysis: null,
 };
 
 export function getState() {
-  return appState;
+  return state;
 }
 
 export function setRole(role) {
-  appState.role = role;
+  state.role = role;
 }
 
 export function updateIntake(partial) {
-  Object.assign(appState.intake, partial);
+  state.intake = { ...state.intake, ...partial };
 }
 
-export function setAnalysis(partial) {
-  Object.assign(appState.analysis, partial);
+export function setAnalysis(analysis) {
+  state.analysis = analysis;
 }
