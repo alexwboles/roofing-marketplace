@@ -1,5 +1,5 @@
 const state = {
-  role: "homeowner", // or "roofer"
+  role: "homeowner",
   intake: {
     address: "",
     roofAge: "",
@@ -10,10 +10,10 @@ const state = {
     material: "",
     notes: ""
   },
-  analysis: null,    // AI roof report
-  projects: [],      // list of projects
-  currentProject: null, // active project
-  quotes: []         // homeowner quote list
+  analysis: null,
+  projects: [],
+  currentProject: null,
+  quotes: []
 };
 
 export function getState() {
