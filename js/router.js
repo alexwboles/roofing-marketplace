@@ -3,65 +3,36 @@ import { renderIntakeView } from "./views/intake.js";
 import { renderHomeownerDashboardView } from "./views/homeownerDashboard.js";
 import { renderRooferDashboardView } from "./views/rooferDashboard.js";
 
-let appRoot = null;
-
 const routes = {
-  "/": "home",
-  "/home": "home",
-  "/intake": "intake",
-  "/homeowner-dashboard": "homeownerDashboard",
-  "/roofer-dashboard": "rooferDashboard",
+  home: renderHomeView,
+  intake: renderIntakeView,
+  homeownerDashboard: renderHomeownerDashboardView,
+  rooferDashboard: renderRooferDashboardView,
 };
 
-export function initRouter(root) {
-  appRoot = root;
-
-  window.addEventListener("popstate", () => {
-    handleRoute(location.pathname);
-  });
-
-  handleRoute(location.pathname);
-}
-
 export function navigateTo(routeKey) {
-  let path = "/";
-  switch (routeKey) {
-    case "home":
-      path = "/";
-      break;
-    case "intake":
-      path = "/intake";
-      break;
-    case "homeownerDashboard":
-      path = "/homeowner-dashboard";
-      break;
-    case "rooferDashboard":
-      path = "/roofer-dashboard";
-      break;
-  }
-  history.pushState({}, "", path);
-  handleRoute(path);
+  window.history.pushState({}, "", routeKey === "home" ? "/" : `/${routeKey}`);
+  renderRoute(routeKey);
 }
 
-function handleRoute(pathname) {
-  if (!appRoot) return;
-
-  const routeKey = routes[pathname] || "home";
-
-  switch (routeKey) {
-    case "home":
-      renderHomeView(appRoot);
-      break;
-    case "intake":
-      renderIntakeView(appRoot);
-      break;
-    case "homeownerDashboard":
-      renderHomeownerDashboardView(appRoot);
-      break;
-    case "rooferDashboard":
-      renderRooferDashboardView(appRoot);
-      break;
-    default:
-      renderHomeView(appRoot);
+export function initRouter(root) {
+  function handleRoute() {
+    const path = window.location.pathname.replace("/", "") || "home";
+    renderRoute(path);
   }
+
+  window.addEventListener("popstate", handleRoute);
+  handleRoute();
+}
+
+function renderRoute(routeKey) {
+  const root = document.getElementById("app");
+  const view = routes[routeKey];
+
+  if (!view) {
+    root.innerHTML = `<section><h2>404 – Page Not Found</h2></section>`;
+    return;
+  }
+
+  view(root);
 }
