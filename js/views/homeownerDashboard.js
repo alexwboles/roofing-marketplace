@@ -1,5 +1,5 @@
 // js/views/homeownerDashboard.js
-// Homeowner dashboard showing AI roof data + quotes
+// Homeowner dashboard
 
 import { createCard, createButton, createMetricRow } from "../uiComponents.js";
 import { navigate } from "../router.js";
@@ -10,22 +10,22 @@ export async function renderHomeownerDashboardView({ root }) {
   const container = document.createElement("section");
   container.className = "dashboard";
 
-  /* ---------------------------------------------
-     LEFT SIDE — AI Roof Report Summary
-  --------------------------------------------- */
   const left = document.createElement("div");
+  const right = document.createElement("div");
 
   const stored = sessionStorage.getItem("roofAnalysis");
   let analysis = null;
+  let address = "";
 
   if (stored) {
     const parsed = JSON.parse(stored);
     analysis = parsed.analysis;
+    address = parsed.address;
   }
 
   const roofCard = createCard({
     title: "Your AI Roof Report",
-    subtext: analysis ? parsed.address : "No report available",
+    subtext: address || "No report available",
     variant: "light",
     content: analysis
       ? [
@@ -53,11 +53,6 @@ export async function renderHomeownerDashboardView({ root }) {
   });
 
   left.appendChild(roofCard);
-
-  /* ---------------------------------------------
-     RIGHT SIDE — Quotes Overview
-  --------------------------------------------- */
-  const right = document.createElement("div");
 
   const quotesCard = createCard({
     title: "Your Quotes",
