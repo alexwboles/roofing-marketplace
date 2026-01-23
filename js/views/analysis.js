@@ -1,7 +1,7 @@
 // js/views/analysis.js
-// LendingTree-style AI roof analysis results page
+// AI roof analysis summary
 
-import { createButton, createCard } from "../uiComponents.js";
+import { createButton, createCard, createMetricRow } from "../uiComponents.js";
 import { navigate } from "../router.js";
 
 export async function renderAnalysisView({ root }) {
@@ -26,11 +26,11 @@ export async function renderAnalysisView({ root }) {
     subtext: address,
     variant: "light",
     content: [
-      metric("Estimated roof area", `${analysis.areaSqFt} sq ft`),
-      metric("Pitch", analysis.pitchLabel),
-      metric("Complexity", analysis.complexity),
-      metric("Condition score", `${analysis.conditionScore}/100`),
-      metric(
+      createMetricRow("Estimated roof area", `${analysis.areaSqFt} sq ft`),
+      createMetricRow("Pitch", analysis.pitchLabel),
+      createMetricRow("Complexity", analysis.complexity),
+      createMetricRow("Condition score", `${analysis.conditionScore}/100`),
+      createMetricRow(
         "Estimated replacement range",
         `$${analysis.estimateLow} – $${analysis.estimateHigh}`
       )
@@ -45,20 +45,6 @@ export async function renderAnalysisView({ root }) {
 
   container.append(title, summaryCard, cta);
   root.appendChild(container);
-}
-
-function metric(label, value) {
-  const row = document.createElement("div");
-  row.className = "card-row";
-
-  const l = document.createElement("span");
-  l.textContent = label;
-
-  const v = document.createElement("strong");
-  v.textContent = value;
-
-  row.append(l, v);
-  return row;
 }
 
 export const renderView = renderAnalysisView;
