@@ -1,174 +1,223 @@
 // js/views/intakeWizard.js
-// Fully functional 3‑step intake wizard
+// LendingTree-style multi-step intake wizard
 
-// --------------------------------------------------
-// TEMPLATE
-// --------------------------------------------------
-const template = `
-  <section class="intake-wizard">
-    <h1>Roofing Project Intake</h1>
+import { createButton, createInputGroup } from "../uiComponents.js";
+import { navigate } from "../router.js";
 
-    <!-- Progress Indicators -->
-    <div class="wizard-progress">
-      <div class="dot" data-step="0"></div>
-      <div class="dot" data-step="1"></div>
-      <div class="dot" data-step="2"></div>
-    </div>
-
-    <!-- Steps -->
-    <div class="wizard-steps">
-
-      <!-- STEP 0 -->
-      <div class="wizard-step" data-step="0">
-        <h2>Step 1: Property Details</h2>
-        <label>
-          Property Address
-          <input type="text" id="addressInput" placeholder="123 Main St" />
-        </label>
-        <label>
-          City
-          <input type="text" id="cityInput" placeholder="St. Augustine" />
-        </label>
-      </div>
-
-      <!-- STEP 1 -->
-      <div class="wizard-step" data-step="1">
-        <h2>Step 2: Roof Information</h2>
-        <label>
-          Roof Material
-          <select id="materialInput">
-            <option value="">Select material</option>
-            <option value="shingle">Shingle</option>
-            <option value="metal">Metal</option>
-            <option value="tile">Tile</option>
-          </select>
-        </label>
-        <label>
-          Estimated Roof Age
-          <input type="number" id="ageInput" placeholder="Years" />
-        </label>
-      </div>
-
-      <!-- STEP 2 -->
-      <div class="wizard-step" data-step="2">
-        <h2>Step 3: Contact Information</h2>
-        <label>
-          Full Name
-          <input type="text" id="nameInput" placeholder="John Doe" />
-        </label>
-        <label>
-          Phone Number
-          <input type="tel" id="phoneInput" placeholder="555-123-4567" />
-        </label>
-      </div>
-
-    </div>
-
-    <!-- Navigation Buttons -->
-    <div class="wizard-nav">
-      <button type="button" id="prevStep">Previous</button>
-      <button type="button" id="nextStep">Next</button>
-      <button type="button" id="submitWizard">Submit</button>
-    </div>
-  </section>
-`;
-
-// --------------------------------------------------
-// INITIALIZATION
-// --------------------------------------------------
-function initWizard(rootEl) {
-  const steps = rootEl.querySelectorAll('.wizard-step');
-  const dots = rootEl.querySelectorAll('.dot');
-
-  const prevBtn = rootEl.querySelector('#prevStep');
-  const nextBtn = rootEl.querySelector('#nextStep');
-  const submitBtn = rootEl.querySelector('#submitWizard');
-
-  let currentStep = 0;
-
-  // -----------------------------
-  // STEP RENDERING
-  // -----------------------------
-  function renderStep() {
-    steps.forEach((el, i) => {
-      el.style.display = i === currentStep ? 'block' : 'none';
-    });
-
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === currentStep);
-    });
-
-    prevBtn.style.display = currentStep === 0 ? 'none' : 'inline-block';
-    nextBtn.style.display = currentStep === steps.length - 1 ? 'none' : 'inline-block';
-    submitBtn.style.display = currentStep === steps.length - 1 ? 'inline-block' : 'none';
-  }
-
-  // -----------------------------
-  // VALIDATION HOOKS
-  // -----------------------------
-  function validateStep(step) {
-    switch (step) {
-      case 0:
-        return rootEl.querySelector('#addressInput').value.trim() !== '';
-      case 1:
-        return rootEl.querySelector('#materialInput').value.trim() !== '';
-      case 2:
-        return rootEl.querySelector('#nameInput').value.trim() !== '';
-      default:
-        return true;
-    }
-  }
-
-  // -----------------------------
-  // NAVIGATION
-  // -----------------------------
-  nextBtn.addEventListener('click', () => {
-    if (!validateStep(currentStep)) {
-      alert('Please complete the required fields before continuing.');
-      return;
-    }
-    currentStep++;
-    renderStep();
-  });
-
-  prevBtn.addEventListener('click', () => {
-    currentStep = Math.max(0, currentStep - 1);
-    renderStep();
-  });
-
-  submitBtn.addEventListener('click', () => {
-    if (!validateStep(currentStep)) {
-      alert('Please complete the required fields.');
-      return;
-    }
-
-    // Collect data
-    const payload = {
-      address: rootEl.querySelector('#addressInput').value.trim(),
-      city: rootEl.querySelector('#cityInput').value.trim(),
-      material: rootEl.querySelector('#materialInput').value.trim(),
-      age: rootEl.querySelector('#ageInput').value.trim(),
-      name: rootEl.querySelector('#nameInput').value.trim(),
-      phone: rootEl.querySelector('#phoneInput').value.trim()
-    };
-
-    console.log('Wizard submitted:', payload);
-
-    // TODO: integrate with your existing intake submission logic
-    // e.g., handleIntakeSubmit(payload)
-    alert('Intake submitted!');
-  });
-
-  // Initial render
-  renderStep();
-}
-
-// --------------------------------------------------
-// RENDER ENTRYPOINT
-// --------------------------------------------------
 export async function renderIntakeWizardView({ root }) {
-  root.innerHTML = template;
-  initWizard(root);
+  root.innerHTML = "";
+
+  const container = document.createElement("section");
+  container.className = "intake-wizard";
+
+  const title = document.createElement("h1");
+  title.textContent = "Get Your Free Roof Report";
+
+  /* ---------------------------------------------
+     Wizard Progress
+  --------------------------------------------- */
+  const progress = document.createElement("div");
+  progress.className = "wizard-progress";
+
+  const dots = [0, 1, 2].map(() => {
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    progress.appendChild(dot);
+    return dot;
+  });
+
+  /* ---------------------------------------------
+     Step Containers
+  --------------------------------------------- */
+  const steps = [step1(), step2(), step3()];
+  let current = 0;
+
+  function showStep(i) {
+    steps.forEach((s, idx) => (s.style.display = idx === i ? "block" : "none"));
+    dots.forEach((d, idx) =>
+      d.classList.toggle("active", idx === i)
+    );
+    current = i;
+  }
+
+  /* ---------------------------------------------
+     Navigation Buttons
+  --------------------------------------------- */
+  const nav = document.createElement("div");
+  nav.className = "wizard-nav";
+
+  const prev = createButton({
+    label: "Back",
+    variant: "secondary",
+    onClick: () => showStep(current - 1)
+  });
+  prev.id = "prevStep";
+
+  const next = createButton({
+    label: "Next",
+    variant: "primary",
+    onClick: () => showStep(current + 1)
+  });
+  next.id = "nextStep";
+
+  const submit = createButton({
+    label: "Analyze My Roof",
+    variant: "primary",
+    onClick: submitWizard
+  });
+  submit.id = "submitWizard";
+  submit.style.display = "none";
+
+  nav.append(prev, next, submit);
+
+  /* ---------------------------------------------
+     Assemble Wizard
+  --------------------------------------------- */
+  container.append(title, progress, ...steps, nav);
+  root.appendChild(container);
+
+  showStep(0);
+
+  /* ---------------------------------------------
+     Step Definitions
+  --------------------------------------------- */
+
+  function step1() {
+    const step = document.createElement("div");
+    step.className = "wizard-step";
+
+    const { group: addressGroup, input: addressInput } = createInputGroup({
+      label: "Property address",
+      name: "wiz_address",
+      placeholder: "123 Main St, St Augustine, FL",
+      variant: "light"
+    });
+
+    step.append(addressGroup);
+
+    step.getData = () => ({
+      address: addressInput.value.trim()
+    });
+
+    return step;
+  }
+
+  function step2() {
+    const step = document.createElement("div");
+    step.className = "wizard-step";
+
+    const { group: storiesGroup, input: storiesInput } = createInputGroup({
+      label: "Number of stories",
+      name: "wiz_stories",
+      type: "number",
+      placeholder: "1",
+      variant: "light"
+    });
+
+    const { group: materialGroup, input: materialInput } = createInputGroup({
+      label: "Roof material",
+      name: "wiz_material",
+      placeholder: "Asphalt shingles",
+      variant: "light"
+    });
+
+    step.append(storiesGroup, materialGroup);
+
+    step.getData = () => ({
+      stories: storiesInput.value.trim(),
+      material: materialInput.value.trim()
+    });
+
+    return step;
+  }
+
+  function step3() {
+    const step = document.createElement("div");
+    step.className = "wizard-step";
+
+    const { group: emailGroup, input: emailInput } = createInputGroup({
+      label: "Email",
+      name: "wiz_email",
+      type: "email",
+      placeholder: "you@example.com",
+      variant: "light"
+    });
+
+    const { group: phoneGroup, input: phoneInput } = createInputGroup({
+      label: "Mobile phone",
+      name: "wiz_phone",
+      type: "tel",
+      placeholder: "555-123-4567",
+      variant: "light"
+    });
+
+    step.append(emailGroup, phoneGroup);
+
+    step.getData = () => ({
+      email: emailInput.value.trim(),
+      phone: phoneInput.value.trim()
+    });
+
+    return step;
+  }
+
+  /* ---------------------------------------------
+     Submit Wizard → AI Analysis
+  --------------------------------------------- */
+
+  async function submitWizard() {
+    const data = Object.assign({}, ...steps.map((s) => s.getData()));
+
+    if (!data.address) {
+      alert("Please enter your address.");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `/api/roof-analysis?address=${encodeURIComponent(data.address)}`
+      );
+      if (!res.ok) throw new Error("Analysis failed");
+
+      const analysis = await res.json();
+
+      sessionStorage.setItem(
+        "roofAnalysis",
+        JSON.stringify({
+          address: data.address,
+          email: data.email,
+          phone: data.phone,
+          details: {
+            stories: data.stories,
+            material: data.material
+          },
+          analysis
+        })
+      );
+
+      navigate("/analysis");
+    } catch (err) {
+      console.error(err);
+      alert("We couldn’t analyze your roof. Please try again.");
+    }
+  }
+
+  /* ---------------------------------------------
+     Step Navigation Logic
+  --------------------------------------------- */
+
+  function showStep(i) {
+    steps.forEach((s, idx) => (s.style.display = idx === i ? "block" : "none"));
+    dots.forEach((d, idx) =>
+      d.classList.toggle("active", idx === i)
+    );
+
+    prev.style.display = i === 0 ? "none" : "inline-flex";
+    next.style.display = i === steps.length - 1 ? "none" : "inline-flex";
+    submit.style.display = i === steps.length - 1 ? "inline-flex" : "none";
+
+    current = i;
+  }
 }
 
 export const renderView = renderIntakeWizardView;
