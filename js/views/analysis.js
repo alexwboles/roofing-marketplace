@@ -1,4 +1,6 @@
 // js/views/analysis.js
+// LendingTree-style AI roof analysis results page
+
 import { createButton, createCard } from "../uiComponents.js";
 import { navigate } from "../router.js";
 
@@ -24,14 +26,11 @@ export async function renderAnalysisView({ root }) {
     subtext: address,
     variant: "light",
     content: [
-      createMetricRow("Estimated roof area", `${analysis.areaSqFt} sq ft`),
-      createMetricRow("Pitch", analysis.pitchLabel),
-      createMetricRow("Complexity", analysis.complexity),
-      createMetricRow(
-        "Condition score",
-        `${analysis.conditionScore}/100`
-      ),
-      createMetricRow(
+      metric("Estimated roof area", `${analysis.areaSqFt} sq ft`),
+      metric("Pitch", analysis.pitchLabel),
+      metric("Complexity", analysis.complexity),
+      metric("Condition score", `${analysis.conditionScore}/100`),
+      metric(
         "Estimated replacement range",
         `$${analysis.estimateLow} – $${analysis.estimateHigh}`
       )
@@ -41,22 +40,23 @@ export async function renderAnalysisView({ root }) {
   const cta = createButton({
     label: "Get competing quotes from local roofers",
     variant: "primary",
-    onClick: () => {
-      navigate("/quotes");
-    }
+    onClick: () => navigate("/quotes")
   });
 
   container.append(title, summaryCard, cta);
   root.appendChild(container);
 }
 
-function createMetricRow(label, value) {
+function metric(label, value) {
   const row = document.createElement("div");
   row.className = "card-row";
+
   const l = document.createElement("span");
   l.textContent = label;
+
   const v = document.createElement("strong");
   v.textContent = value;
+
   row.append(l, v);
   return row;
 }
