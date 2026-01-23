@@ -1,5 +1,5 @@
 const state = {
-  role: "homeowner",
+  role: "homeowner", // or "roofer"
   intake: {
     address: "",
     roofAge: "",
@@ -8,11 +8,11 @@ const state = {
     valleys: "",
     layers: "",
     material: "",
-    notes: "",
-    photosCount: 0
+    notes: ""
   },
-  analysis: null,
-  projects: []
+  analysis: null,   // AI roof report from /analyzeRoof
+  projects: [],     // roofer-side project list
+  quotes: []        // homeowner quote list
 };
 
 export function getState() {
@@ -23,14 +23,18 @@ export function setRole(role) {
   state.role = role;
 }
 
-export function updateIntake(partial) {
-  state.intake = { ...state.intake, ...partial };
+export function setIntakeField(field, value) {
+  state.intake[field] = value;
 }
 
-export function setAnalysis(analysis) {
-  state.analysis = analysis;
+export function setAnalysis(report) {
+  state.analysis = report;
 }
 
 export function setProjects(projects) {
   state.projects = projects;
+}
+
+export function setQuotes(quotes) {
+  state.quotes = quotes;
 }
