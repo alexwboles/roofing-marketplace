@@ -1,3 +1,4 @@
+import { renderQuoteSubmissionView } from "./views/quoteSubmission.js";
 import { renderHomeView } from "./views/home.js";
 import { renderIntakeView } from "./views/intake.js";
 import { renderHomeownerDashboardView } from "./views/homeownerDashboard.js";
@@ -8,6 +9,8 @@ const routes = {
   intake: renderIntakeView,
   homeownerDashboard: renderHomeownerDashboardView,
   rooferDashboard: renderRooferDashboardView
+  quoteSubmission: renderQuoteSubmissionView,
+
 };
 
 export function navigateTo(routeKey) {
