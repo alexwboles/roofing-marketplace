@@ -1,5 +1,5 @@
 // js/views/home.js
-// LendingTree-style hero landing page for Roofing Marketplace
+// LendingTree-style hero landing page
 
 import { createButton } from "../uiComponents.js";
 import { navigate } from "../router.js";
@@ -10,7 +10,6 @@ export async function renderHomeView({ root }) {
   const hero = document.createElement("section");
   hero.className = "hero";
 
-  // LEFT: Text + CTA
   const card = document.createElement("div");
   card.className = "hero-card";
 
@@ -45,7 +44,6 @@ export async function renderHomeView({ root }) {
   ctaRow.append(cta1, cta2);
   card.append(pill, title, subtitle, ctaRow);
 
-  // RIGHT: Visual card
   const visual = document.createElement("div");
   visual.className = "hero-visual";
 
