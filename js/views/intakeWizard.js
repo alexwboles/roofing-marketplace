@@ -1,5 +1,4 @@
 // js/views/intakeWizard.js
-// 3-step LendingTree-style wizard
 
 import { createButton, createInputGroup } from "../uiComponents.js";
 import { navigate } from "../router.js";
@@ -34,23 +33,20 @@ export async function renderIntakeWizardView({ root }) {
     variant: "secondary",
     onClick: () => showStep(current - 1)
   });
-  prev.id = "prevStep";
 
   const next = createButton({
     label: "Next",
     variant: "primary",
     onClick: () => showStep(current + 1)
   });
-  next.id = "nextStep";
 
   const submit = createButton({
     label: "Analyze My Roof",
     variant: "primary",
     onClick: submitWizard
   });
-  submit.id = "submitWizard";
-  submit.style.display = "none";
 
+  submit.style.display = "none";
   nav.append(prev, next, submit);
 
   container.append(title, progress, ...steps, nav);
