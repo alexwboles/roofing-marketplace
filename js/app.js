@@ -1,13 +1,12 @@
-import { initRouter, navigateTo } from "./router.js";
+import { navigate } from "./router.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const appRoot = document.getElementById("app");
-  initRouter(appRoot);
+  // Router auto‑initializes itself, so no initRouter() needed
 
   document.querySelectorAll(".top-link").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const route = btn.getAttribute("data-nav") || "home";
-      navigateTo(route);
+      const route = btn.getAttribute("data-nav") || "/";
+      navigate(route);
     });
   });
 });
