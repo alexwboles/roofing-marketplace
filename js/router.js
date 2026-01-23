@@ -1,5 +1,5 @@
 // js/router.js
-// Clean, production-ready SPA router using History API
+// Production-grade SPA router for Roofing Marketplace
 
 import { renderView } from "./viewEngine.js";
 
