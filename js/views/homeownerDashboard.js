@@ -14,7 +14,12 @@ export function renderHomeownerDashboardView(root) {
           ${
             analysis
               ? `
-            <p><strong>Score:</strong> ${analysis.roofScore}</p>
+            <p><strong>Score:</strong> ${analysis.roofScore}/100</p>
+            <p><strong>Condition:</strong> ${analysis.conditionLabel}</p>
+            <p><strong>Estimated age:</strong> ${analysis.estimatedAge} years</p>
+            <p><strong>Estimated size:</strong> ${analysis.estimatedSqFt} sq ft</p>
+            <p><strong>Complexity:</strong> ${analysis.complexity}</p>
+            <p><strong>Estimated replacement range:</strong> $${analysis.estimatedLow.toLocaleString()} – $${analysis.estimatedHigh.toLocaleString()}</p>
             <p><strong>Summary:</strong> ${analysis.summary}</p>
             <p><strong>Materials:</strong> ${analysis.materials.join(", ")}</p>
             <p><strong>Findings:</strong> ${analysis.findings.join(", ")}</p>
@@ -30,7 +35,9 @@ export function renderHomeownerDashboardView(root) {
         <div class="card">
           <h3>Recent Activity</h3>
           <ul>
-            <li>Report generated for ${state.intake.address || "your property"}.</li>
+            <li>Report ${
+              analysis ? "generated" : "not generated yet"
+            } for ${state.intake.address || "your property"}.</li>
             <li>Next step: Compare quotes from verified roofers.</li>
           </ul>
         </div>
