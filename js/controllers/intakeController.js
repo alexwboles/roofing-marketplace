@@ -74,6 +74,10 @@ export async function handleIntakeSubmit(files) {
   // Redirect based on role
   // -----------------------------
   setTimeout(() => {
-    navigateTo(state.role === "roofer" ? "rooferDashboard" : "homeownerDashboard");
+    navigateTo(
+      state.role === "roofer"
+        ? "rooferDashboard"
+        : "homeownerDashboard"
+    );
   }, 700);
 }
