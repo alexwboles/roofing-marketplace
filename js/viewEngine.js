@@ -1,14 +1,13 @@
 // js/viewEngine.js
-// Clean, optimized dynamic view loader for Roofing Marketplace SPA
+// Dynamic view loader
 
 const root = document.getElementById("app");
 
-// Map view names → dynamic imports
 const viewLoaders = {
   home: () => import("./views/home.js"),
   intake: () => import("./views/intake.js"),
-  analysis: () => import("./views/analysis.js"),
   intakeWizard: () => import("./views/intakeWizard.js"),
+  analysis: () => import("./views/analysis.js"),
   homeownerDashboard: () => import("./views/homeownerDashboard.js"),
   rooferDashboard: () => import("./views/rooferDashboard.js"),
   projectDashboard: () => import("./views/projectDashboard.js"),
@@ -16,7 +15,6 @@ const viewLoaders = {
   quoteSubmission: () => import("./views/quoteSubmission.js")
 };
 
-// Resolve the correct render function from a module
 function getRenderFn(module, viewName) {
   if (typeof module.renderView === "function") return module.renderView;
 
@@ -24,14 +22,12 @@ function getRenderFn(module, viewName) {
     "render" + viewName.charAt(0).toUpperCase() + viewName.slice(1) + "View";
 
   if (typeof module[specific] === "function") return module[specific];
-
   if (typeof module.default === "function") return module.default;
 
   console.error(`No render function found for view "${viewName}"`);
   return null;
 }
 
-// Main render function
 export async function renderView(viewName, params = {}) {
   const loader = viewLoaders[viewName];
 
