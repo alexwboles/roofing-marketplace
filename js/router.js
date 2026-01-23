@@ -1,27 +1,30 @@
 // js/router.js
-// History API router with view engine + intake wizard support
+// Clean, production-ready SPA router using History API
 
-import { renderView } from './viewEngine.js';
+import { renderView } from "./viewEngine.js";
 
 // ---------------------------------------------
-// Route table
+// Route table (matches your actual /js/views folder)
 // ---------------------------------------------
 const routes = [
-  { path: '/', view: 'landing' },
-  { path: '/intake', view: 'intake' },
-  { path: '/intakeWizard', view: 'intakeWizard' },
-  { path: '/homeownerDashboard', view: 'homeownerDashboard' },
-  { path: '/rooferDashboard', view: 'rooferDashboard' },
-  { path: '/404', view: 'notFound' }
+  { path: "/", view: "home" },
+  { path: "/intake", view: "intake" },
+  { path: "/intakeWizard", view: "intakeWizard" },
+  { path: "/homeownerDashboard", view: "homeownerDashboard" },
+  { path: "/rooferDashboard", view: "rooferDashboard" },
+  { path: "/projectDashboard", view: "projectDashboard" },
+  { path: "/quoteComparison", view: "quoteComparison" },
+  { path: "/quoteSubmission", view: "quoteSubmission" },
+
+  // fallback
+  { path: "/404", view: "home" }
 ];
 
 // ---------------------------------------------
-// Route matching (no params for now)
+// Route matching
 // ---------------------------------------------
 function matchRoute(pathname) {
-  const route = routes.find(r => r.path === pathname);
-  if (!route) return null;
-  return { route, params: {} };
+  return routes.find(r => r.path === pathname) || null;
 }
 
 // ---------------------------------------------
@@ -31,27 +34,25 @@ export async function navigate(pathname) {
   const match = matchRoute(pathname);
 
   if (!match) {
-    history.pushState({}, '', '/404');
-    await renderView('notFound');
+    history.pushState({}, "", "/404");
+    await renderView("home");
     return;
   }
 
-  const { route, params } = match;
-
-  history.pushState({}, '', pathname);
-  await renderView(route.view, params);
+  history.pushState({}, "", pathname);
+  await renderView(match.view);
 }
 
 // ---------------------------------------------
 // Intercept internal <a> clicks
 // ---------------------------------------------
-document.addEventListener('click', (e) => {
-  const link = e.target.closest('a');
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("a");
   if (!link) return;
 
   const url = new URL(link.href);
 
-  // external links: let browser handle
+  // external links → allow default
   if (url.origin !== window.location.origin) return;
 
   e.preventDefault();
@@ -59,9 +60,9 @@ document.addEventListener('click', (e) => {
 });
 
 // ---------------------------------------------
-// Back/forward
+// Back/forward buttons
 // ---------------------------------------------
-window.addEventListener('popstate', () => {
+window.addEventListener("popstate", () => {
   navigate(window.location.pathname);
 });
 
