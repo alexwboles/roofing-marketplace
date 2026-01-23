@@ -1,5 +1,4 @@
 // js/views/quoteComparison.js
-// LendingTree-style quote comparison
 
 export async function renderQuoteComparisonView({ root }) {
   root.innerHTML = "";
