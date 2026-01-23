@@ -1,5 +1,4 @@
 // js/views/home.js
-// LendingTree-style hero landing page
 
 import { createButton } from "../uiComponents.js";
 import { navigate } from "../router.js";
