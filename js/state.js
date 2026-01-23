@@ -10,9 +10,10 @@ const state = {
     material: "",
     notes: ""
   },
-  analysis: null,   // AI roof report from /analyzeRoof
-  projects: [],     // roofer-side project list
-  quotes: []        // homeowner quote list
+  analysis: null,    // AI roof report
+  projects: [],      // list of projects
+  currentProject: null, // active project
+  quotes: []         // homeowner quote list
 };
 
 export function getState() {
@@ -33,6 +34,10 @@ export function setAnalysis(report) {
 
 export function setProjects(projects) {
   state.projects = projects;
+}
+
+export function setCurrentProject(project) {
+  state.currentProject = project;
 }
 
 export function setQuotes(quotes) {
