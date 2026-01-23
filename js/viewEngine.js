@@ -1,5 +1,5 @@
 // js/viewEngine.js
-// Lazy dynamic view loader for your SPA
+// Clean, optimized dynamic view loader for Roofing Marketplace SPA
 
 const root = document.getElementById("app");
 
@@ -16,13 +16,14 @@ const viewLoaders = {
   quoteSubmission: () => import("./views/quoteSubmission.js")
 };
 
+// Resolve the correct render function from a module
 function getRenderFn(module, viewName) {
   if (typeof module.renderView === "function") return module.renderView;
 
-  const specificName =
+  const specific =
     "render" + viewName.charAt(0).toUpperCase() + viewName.slice(1) + "View";
 
-  if (typeof module[specificName] === "function") return module[specificName];
+  if (typeof module[specific] === "function") return module[specific];
 
   if (typeof module.default === "function") return module.default;
 
@@ -30,6 +31,7 @@ function getRenderFn(module, viewName) {
   return null;
 }
 
+// Main render function
 export async function renderView(viewName, params = {}) {
   const loader = viewLoaders[viewName];
 
@@ -38,13 +40,18 @@ export async function renderView(viewName, params = {}) {
     return;
   }
 
-  const module = await loader();
-  const renderFn = getRenderFn(module, viewName);
+  try {
+    const module = await loader();
+    const renderFn = getRenderFn(module, viewName);
 
-  if (!renderFn) {
-    root.innerHTML = `<h1>View "${viewName}" has no render function.</h1>`;
-    return;
+    if (!renderFn) {
+      root.innerHTML = `<h1>View "${viewName}" has no render function.</h1>`;
+      return;
+    }
+
+    await renderFn({ root, params });
+  } catch (err) {
+    console.error("View load error:", err);
+    root.innerHTML = `<h1>Failed to load view "${viewName}".</h1>`;
   }
-
-  await renderFn({ root, params });
 }
