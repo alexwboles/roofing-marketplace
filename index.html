@@ -1,41 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Roofing Marketplace – AI Roof Analysis</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Get an AI-powered roof report with materials, damage findings, and roofer-ready details." />
-  <link rel="stylesheet" href="/styles.css" />
-</head>
-<body>
-  <header class="top-nav">
-    <div class="top-nav-inner">
-      <div class="brand">
-        <span class="brand-mark">RM</span>
-        <span class="brand-text">Roofing Marketplace</span>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Roofing Marketplace – AI Roof Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <span class="logo-mark">RM</span>
+        <span class="logo-text">Roofing Marketplace</span>
       </div>
-      <nav class="nav-links">
-        <button data-nav="home" class="nav-link">Home</button>
-        <button data-nav="intake" class="nav-link">Get My Roof Report</button>
-        <button data-nav="rooferDashboard" class="nav-link nav-link-secondary">I’m a Roofer</button>
+      <nav class="top-bar-nav">
+        <button class="top-link" data-nav="home">Home</button>
+        <button class="top-link" data-nav="intake">Get Report</button>
       </nav>
-    </div>
-  </header>
+    </header>
 
-  <main id="app-root" class="app-root">
-    <!-- SPA views will be injected here -->
-  </main>
+    <main id="app"></main>
 
-  <footer class="footer">
-    <div class="footer-inner">
-      <span>© <span id="year"></span> Roofing Marketplace</span>
-      <span class="footer-links">
-        <a href="#" class="footer-link">Privacy</a>
-        <a href="#" class="footer-link">Terms</a>
-      </span>
-    </div>
-  </footer>
+    <footer class="bottom-bar">
+      <span>© ${new Date().getFullYear()} Roofing Marketplace</span>
+      <span>When roofers compete, homeowners win.</span>
+    </footer>
 
-  <script type="module" src="/js/app.js"></script>
-</body>
+    <script type="module" src="/js/app.js"></script>
+  </body>
 </html>
