@@ -124,6 +124,6 @@ export function renderProjectDashboardView(root) {
     });
 
     setCurrentProject(project);
-    renderProjectDashboardView(root); // simple re-render
+    renderProjectDashboardView(root);
   });
 }
