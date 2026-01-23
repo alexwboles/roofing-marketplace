@@ -10,9 +10,7 @@ export async function renderHomeView({ root }) {
   const hero = document.createElement("section");
   hero.className = "hero";
 
-  /* -----------------------------
-     LEFT SIDE — TEXT + CTA
-  ----------------------------- */
+  // LEFT: Text + CTA
   const card = document.createElement("div");
   card.className = "hero-card";
 
@@ -45,12 +43,9 @@ export async function renderHomeView({ root }) {
   });
 
   ctaRow.append(cta1, cta2);
-
   card.append(pill, title, subtitle, ctaRow);
 
-  /* -----------------------------
-     RIGHT SIDE — VISUAL CARD
-  ----------------------------- */
+  // RIGHT: Visual card
   const visual = document.createElement("div");
   visual.className = "hero-visual";
 
@@ -77,9 +72,6 @@ export async function renderHomeView({ root }) {
   vCard.append(row1, row2);
   visual.append(badge, vCard);
 
-  /* -----------------------------
-     ASSEMBLE HERO
-  ----------------------------- */
   hero.append(card, visual);
   root.appendChild(hero);
 }
