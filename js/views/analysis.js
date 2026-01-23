@@ -1,5 +1,4 @@
 // js/views/analysis.js
-// AI roof analysis summary
 
 import { createButton, createCard, createMetricRow } from "../uiComponents.js";
 import { navigate } from "../router.js";
