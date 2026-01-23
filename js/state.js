@@ -2,8 +2,17 @@ const state = {
   role: "homeowner",
   intake: {
     address: "",
+    roofAge: "",
+    squareFootage: "",
+    pitch: "",
+    valleys: "",
+    layers: "",
+    material: "",
+    notes: "",
+    photosCount: 0
   },
   analysis: null,
+  projects: []
 };
 
 export function getState() {
@@ -20,4 +29,8 @@ export function updateIntake(partial) {
 
 export function setAnalysis(analysis) {
   state.analysis = analysis;
+}
+
+export function setProjects(projects) {
+  state.projects = projects;
 }
