@@ -89,7 +89,6 @@ function submitQuote(lead, priceInput, timelineInput, warrantyInput) {
     warranty: warrantyInput.value || "25 years"
   };
 
-  // Store quote locally (placeholder for backend)
   const existing = JSON.parse(sessionStorage.getItem("quotes") || "[]");
   existing.push(quote);
   sessionStorage.setItem("quotes", JSON.stringify(existing));
