@@ -7,7 +7,7 @@ const routes = {
   home: renderHomeView,
   intake: renderIntakeView,
   homeownerDashboard: renderHomeownerDashboardView,
-  rooferDashboard: renderRooferDashboardView,
+  rooferDashboard: renderRooferDashboardView
 };
 
 export function navigateTo(routeKey) {
