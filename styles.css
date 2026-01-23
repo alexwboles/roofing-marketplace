@@ -1,5 +1,5 @@
 /* --------------------------------------------------
-   1. THEME TOKENS (LendingTree + Dark SaaS Hybrid)
+   1. THEME TOKENS (Dark SaaS + LendingTree Hybrid)
 -------------------------------------------------- */
 
 :root {
@@ -33,7 +33,8 @@
   --lt-border: #e3efef;
 
   /* Typography */
-  --font-primary: "Inter", system-ui, sans-serif;
+  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
 
   /* Radii */
   --radius-sm: 6px;
@@ -213,38 +214,7 @@ body {
   gap: 0.75rem;
 }
 
-.btn-primary,
-.btn-secondary {
-  border-radius: 999px;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.9rem;
-  border: 1px solid transparent;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: #022c22;
-  font-weight: 600;
-}
-
-.btn-secondary {
-  background: transparent;
-  border-color: rgba(148, 163, 184, 0.6);
-  color: var(--text);
-}
-
-.btn-primary:hover {
-  filter: brightness(1.05);
-}
-
-.btn-secondary:hover {
-  border-color: var(--accent);
-}
-
-/* --------------------------------------------------
-   7. HERO VISUAL
--------------------------------------------------- */
+/* Hero visual */
 
 .hero-visual {
   position: relative;
@@ -280,7 +250,11 @@ body {
   margin-bottom: 0.75rem;
 }
 
-.hero-visual-title,
+.hero-visual-title {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 .hero-visual-sub {
   font-size: 0.8rem;
   color: var(--muted);
@@ -293,7 +267,143 @@ body {
 }
 
 /* --------------------------------------------------
-   8. INTAKE (Existing)
+   7. COMPONENT LIBRARY (Buttons, Cards, Inputs)
+-------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #022c22;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: rgba(148, 163, 184, 0.6);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* Cards */
+
+.card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.card-light {
+  background: #ffffff;
+  border: 1px solid var(--lt-border);
+  color: var(--lt-teal);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.card-subtext {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Inputs */
+
+.input,
+select.input,
+textarea.input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #020617;
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.input:focus,
+select.input:focus,
+textarea.input:focus {
+  border-color: var(--accent);
+  outline: none;
+  background: #0b1120;
+}
+
+.input-light {
+  background: #ffffff;
+  border: 1px solid var(--lt-border);
+  color: var(--lt-teal);
+}
+
+.input-light:focus {
+  border-color: var(--lt-green);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+/* --------------------------------------------------
+   8. INTAKE (Existing Dark Card)
 -------------------------------------------------- */
 
 .intake-polished {
@@ -417,17 +527,6 @@ body {
   margin-top: 0;
 }
 
-.card {
-  padding: 1.25rem;
-  border-radius: 1rem;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-.card h3 {
-  margin-top: 0;
-}
-
 .card ul {
   margin: 0.5rem 0 0;
   padding-left: 1.1rem;
@@ -487,7 +586,7 @@ body {
 }
 
 /* --------------------------------------------------
-   11. LENDINGTREE‑STYLE INTAKE WIZARD
+   11. INTAKE WIZARD (LendingTree Style)
 -------------------------------------------------- */
 
 .intake-wizard {
@@ -525,10 +624,6 @@ body {
 
 .wizard-progress .dot.active {
   background: var(--lt-green);
-}
-
-.wizard-steps {
-  margin-bottom: 32px;
 }
 
 .wizard-step {
@@ -588,7 +683,98 @@ body {
 }
 
 /* --------------------------------------------------
-   12. RESPONSIVE
+   12. QUOTE COMPARISON (LendingTree Style)
+-------------------------------------------------- */
+
+.quote-table {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.quote-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 0.6fr;
+  align-items: center;
+  padding: 18px 22px;
+  background: #ffffff;
+  border: 1px solid var(--lt-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.quote-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+}
+
+.quote-roofer {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--lt-teal);
+}
+
+.quote-price {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--lt-green);
+  text-align: right;
+}
+
+.quote-meta {
+  font-size: 0.9rem;
+  color: #4b5563;
+  text-align: center;
+}
+
+.quote-rating {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f59e0b;
+  text-align: right;
+}
+
+/* --------------------------------------------------
+   13. UTILITIES
+-------------------------------------------------- */
+
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* --------------------------------------------------
+   14. RESPONSIVE
 -------------------------------------------------- */
 
 @media (max-width: 900px) {
@@ -604,13 +790,28 @@ body {
     flex-direction: column;
     gap: 0.25rem;
   }
+}
 
-  .wizard-nav {
-    flex-direction: column;
-    gap: 12px;
+@media (max-width: 720px) {
+  .intake-wizard {
+    padding: 24px;
+    margin: 24px auto;
   }
 
-  .wizard-nav button {
-    width: 100%;
+  .quote-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    text-align: left;
+    padding: 16px 18px;
+  }
+
+  .quote-price {
+    text-align: left;
+    font-size: 1.25rem;
+  }
+
+  .quote-meta,
+  .quote-rating {
+    text-align: left;
   }
 }
