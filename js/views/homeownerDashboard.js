@@ -1,4 +1,5 @@
 import { getState } from "../state.js";
+import { navigateTo } from "../router.js";
 
 export function renderHomeownerDashboardView(root) {
   const state = getState();
@@ -27,6 +28,7 @@ export function renderHomeownerDashboardView(root) {
           <h3>Property</h3>
           <p><strong>Address:</strong> ${address}</p>
           <p><strong>Photos analyzed:</strong> ${photosAnalyzed}</p>
+          <button class="btn-primary" id="compare-quotes-btn">Compare Quotes</button>
         </div>
 
         <div class="card">
@@ -83,4 +85,11 @@ export function renderHomeownerDashboardView(root) {
       </div>
     </section>
   `;
+
+  const compareBtn = document.getElementById("compare-quotes-btn");
+  if (compareBtn) {
+    compareBtn.addEventListener("click", () => {
+      navigateTo("quoteComparison");
+    });
+  }
 }
