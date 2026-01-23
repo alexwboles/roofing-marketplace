@@ -71,10 +71,6 @@ export async function renderQuoteSubmissionView({ root, params }) {
   root.appendChild(container);
 }
 
-/* ---------------------------------------------
-   Helpers
---------------------------------------------- */
-
 function getLeadFromSession() {
   const stored = sessionStorage.getItem("activeLead");
   return stored ? JSON.parse(stored) : null;
