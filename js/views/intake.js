@@ -1,150 +1,146 @@
-/* ============================================================
-   homeownerIntakeView.js — UPDATED WITH SESSION STORAGE,
-   AI CALLS, AND WORKING NAVIGATION
-   ============================================================ */
+import { getState, setRole, updateIntake } from "../state.js";
+import { handleIntakeSubmit } from "../controllers/intakeController.js";
 
-import { navigate } from "../app.js";
-import { createProject } from "../services/projects.js";
+export function renderIntakeView(root) {
+  const state = getState();
 
-export function renderHomeownerIntakeView() {
-  const app = document.getElementById("app");
-
-  app.innerHTML = `
-    <section class="intake-hero">
-      <h1>Get competing roof quotes</h1>
-      <p>Enter your info once. Roofers compete for your business.</p>
-    </section>
-
-    <div class="hero-image">
-      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Modern home roof">
-    </div>
-
-    <div class="card">
-      <form id="intake-form" class="intake-form">
-        <h2>Basic info</h2>
-        <div class="grid-2">
-          <div>
-            <label>Full name</label>
-            <input type="text" id="name" required />
-          </div>
-          <div>
-            <label>Email</label>
-            <input type="email" id="email" required />
-          </div>
-          <div>
-            <label>Mobile phone</label>
-            <input type="tel" id="phone" required />
-          </div>
-          <div>
-            <label>Street address</label>
-            <input type="text" id="address" required />
-          </div>
-        </div>
-
-        <h2>Roof details</h2>
-        <div class="grid-2">
-          <div>
-            <label>Roof type</label>
-            <select id="roofType" required>
-              <option value="shingle">Shingle</option>
-              <option value="metal">Metal</option>
-              <option value="tile">Tile</option>
-              <option value="flat">Flat</option>
-            </select>
-          </div>
-          <div>
-            <label>Is this an insurance claim?</label>
-            <select id="insurance" required>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-              <option value="not_sure">Not sure</option>
-            </select>
-          </div>
-        </div>
-
-        <h2>Optional: upload roof photos</h2>
-        <input type="file" id="photos" accept="image/*" multiple />
-
-        <button type="submit" class="btn-primary full-width">
-          See available roof quotes
-        </button>
-
-        <p class="trust-text">
-          Your information is securely stored. No impact to your credit score.
+  root.innerHTML = `
+    <section class="section">
+      <div class="form-card">
+        <h2 class="section-title">Start your roof report</h2>
+        <p class="section-subtitle">
+          Tell us where the roof is, upload a few photos, and choose whether this is for your own home or a client.
         </p>
-      </form>
-    </div>
+        <div class="form-grid">
+          <div>
+            <div class="form-group">
+              <label class="label" for="intake-address">Property address</label>
+              <input
+                id="intake-address"
+                class="input"
+                type="text"
+                placeholder="123 Maple St, St. Augustine, FL"
+                value="${state.intake.address || ""}"
+              />
+              <div class="helper-text">
+                We’ll use this to contextualize weather, age, and typical roof types in your area.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="intake-notes">Anything we should know?</label>
+              <textarea
+                id="intake-notes"
+                class="textarea"
+                placeholder="Recent storms, leaks, age of roof, insurance claim details..."
+              >${state.intake.notes || ""}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Who is this report for?</label>
+              <div class="role-toggle">
+                <button
+                  type="button"
+                  class="role-pill ${state.role === "homeowner" ? "active" : ""}"
+                  data-role="homeowner"
+                >
+                  <span>My home</span>
+                </button>
+                <button
+                  type="button"
+                  class="role-pill ${state.role === "roofer" ? "active" : ""}"
+                  data-role="roofer"
+                >
+                  <span>My roofing client</span>
+                </button>
+              </div>
+              <div class="helper-text">
+                This helps us tailor the report for either homeowner clarity or roofer-level detail.
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="form-group">
+              <label class="label">Roof photos</label>
+              <div class="upload-area" id="upload-area">
+                <div class="upload-title">Drag & drop or click to upload</div>
+                <div class="upload-sub">
+                  Add clear photos of each side of the roof, plus any close-ups of damage.
+                </div>
+                <input
+                  id="intake-photos"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style="display:none"
+                />
+                <div class="upload-list" id="upload-list">
+                  ${state.intake.photos.length === 0
+                    ? "No photos added yet."
+                    : state.intake.photos.map((p, i) => `Photo ${i + 1}`).join(", ")}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <button class="btn-primary" id="intake-submit-btn">
+                Generate My Roof Report
+              </button>
+            </div>
+
+            <div class="status-banner info" id="intake-status">
+              <span class="status-dot"></span>
+              <span>We’ll analyze your photos and generate a roofer-ready summary in a few minutes.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   `;
 
-  document.getElementById("intake-form").addEventListener("submit", handleSubmit);
-}
+  const addressEl = document.getElementById("intake-address");
+  const notesEl = document.getElementById("intake-notes");
+  const uploadArea = document.getElementById("upload-area");
+  const uploadInput = document.getElementById("intake-photos");
+  const uploadList = document.getElementById("upload-list");
+  const rolePills = document.querySelectorAll(".role-pill");
+  const submitBtn = document.getElementById("intake-submit-btn");
 
-// ------------------------------------------------------------
-// Handle form submission
-// ------------------------------------------------------------
-
-async function handleSubmit(e) {
-  e.preventDefault();
-
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const roofType = document.getElementById("roofType").value;
-  const insurance = document.getElementById("insurance").value;
-  const photoFiles = document.getElementById("photos").files;
-
-  // 1. Create project
-  const projectId = await createProject({
-    name,
-    email,
-    phone,
-    address,
-    roofType,
-    insurance
+  addressEl?.addEventListener("input", () => {
+    updateIntake({ address: addressEl.value });
   });
 
-  // 2. Save projectId to session
-  localStorage.setItem("activeProjectId", projectId);
+  notesEl?.addEventListener("input", () => {
+    updateIntake({ notes: notesEl.value });
+  });
 
-  // 3. Convert photos to base64
-  const base64Photos = [];
-  for (const file of photoFiles) {
-    const b64 = await fileToBase64(file);
-    base64Photos.push(b64);
-  }
-
-  // 4. Run AI geometry + materials
-  if (base64Photos.length > 0) {
-    await fetch("/functions/analyze-roof-photo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId, photos: base64Photos })
+  rolePills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const role = pill.getAttribute("data-role");
+      if (!role) return;
+      setRole(role);
+      rolePills.forEach((p) => p.classList.remove("active"));
+      pill.classList.add("active");
     });
-  }
-
-  // 5. Run roof health check
-  await fetch("/functions/roof-health-check", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectId, address, photos: base64Photos })
   });
 
-  // 6. Navigate to dashboard
-  navigate("/dashboard");
-}
+  uploadArea?.addEventListener("click", () => {
+    uploadInput?.click();
+  });
 
-// ------------------------------------------------------------
-// Helper: convert file → base64
-// ------------------------------------------------------------
+  uploadInput?.addEventListener("change", () => {
+    const files = Array.from(uploadInput.files || []);
+    updateIntake({ photos: files });
+    if (files.length === 0) {
+      uploadList.textContent = "No photos added yet.";
+    } else {
+      uploadList.textContent = files.map((f) => f.name).join(", ");
+    }
+  });
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () =>
-      resolve(reader.result.split(",")[1]); // strip prefix
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+  submitBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleIntakeSubmit();
   });
 }
-
