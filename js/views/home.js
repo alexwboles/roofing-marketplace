@@ -8,17 +8,21 @@ export function renderHomeView(root) {
           <span class="hero-pill-dot"></span>
           AI Roof Report in Minutes
         </div>
+
         <h1 class="hero-title">
           See your roof like a pro—before you call one.
         </h1>
+
         <p class="hero-subtitle">
           Upload a few photos and get a roofer-ready report with materials, damage findings, and next steps.
         </p>
+
         <div class="hero-cta-row">
           <button class="btn-primary" id="home-start-btn">Start My Roof Report</button>
           <button class="btn-secondary" id="home-roofer-btn">I’m a Roofer</button>
         </div>
       </div>
+
       <div class="hero-visual">
         <div class="hero-visual-badge">Live sample</div>
         <div class="hero-visual-card">
@@ -37,11 +41,11 @@ export function renderHomeView(root) {
     </section>
   `;
 
-  document.getElementById("home-start-btn")?.addEventListener("click", () => {
+  document.getElementById("home-start-btn").addEventListener("click", () => {
     navigateTo("intake");
   });
 
-  document.getElementById("home-roofer-btn")?.addEventListener("click", () => {
-    navigateTo("rooferDashboard");
+  document.getElementById("home-roofer-btn").addEventListener("click", () => {
+    navigateTo("intake");
   });
 }
