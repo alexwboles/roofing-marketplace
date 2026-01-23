@@ -13,7 +13,7 @@ const routes = {
   "/roofer-dashboard": "rooferDashboard",
 };
 
-export function initRouter(root, routeMap) {
+export function initRouter(root) {
   appRoot = root;
 
   window.addEventListener("popstate", () => {
@@ -65,4 +65,3 @@ function handleRoute(pathname) {
       renderHomeView(appRoot);
   }
 }
-
