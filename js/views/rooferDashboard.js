@@ -1,7 +1,7 @@
 // js/views/rooferDashboard.js
 // Roofer dashboard with AI-prefilled quote creation
 
-import { createButton, createCard, createInputGroup } from "../uiComponents.js";
+import { createButton, createCard } from "../uiComponents.js";
 
 export async function renderRooferDashboardView({ root }) {
   root.innerHTML = "";
@@ -12,9 +12,6 @@ export async function renderRooferDashboardView({ root }) {
   const title = document.createElement("h1");
   title.textContent = "Roofer Dashboard";
 
-  /* ---------------------------------------------
-     Placeholder leads (replace with backend fetch)
-  --------------------------------------------- */
   const leads = [
     {
       id: "lead123",
@@ -63,10 +60,6 @@ export async function renderRooferDashboardView({ root }) {
   root.appendChild(container);
 }
 
-/* ---------------------------------------------
-   Quote creation form (AI-prefilled)
---------------------------------------------- */
-
 function openQuoteForm(lead, root) {
   root.innerHTML = "";
 
@@ -77,6 +70,8 @@ function openQuoteForm(lead, root) {
   title.textContent = `Create Quote for ${lead.homeowner}`;
 
   const form = document.createElement("div");
+
+  const { createInputGroup } = requireInputs();
 
   const { group: priceGroup, input: priceInput } = createInputGroup({
     label: "Quote price",
@@ -102,30 +97,32 @@ function openQuoteForm(lead, root) {
 
   form.append(priceGroup, timelineGroup, warrantyGroup);
 
+  const { createButton } = requireInputs();
+
   const submitBtn = createButton({
     label: "Submit Quote",
     variant: "primary",
-    onClick: async () => {
+    onClick: () => {
       const quote = {
         leadId: lead.id,
+        roofer: "Your Roofing Company",
         price: Number(priceInput.value || lead.analysis.estimateLow),
         timeline: timelineInput.value || "2 weeks",
         warranty: warrantyInput.value || "25 years"
       };
 
-      console.log("Submitting quote:", quote);
+      const existing = JSON.parse(sessionStorage.getItem("quotes") || "[]");
+      existing.push(quote);
+      sessionStorage.setItem("quotes", JSON.stringify(existing));
 
       alert("Quote submitted!");
+      window.location.href = "/quotes";
     }
   });
 
   container.append(title, form, submitBtn);
   root.appendChild(container);
 }
-
-/* ---------------------------------------------
-   Helper metric row
---------------------------------------------- */
 
 function metric(label, value) {
   const row = document.createElement("div");
@@ -139,6 +136,11 @@ function metric(label, value) {
 
   row.append(l, v);
   return row;
+}
+
+function requireInputs() {
+  // simple local import helper to avoid circular import at top
+  return require("../uiComponents.js");
 }
 
 export const renderView = renderRooferDashboardView;
