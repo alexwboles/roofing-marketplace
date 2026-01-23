@@ -1,22 +1,18 @@
 const appState = {
-  role: "homeowner", // "homeowner" | "roofer"
+  role: "homeowner",
   intake: {
     address: "",
     notes: "",
     photos: [],
   },
   analysis: {
-    status: "idle", // "idle" | "processing" | "complete"
+    status: "idle",
     roofScore: null,
     materials: [],
     findings: [],
     summary: "",
   },
 };
-
-export function setInitialState() {
-  // could hydrate from localStorage later
-}
 
 export function getState() {
   return appState;
@@ -33,4 +29,3 @@ export function updateIntake(partial) {
 export function setAnalysis(partial) {
   Object.assign(appState.analysis, partial);
 }
-
