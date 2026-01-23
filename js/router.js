@@ -3,13 +3,15 @@ import { renderIntakeView } from "./views/intake.js";
 import { renderHomeownerDashboardView } from "./views/homeownerDashboard.js";
 import { renderRooferDashboardView } from "./views/rooferDashboard.js";
 import { renderQuoteSubmissionView } from "./views/quoteSubmission.js";
+import { renderQuoteComparisonView } from "./views/quoteComparison.js";
 
 const routes = {
   home: renderHomeView,
   intake: renderIntakeView,
   homeownerDashboard: renderHomeownerDashboardView,
   rooferDashboard: renderRooferDashboardView,
-  quoteSubmission: renderQuoteSubmissionView
+  quoteSubmission: renderQuoteSubmissionView,
+  quoteComparison: renderQuoteComparisonView
 };
 
 function renderRoute(routeKey) {
@@ -19,7 +21,11 @@ function renderRoute(routeKey) {
 }
 
 export function navigateTo(routeKey) {
-  history.pushState({ routeKey }, "", `/${routeKey === "home" ? "" : routeKey}`);
+  history.pushState(
+    { routeKey },
+    "",
+    `/${routeKey === "home" ? "" : routeKey}`
+  );
   renderRoute(routeKey);
 }
 
