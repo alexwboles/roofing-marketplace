@@ -6,7 +6,7 @@ export function renderHomeView(root) {
       <div class="hero-card">
         <div class="hero-pill">
           <span class="hero-pill-dot"></span>
-          AI Roof Report in Minutes
+          AI + Satellite Roof Report in Minutes
         </div>
 
         <h1 class="hero-title">
@@ -14,7 +14,7 @@ export function renderHomeView(root) {
         </h1>
 
         <p class="hero-subtitle">
-          Upload a few photos and get a roofer-ready report with materials, damage findings, and next steps.
+          Upload photos, add a few details, and get a roofer-ready report powered by AI and satellite imagery.
         </p>
 
         <div class="hero-cta-row">
@@ -34,7 +34,7 @@ export function renderHomeView(root) {
             <div class="hero-visual-score">87</div>
           </div>
           <div class="hero-visual-sub">
-            Moderate wear, localized shingle damage on south-facing slope.
+            Moderate wear, localized shingle damage on south-facing slope. Estimated 18 years old, medium complexity.
           </div>
         </div>
       </div>
@@ -46,6 +46,6 @@ export function renderHomeView(root) {
   });
 
   document.getElementById("home-roofer-btn").addEventListener("click", () => {
-    navigateTo("intake");
+    navigateTo("rooferDashboard");
   });
 }
