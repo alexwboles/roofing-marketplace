@@ -1,5 +1,4 @@
 // js/views/rooferDashboard.js
-// Roofer dashboard with AI-prefilled quote creation
 
 import { createButton, createCard } from "../uiComponents.js";
 
@@ -48,7 +47,10 @@ export async function renderRooferDashboardView({ root }) {
         createButton({
           label: "Create Quote",
           variant: "primary",
-          onClick: () => openQuoteForm(lead, root)
+          onClick: () => {
+            sessionStorage.setItem("activeLead", JSON.stringify(lead));
+            window.location.href = "/quoteSubmission";
+          }
         })
       ]
     });
@@ -57,70 +59,6 @@ export async function renderRooferDashboardView({ root }) {
   });
 
   container.append(title, list);
-  root.appendChild(container);
-}
-
-function openQuoteForm(lead, root) {
-  root.innerHTML = "";
-
-  const container = document.createElement("section");
-  container.className = "intake-wizard";
-
-  const title = document.createElement("h1");
-  title.textContent = `Create Quote for ${lead.homeowner}`;
-
-  const form = document.createElement("div");
-
-  const { createInputGroup } = requireInputs();
-
-  const { group: priceGroup, input: priceInput } = createInputGroup({
-    label: "Quote price",
-    name: "price",
-    type: "number",
-    placeholder: lead.analysis.estimateLow.toString(),
-    variant: "light"
-  });
-
-  const { group: timelineGroup, input: timelineInput } = createInputGroup({
-    label: "Timeline",
-    name: "timeline",
-    placeholder: "2 weeks",
-    variant: "light"
-  });
-
-  const { group: warrantyGroup, input: warrantyInput } = createInputGroup({
-    label: "Warranty",
-    name: "warranty",
-    placeholder: "25 years",
-    variant: "light"
-  });
-
-  form.append(priceGroup, timelineGroup, warrantyGroup);
-
-  const { createButton } = requireInputs();
-
-  const submitBtn = createButton({
-    label: "Submit Quote",
-    variant: "primary",
-    onClick: () => {
-      const quote = {
-        leadId: lead.id,
-        roofer: "Your Roofing Company",
-        price: Number(priceInput.value || lead.analysis.estimateLow),
-        timeline: timelineInput.value || "2 weeks",
-        warranty: warrantyInput.value || "25 years"
-      };
-
-      const existing = JSON.parse(sessionStorage.getItem("quotes") || "[]");
-      existing.push(quote);
-      sessionStorage.setItem("quotes", JSON.stringify(existing));
-
-      alert("Quote submitted!");
-      window.location.href = "/quotes";
-    }
-  });
-
-  container.append(title, form, submitBtn);
   root.appendChild(container);
 }
 
@@ -136,11 +74,6 @@ function metric(label, value) {
 
   row.append(l, v);
   return row;
-}
-
-function requireInputs() {
-  // simple local import helper to avoid circular import at top
-  return require("../uiComponents.js");
 }
 
 export const renderView = renderRooferDashboardView;
