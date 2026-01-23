@@ -1,4 +1,5 @@
 // js/views/quoteComparison.js
+// LendingTree-style quote comparison table
 
 export async function renderQuoteComparisonView({ root }) {
   root.innerHTML = "";
@@ -16,7 +17,7 @@ export async function renderQuoteComparisonView({ root }) {
   const table = document.createElement("div");
   table.className = "quote-table";
 
-  // TODO: replace with real backend data
+  // TODO: Replace with backend data
   const quotes = [
     {
       roofer: "Sunshine Roofing",
@@ -37,12 +38,14 @@ export async function renderQuoteComparisonView({ root }) {
   quotes.forEach((q) => {
     const row = document.createElement("div");
     row.className = "quote-row";
+
     row.innerHTML = `
       <div class="quote-roofer">${q.roofer}</div>
       <div class="quote-price">$${q.price.toLocaleString()}</div>
       <div class="quote-meta">${q.timeline} • ${q.warranty}</div>
       <div class="quote-rating">${q.rating}★</div>
     `;
+
     table.appendChild(row);
   });
 
