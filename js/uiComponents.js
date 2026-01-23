@@ -1,8 +1,6 @@
 // js/uiComponents.js
 // Unified UI component library
 
-/* BUTTONS */
-
 export function createButton({ label, variant = "primary", onClick, type = "button" }) {
   const btn = document.createElement("button");
   btn.type = type;
@@ -15,8 +13,6 @@ export function createButton({ label, variant = "primary", onClick, type = "butt
 
   return btn;
 }
-
-/* INPUT GROUPS */
 
 export function createInputGroup({
   label,
@@ -43,8 +39,6 @@ export function createInputGroup({
   group.append(labelEl, input);
   return { group, input };
 }
-
-/* CARD */
 
 export function createCard({ title, subtext, variant = "dark", content }) {
   const card = document.createElement("div");
@@ -78,8 +72,6 @@ export function createCard({ title, subtext, variant = "dark", content }) {
 
   return card;
 }
-
-/* METRIC ROW */
 
 export function createMetricRow(label, value) {
   const row = document.createElement("div");
