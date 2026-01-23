@@ -1,4 +1,5 @@
 import { getState, setProjects } from "../state.js";
+import { navigateTo } from "../router.js";
 
 export function renderRooferDashboardView(root) {
   const state = getState();
@@ -21,6 +22,7 @@ export function renderRooferDashboardView(root) {
             <p><strong>Complexity:</strong> ${report.roofModel.complexity}</p>
             <p><strong>Condition:</strong> ${report.roofModel.conditionLabel} (${report.roofModel.conditionScore}/100)</p>
             <p><strong>AI Estimated Range:</strong> $${report.quote.estimatedLow.toLocaleString()} – $${report.quote.estimatedHigh.toLocaleString()}</p>
+            <button class="btn-primary" id="submit-quote-btn">Submit Quote</button>
           `
               : `
             <p>No active lead yet. Have a homeowner complete the intake flow.</p>
@@ -60,11 +62,7 @@ export function renderRooferDashboardView(root) {
     </section>
   `;
 
-  // -----------------------------
-  // Project Management Logic
-  // -----------------------------
   const listEl = document.getElementById("project-list");
-
   let updatedProjects = [...projects];
 
   if (report && !updatedProjects.length) {
@@ -124,4 +122,11 @@ export function renderRooferDashboardView(root) {
       setProjects(updatedProjects);
     });
   });
+
+  if (report) {
+    const btn = document.getElementById("submit-quote-btn");
+    btn.addEventListener("click", () => {
+      navigateTo("quoteSubmission");
+    });
+  }
 }
