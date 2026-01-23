@@ -1,51 +1,87 @@
-import { navigateTo } from "../router.js";
+// js/views/home.js
+// LendingTree-style hero landing page for Roofing Marketplace
 
-export function renderHomeView(root) {
-  root.innerHTML = `
-    <section class="hero">
-      <div class="hero-card">
-        <div class="hero-pill">
-          <span class="hero-pill-dot"></span>
-          AI + Satellite Roof Report in Minutes
-        </div>
+import { createButton } from "../uiComponents.js";
+import { navigate } from "../router.js";
 
-        <h1 class="hero-title">
-          See your roof like a pro—before you call one.
-        </h1>
+export async function renderHomeView({ root }) {
+  root.innerHTML = "";
 
-        <p class="hero-subtitle">
-          Upload photos, add a few details, and get a roofer-ready report powered by AI and satellite imagery.
-        </p>
+  const hero = document.createElement("section");
+  hero.className = "hero";
 
-        <div class="hero-cta-row">
-          <button class="btn-primary" id="home-start-btn">Start My Roof Report</button>
-          <button class="btn-secondary" id="home-roofer-btn">I’m a Roofer</button>
-        </div>
-      </div>
+  /* -----------------------------
+     LEFT SIDE — TEXT + CTA
+  ----------------------------- */
+  const card = document.createElement("div");
+  card.className = "hero-card";
 
-      <div class="hero-visual">
-        <div class="hero-visual-badge">Live sample</div>
-        <div class="hero-visual-card">
-          <div class="hero-visual-row">
-            <div>
-              <div class="hero-visual-title">Roof Health Score</div>
-              <div class="hero-visual-sub">123 Maple St</div>
-            </div>
-            <div class="hero-visual-score">87</div>
-          </div>
-          <div class="hero-visual-sub">
-            Moderate wear, localized shingle damage on south-facing slope. Estimated 18 years old, medium complexity.
-          </div>
-        </div>
-      </div>
-    </section>
+  const pill = document.createElement("div");
+  pill.className = "hero-pill";
+  pill.innerHTML = `<span class="hero-pill-dot"></span> AI‑Powered Roof Analysis`;
+
+  const title = document.createElement("h1");
+  title.className = "hero-title";
+  title.textContent = "When roofers compete, homeowners win.";
+
+  const subtitle = document.createElement("p");
+  subtitle.className = "hero-subtitle";
+  subtitle.textContent =
+    "Get instant AI roof measurements, condition scoring, and competing quotes from vetted local roofers — all in minutes.";
+
+  const ctaRow = document.createElement("div");
+  ctaRow.className = "hero-cta-row";
+
+  const cta1 = createButton({
+    label: "Get My Free Roof Report",
+    variant: "primary",
+    onClick: () => navigate("/intake")
+  });
+
+  const cta2 = createButton({
+    label: "How It Works",
+    variant: "secondary",
+    onClick: () => navigate("/intake")
+  });
+
+  ctaRow.append(cta1, cta2);
+
+  card.append(pill, title, subtitle, ctaRow);
+
+  /* -----------------------------
+     RIGHT SIDE — VISUAL CARD
+  ----------------------------- */
+  const visual = document.createElement("div");
+  visual.className = "hero-visual";
+
+  const badge = document.createElement("div");
+  badge.className = "hero-visual-badge";
+  badge.textContent = "AI Roof Scan";
+
+  const vCard = document.createElement("div");
+  vCard.className = "hero-visual-card";
+
+  const row1 = document.createElement("div");
+  row1.className = "hero-visual-row";
+  row1.innerHTML = `
+    <span class="hero-visual-title">Estimated Roof Area</span>
+    <strong class="hero-visual-score">2,450 sq ft</strong>
   `;
 
-  document.getElementById("home-start-btn").addEventListener("click", () => {
-    navigateTo("intake");
-  });
+  const row2 = document.createElement("div");
+  row2.className = "hero-visual-row";
+  row2.innerHTML = `
+    <span class="hero-visual-sub">Pitch: 6/12 • Complexity: Gable</span>
+  `;
 
-  document.getElementById("home-roofer-btn").addEventListener("click", () => {
-    navigateTo("rooferDashboard");
-  });
+  vCard.append(row1, row2);
+  visual.append(badge, vCard);
+
+  /* -----------------------------
+     ASSEMBLE HERO
+  ----------------------------- */
+  hero.append(card, visual);
+  root.appendChild(hero);
 }
+
+export const renderView = renderHomeView;
