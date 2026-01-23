@@ -1,127 +1,57 @@
-// router.js — History API Router for Roofing Marketplace SPA
-// -----------------------------------------------------------
-// Clean, modular, Cloudflare‑compatible SPA router
-// Supports role-based routing, protected routes, and lazy view loading
+// js/router.js
+// History API router with view engine + intake wizard support
 
-import { auth } from './auth.js';
 import { renderView } from './viewEngine.js';
 
 // ---------------------------------------------
-// Route Table
+// Route table
 // ---------------------------------------------
 const routes = [
   { path: '/', view: 'landing' },
-  { path: '/login', view: 'login' },
-  { path: '/register', view: 'register' },
-
-  // Intake
   { path: '/intake', view: 'intake' },
   { path: '/intakeWizard', view: 'intakeWizard' },
-
-  // Homeowner Dashboard
-  {
-    path: '/homeownerDashboard',
-    view: 'homeownerDashboard',
-    protected: true,
-    role: 'homeowner'
-  },
-
-  // Roofer Dashboard
-  {
-    path: '/rooferDashboard',
-    view: 'rooferDashboard',
-    protected: true,
-    role: 'roofer'
-  },
-
-  // Project detail pages
-  {
-    path: '/project/:id',
-    view: 'projectDetail',
-    protected: true
-  },
-
-  // 404 fallback
-  { path: '/404', view: '404' }
+  { path: '/homeownerDashboard', view: 'homeownerDashboard' },
+  { path: '/rooferDashboard', view: 'rooferDashboard' },
+  { path: '/404', view: 'notFound' }
 ];
 
 // ---------------------------------------------
-// Utility: Match dynamic routes (/project/:id)
+// Route matching (no params for now)
 // ---------------------------------------------
 function matchRoute(pathname) {
-  for (const route of routes) {
-    // Exact match
-    if (!route.path.includes(':') && route.path === pathname) {
-      return { route, params: {} };
-    }
-
-    // Dynamic match
-    const routeParts = route.path.split('/');
-    const pathParts = pathname.split('/');
-
-    if (routeParts.length !== pathParts.length) continue;
-
-    let params = {};
-    let matched = true;
-
-    for (let i = 0; i < routeParts.length; i++) {
-      if (routeParts[i].startsWith(':')) {
-        const key = routeParts[i].substring(1);
-        params[key] = pathParts[i];
-      } else if (routeParts[i] !== pathParts[i]) {
-        matched = false;
-        break;
-      }
-    }
-
-    if (matched) return { route, params };
-  }
-
-  return null;
+  const route = routes.find(r => r.path === pathname);
+  if (!route) return null;
+  return { route, params: {} };
 }
 
 // ---------------------------------------------
-// Navigation Handler
+// Navigation
 // ---------------------------------------------
-async function navigate(pathname) {
+export async function navigate(pathname) {
   const match = matchRoute(pathname);
 
   if (!match) {
     history.pushState({}, '', '/404');
-    return renderView('404');
+    await renderView('notFound');
+    return;
   }
 
   const { route, params } = match;
 
-  // Protected route check
-  if (route.protected) {
-    const user = auth.currentUser();
-
-    if (!user) {
-      history.pushState({}, '', '/login');
-      return renderView('login');
-    }
-
-    if (route.role && user.role !== route.role) {
-      history.pushState({}, '', '/404');
-      return renderView('404');
-    }
-  }
-
   history.pushState({}, '', pathname);
-  return renderView(route.view, params);
+  await renderView(route.view, params);
 }
 
 // ---------------------------------------------
-// Intercept <a> clicks for SPA navigation
+// Intercept internal <a> clicks
 // ---------------------------------------------
 document.addEventListener('click', (e) => {
   const link = e.target.closest('a');
-
   if (!link) return;
+
   const url = new URL(link.href);
 
-  // External links pass through
+  // external links: let browser handle
   if (url.origin !== window.location.origin) return;
 
   e.preventDefault();
@@ -129,7 +59,7 @@ document.addEventListener('click', (e) => {
 });
 
 // ---------------------------------------------
-// Handle browser back/forward
+// Back/forward
 // ---------------------------------------------
 window.addEventListener('popstate', () => {
   navigate(window.location.pathname);
@@ -139,6 +69,3 @@ window.addEventListener('popstate', () => {
 // Initial load
 // ---------------------------------------------
 navigate(window.location.pathname);
-
-// Expose navigate for programmatic routing
-export { navigate };
