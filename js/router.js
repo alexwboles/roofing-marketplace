@@ -9,7 +9,8 @@ import { renderView } from "./viewEngine.js";
 const routes = [
   { path: "/", view: "home" },
   { path: "/intake", view: "intake" },
-  { path: "/intakeWizard", view: "intakeWizard" },
+  { path: "/analysis", view: "analysis" },
+  { path: "/quotes", view: "quoteComparison" },
   { path: "/homeownerDashboard", view: "homeownerDashboard" },
   { path: "/rooferDashboard", view: "rooferDashboard" },
   { path: "/projectDashboard", view: "projectDashboard" },
@@ -24,7 +25,7 @@ const routes = [
 // Route matching
 // ---------------------------------------------
 function matchRoute(pathname) {
-  return routes.find(r => r.path === pathname) || null;
+  return routes.find((r) => r.path === pathname) || null;
 }
 
 // ---------------------------------------------
@@ -52,7 +53,6 @@ document.addEventListener("click", (e) => {
 
   const url = new URL(link.href);
 
-  // external links → allow default
   if (url.origin !== window.location.origin) return;
 
   e.preventDefault();
