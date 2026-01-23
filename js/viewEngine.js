@@ -7,6 +7,7 @@ const root = document.getElementById("app");
 const viewLoaders = {
   home: () => import("./views/home.js"),
   intake: () => import("./views/intake.js"),
+  analysis: () => import("./views/analysis.js"),
   intakeWizard: () => import("./views/intakeWizard.js"),
   homeownerDashboard: () => import("./views/homeownerDashboard.js"),
   rooferDashboard: () => import("./views/rooferDashboard.js"),
@@ -15,7 +16,6 @@ const viewLoaders = {
   quoteSubmission: () => import("./views/quoteSubmission.js")
 };
 
-// Helper: find the correct render function
 function getRenderFn(module, viewName) {
   if (typeof module.renderView === "function") return module.renderView;
 
@@ -30,7 +30,6 @@ function getRenderFn(module, viewName) {
   return null;
 }
 
-// Main render function
 export async function renderView(viewName, params = {}) {
   const loader = viewLoaders[viewName];
 
