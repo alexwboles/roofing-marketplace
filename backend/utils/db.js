@@ -1,7 +1,13 @@
 import pg from "pg";
 
-const db = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+const { Pool } = pg;
+
+const db = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+db.on("error", (err) => {
+  console.error("DB error:", err);
 });
 
 export default db;
