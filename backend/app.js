@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 
+import roofGeometryRoutes from "./routes/roofGeometry.js";
+app.use("/roof-geometry", roofGeometryRoutes);
+
 import authRoutes from "./routes/auth.js";
 import leadRoutes from "./routes/leads.js";
 import contractorRoutes from "./routes/contractor.js";
