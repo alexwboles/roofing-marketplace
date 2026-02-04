@@ -5,7 +5,8 @@ export async function upsertRoofAnalysis(leadId, data) {
     `INSERT INTO roof_analysis (lead_id, data)
      VALUES ($1, $2)
      ON CONFLICT (lead_id)
-     DO UPDATE SET data = EXCLUDED.data
+     DO UPDATE SET data = EXCLUDED.data,
+                   updated_at = NOW()
      RETURNING *`,
     [leadId, data]
   );
