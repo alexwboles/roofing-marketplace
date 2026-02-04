@@ -1,22 +1,33 @@
 import { analyzeRoof } from "../services/aiClient.js";
-import db from "../utils/db.js";
+import { getLeadById } from "../models/Lead.js";
+import { upsertRoofAnalysis } from "../models/RoofAnalysis.js";
+import { requireFields } from "../utils/validators.js";
 
-export async function requestRoofAnalysis(req, res) {
+export async function requestRoofAnalysis(req, res, next) {
   try {
-    const { address, leadId } = req.body;
+    requireFields(req.body, ["leadId"]);
+    const { leadId } = req.body;
 
-    const analysis = await analyzeRoof(address);
+    const lead = await getLeadById(leadId);
+    if (!lead) return res.status(404).json({ error: "Lead not found" });
 
-    await db.query(
-      `INSERT INTO roof_analysis (lead_id, data)
-       VALUES ($1, $2)
-       ON CONFLICT (lead_id) DO UPDATE SET data = $2`,
-      [leadId, analysis]
-    );
+    const analysis = await analyzeRoof(lead.address);
 
-    res.json({ success: true, analysis });
+    const record = await upsertRoofAnalysis(leadId, analysis);
+
+    res.json({ analysis: record.data });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Roof analysis failed" });
+    next(err);
+  }
+}
+
+export async function getRoofAnalysis(req, res, next) {
+  try {
+    const { leadId } = req.params;
+    const record = await getRoofAnalysisByLeadId(leadId);
+    if (!record) return res.status(404).json({ error: "No analysis found" });
+    res.json({ analysis: record.data });
+  } catch (err) {
+    next(err);
   }
 }
