@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
-import L from "leaflet";
 
 export default function RoofMap({ leadId }) {
   const [geometry, setGeometry] = useState(null);
@@ -20,37 +19,35 @@ export default function RoofMap({ leadId }) {
       }
     }
 
-    fetchGeometry();
+    if (leadId) {
+      fetchGeometry();
+    }
   }, [leadId]);
 
-  // Default map center (will be overridden when geometry loads)
   const defaultCenter = [29.9012, -81.3124];
 
   return (
-    <div style={{ height: "500px", width: "100%", borderRadius: "12px", overflow: "hidden" }}>
+    <div style={{ height: "400px", width: "100%", borderRadius: "12px", overflow: "hidden" }}>
       <MapContainer
         center={defaultCenter}
         zoom={17}
         style={{ height: "100%", width: "100%" }}
       >
-        {/* Basemap */}
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="© OpenStreetMap contributors"
         />
 
-        {/* Roof Polygon */}
         {geometry && (
           <GeoJSON
             data={geometry}
             style={{
-              color: "#ff0000",
+              color: "#ef4444",
               weight: 3,
-              opacity: 0.8,
-              fillOpacity: 0.2,
+              opacity: 0.9,
+              fillOpacity: 0.25
             }}
             onEachFeature={(feature, layer) => {
-              // Auto-zoom to polygon bounds
               const bounds = layer.getBounds();
               layer._map.fitBounds(bounds, { padding: [20, 20] });
             }}
